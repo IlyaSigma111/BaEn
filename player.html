@@ -442,8 +442,9 @@
                 
                 handle.style.transform = `translate(${x}px, ${y}px)`;
                 
-                velocityX = (x / maxDistance) * 3;
-                velocityY = (y / maxDistance) * 3;
+                // Уменьшаем скорость в 2 раза
+                velocityX = (x / maxDistance) * 1.5;
+                velocityY = (y / maxDistance) * 1.5;
             }
 
             // Движение - очищаем предыдущий интервал
@@ -461,13 +462,33 @@
                     const player = game.players[playerId];
                     if(!player || player.caught || player.escaped) return;
 
-                    const newX = Math.max(20, Math.min(mapWidth-20, player.x + velocityX * 5));
-                    const newY = Math.max(20, Math.min(mapHeight-20, player.y + velocityY * 5));
-
-                    database.ref('games/' + currentGameId + '/players/' + playerId).update({
-                        x: newX,
-                        y: newY
+                    let newX = player.x + velocityX * 5;
+                    let newY = player.y + velocityY * 5;
+                    
+                    // Коллизия со стенами
+                    newX = Math.max(20, Math.min(mapWidth-20, newX));
+                    newY = Math.max(20, Math.min(mapHeight-20, newY));
+                    
+                    // Коллизия с другими игроками
+                    let canMove = true;
+                    Object.values(game.players).forEach(p => {
+                        if(p.role === 'student' && !p.caught && !p.escaped) {
+                            const dist = Math.sqrt(
+                                Math.pow(newX - p.x, 2) + 
+                                Math.pow(newY - p.y, 2)
+                            );
+                            if(dist < 30 && p.name !== player.name) {
+                                canMove = false;
+                            }
+                        }
                     });
+                    
+                    if(canMove) {
+                        database.ref('games/' + currentGameId + '/players/' + playerId).update({
+                            x: newX,
+                            y: newY
+                        });
+                    }
                 });
             }, 50);
 
@@ -534,13 +555,18 @@
                             ctx.shadowColor = '#ff0000';
                             ctx.shadowBlur = 20;
                             ctx.beginPath();
-                            ctx.arc(screenX, screenY, 12, 0, Math.PI * 2);
+                            ctx.arc(screenX, screenY, 15, 0, Math.PI * 2);
                             ctx.fill();
                             
                             ctx.shadowBlur = 0;
                             ctx.fillStyle = 'white';
                             ctx.font = 'bold 16px Arial';
-                            ctx.fillText('👨‍🏫', screenX-10, screenY+4);
+                            ctx.fillText('👨‍🏫', screenX-10, screenY+5);
+                            
+                            // Имя Baldi
+                            ctx.fillStyle = 'white';
+                            ctx.font = 'bold 10px Arial';
+                            ctx.fillText(p.name, screenX-15, screenY-20);
                         } else {
                             // Ученики
                             if(p.caught) return;
@@ -549,13 +575,14 @@
                             ctx.shadowColor = '#ffd700';
                             ctx.shadowBlur = 15;
                             ctx.beginPath();
-                            ctx.arc(screenX, screenY, 8, 0, Math.PI * 2);
+                            ctx.arc(screenX, screenY, 10, 0, Math.PI * 2);
                             ctx.fill();
                             
                             ctx.shadowBlur = 0;
                             ctx.fillStyle = 'black';
                             ctx.font = 'bold 8px Arial';
-                            ctx.fillText(p.name, screenX-10, screenY-10);
+                            ctx.fillText(p.name, screenX-12, screenY-15);
+                            ctx.fillText(p.books || 0, screenX+5, screenY-10);
                         }
                     }
                 });
@@ -573,7 +600,7 @@
                             ctx.shadowColor = '#ffd700';
                             ctx.shadowBlur = 10;
                             ctx.beginPath();
-                            ctx.arc(screenX, screenY, 5, 0, Math.PI * 2);
+                            ctx.arc(screenX, screenY, 8, 0, Math.PI * 2);
                             ctx.fill();
                             
                             ctx.shadowBlur = 0;
@@ -597,6 +624,13 @@
             ctx.fillStyle = 'white';
             ctx.font = 'bold 20px Arial';
             ctx.fillText(playerRole === 'baldi' ? '👨‍🏫' : '🧑', 185, 210);
+            
+            // Книги игрока
+            if(playerRole === 'student') {
+                ctx.fillStyle = 'white';
+                ctx.font = 'bold 12px Arial';
+                ctx.fillText(player.books || 0, 215, 185);
+            }
         }
 
         function checkNearbyBooks(game, x, y) {
