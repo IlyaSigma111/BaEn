@@ -29,7 +29,6 @@
             margin: 0 auto;
         }
 
-        /* Лобби */
         .lobby {
             background: #16213e;
             border-radius: 30px;
@@ -158,7 +157,6 @@
             cursor: not-allowed;
         }
 
-        /* Игровой экран */
         .game-screen {
             display: none;
         }
@@ -189,7 +187,7 @@
         #gameCanvas {
             width: 100%;
             aspect-ratio: 16/9;
-            background: #2a2a4a;
+            background: #1a1a2e;
             border-radius: 10px;
         }
 
@@ -217,7 +215,6 @@
 </head>
 <body>
     <div class="container">
-        <!-- Лобби -->
         <div id="lobby" class="lobby">
             <div class="header">
                 <h1>🖥️ УМНАЯ ДОСКА</h1>
@@ -250,10 +247,9 @@
             </div>
         </div>
 
-        <!-- Игровой экран -->
         <div id="gameScreen" class="game-screen">
             <div class="game-header">
-                <div class="progress" id="booksProgress">📚 0/30</div>
+                <div class="progress" id="booksProgress">📚 0/20</div>
                 <div id="playersCount">👥 0</div>
                 <div id="exitStatus">🚪 ЗАКРЫТ</div>
             </div>
@@ -283,47 +279,96 @@
         let currentGameId = null;
         let gameStarted = false;
 
-        // Комнаты школы
+        // Комнаты школы с дверями
         const rooms = [
-            { name: "📐 Математика", x: 50, y: 50, w: 200, h: 150 },
-            { name: "📖 Английский", x: 300, y: 50, w: 200, h: 150 },
-            { name: "🔬 Физика", x: 550, y: 50, w: 200, h: 150 },
-            { name: "🧪 Химия", x: 800, y: 50, w: 200, h: 150 },
-            { name: "📜 История", x: 1050, y: 50, w: 200, h: 150 },
-            { name: "🎨 Рисование", x: 50, y: 250, w: 200, h: 150 },
-            { name: "🎵 Музыка", x: 300, y: 250, w: 200, h: 150 },
-            { name: "💻 Информатика", x: 550, y: 250, w: 200, h: 150 },
-            { name: "🏃 Спортзал", x: 800, y: 250, w: 200, h: 150 },
-            { name: "📚 Библиотека", x: 1050, y: 250, w: 200, h: 150 },
-            { name: "🍽️ Столовая", x: 150, y: 450, w: 300, h: 100 },
-            { name: "🚪 Вход", x: 550, y: 450, w: 300, h: 100 },
-            { name: "🚻 Туалет", x: 950, y: 450, w: 200, h: 100 }
+            // Кабинеты
+            { 
+                name: "📐 МАТЕМАТИКА", 
+                x: 100, y: 80, w: 250, h: 180,
+                door: { x: 225, y: 260 }, // дверь снизу
+                color: "#8B4513",
+                books: []
+            },
+            { 
+                name: "📖 АНГЛИЙСКИЙ", 
+                x: 400, y: 80, w: 250, h: 180,
+                door: { x: 525, y: 260 },
+                color: "#2E8B57",
+                books: []
+            },
+            { 
+                name: "🔬 ФИЗИКА", 
+                x: 700, y: 80, w: 250, h: 180,
+                door: { x: 825, y: 260 },
+                color: "#B8860B",
+                books: []
+            },
+            { 
+                name: "🧪 ХИМИЯ", 
+                x: 1000, y: 80, w: 250, h: 180,
+                door: { x: 1125, y: 260 },
+                color: "#4B0082",
+                books: []
+            },
+            { 
+                name: "📜 ИСТОРИЯ", 
+                x: 100, y: 300, w: 250, h: 180,
+                door: { x: 225, y: 480 },
+                color: "#CD5C5C",
+                books: []
+            },
+            { 
+                name: "🎨 РИСОВАНИЕ", 
+                x: 400, y: 300, w: 250, h: 180,
+                door: { x: 525, y: 480 },
+                color: "#FF69B4",
+                books: []
+            },
+            { 
+                name: "🎵 МУЗЫКА", 
+                x: 700, y: 300, w: 250, h: 180,
+                door: { x: 825, y: 480 },
+                color: "#9932CC",
+                books: []
+            },
+            { 
+                name: "💻 ИНФОРМАТИКА", 
+                x: 1000, y: 300, w: 250, h: 180,
+                door: { x: 1125, y: 480 },
+                color: "#4682B4",
+                books: []
+            }
         ];
 
-        // Генерация книг с простыми вопросами (1+1=2 и т.д.)
-        function generateBooks(count) {
-            const books = {};
-            const questions = [
-                { q: "Сколько будет 1+1?", a: "2" },
-                { q: "Сколько будет 2+2?", a: "4" },
-                { q: "Сколько будет 3+3?", a: "6" },
-                { q: "Сколько будет 4+4?", a: "8" },
-                { q: "Сколько будет 5+5?", a: "10" },
-                { q: "Сколько будет 6+6?", a: "12" },
-                { q: "Сколько будет 7+7?", a: "14" },
-                { q: "Сколько будет 8+8?", a: "16" },
-                { q: "Сколько будет 9+9?", a: "18" },
-                { q: "Сколько будет 10+10?", a: "20" }
-            ];
+        // Позиции для тетрадок внутри комнат
+        const bookPositions = [
+            { dx: 50, dy: 50 },   // угол стола
+            { dx: 150, dy: 80 },  // на стуле
+            { dx: 200, dy: 120 }, // на подоконнике
+            { dx: 80, dy: 150 },  // в углу
+            { dx: 180, dy: 40 }   // на полке
+        ];
 
-            for(let i = 0; i < count; i++) {
-                const q = questions[Math.floor(Math.random() * questions.length)];
+        // Генерация тетрадок (20 штук по комнатам)
+        function generateBooks() {
+            const books = {};
+            let bookIndex = 0;
+            
+            // Раздаем тетрадки по комнатам
+            for(let i = 0; i < 20; i++) {
+                const room = rooms[Math.floor(Math.random() * rooms.length)];
+                const pos = bookPositions[Math.floor(Math.random() * bookPositions.length)];
+                
                 books[`book${i}`] = {
-                    x: Math.random() * 1200 + 50,
-                    y: Math.random() * 600 + 50,
+                    x: room.x + pos.dx,
+                    y: room.y + pos.dy,
+                    roomX: room.x,
+                    roomY: room.y,
+                    roomW: room.w,
+                    roomH: room.h,
                     collected: false,
-                    question: q.q,
-                    answer: q.a
+                    question: "Сколько будет 2+2?",
+                    answer: "4"
                 };
             }
             return books;
@@ -334,11 +379,11 @@
             const gameId = Math.random().toString(36).substring(2, 8).toUpperCase();
             
             database.ref('games/' + gameId).set({
-                status: 'waiting',  // Важно: сначала waiting!
+                status: 'waiting',
                 players: {},
-                books: generateBooks(30),
+                books: generateBooks(),
                 exit: {
-                    x: 1100, y: 500,
+                    x: 600, y: 650,
                     active: false
                 },
                 totalCollected: 0,
@@ -351,7 +396,6 @@
                 document.getElementById('gameCodeSection').style.display = 'block';
                 document.getElementById('playersSection').style.display = 'block';
 
-                // Слушаем игроков
                 database.ref('games/' + gameId + '/players').on('value', (snapshot) => {
                     const players = snapshot.val() || {};
                     updatePlayersList(players);
@@ -384,12 +428,11 @@
             });
         }
 
-        // СТАРТ ИГРЫ - только по кнопке!
         document.getElementById('startGameBtn').addEventListener('click', function() {
             if(!currentGameId) return;
 
             database.ref('games/' + currentGameId).update({
-                status: 'playing'  // Меняем статус на playing
+                status: 'playing'
             });
 
             document.getElementById('lobby').style.display = 'none';
@@ -410,7 +453,7 @@
                 drawMap(ctx, game);
                 updateStats(game);
 
-                if(game.totalCollected >= 30 && !game.exit.active) {
+                if(game.totalCollected >= 20 && !game.exit.active) {
                     database.ref('games/' + gameId + '/exit').update({
                         active: true
                     });
@@ -421,47 +464,60 @@
         function drawMap(ctx, game) {
             ctx.clearRect(0, 0, 1280, 720);
 
-            // Фон
+            // Пол
             ctx.fillStyle = '#2a2a4a';
             ctx.fillRect(0, 0, 1280, 720);
 
-            // Комнаты
+            // Рисуем комнаты
             rooms.forEach(room => {
-                ctx.fillStyle = '#3a3a6a';
-                ctx.shadowColor = 'rgba(0,0,0,0.5)';
-                ctx.shadowBlur = 10;
+                // Стены комнаты (толстые)
+                ctx.fillStyle = '#4a4a6a';
+                ctx.fillRect(room.x - 10, room.y - 10, room.w + 20, 10); // верх
+                ctx.fillRect(room.x - 10, room.y + room.h, room.w + 20, 10); // низ
+                ctx.fillRect(room.x - 10, room.y, 10, room.h); // лево
+                ctx.fillRect(room.x + room.w, room.y, 10, room.h); // право
+
+                // Пол комнаты
+                ctx.fillStyle = '#3a3a5a';
                 ctx.fillRect(room.x, room.y, room.w, room.h);
+
+                // Дверь (прозрачная)
+                ctx.fillStyle = 'rgba(139, 69, 19, 0.3)';
+                ctx.fillRect(room.door.x - 20, room.door.y - 10, 40, 20);
                 
-                ctx.shadowBlur = 0;
-                ctx.fillStyle = '#8b4513';
-                ctx.fillRect(room.x + room.w/2 - 15, room.y + room.h - 10, 30, 10);
-                
+                // Название комнаты
                 ctx.fillStyle = 'white';
-                ctx.font = 'bold 14px Arial';
-                ctx.textAlign = 'center';
-                ctx.fillText(room.name, room.x + room.w/2, room.y + 30);
+                ctx.font = 'bold 16px Arial';
+                ctx.fillText(room.name, room.x + 20, room.y + 30);
             });
 
-            // Книги
+            // Рисуем книги
             if(game.books) {
                 Object.entries(game.books).forEach(([id, book]) => {
                     if(!book.collected) {
+                        // Тетрадка
                         ctx.fillStyle = '#ffd700';
                         ctx.shadowColor = '#ffd700';
-                        ctx.shadowBlur = 15;
-                        ctx.beginPath();
-                        ctx.arc(book.x, book.y, 8, 0, Math.PI * 2);
-                        ctx.fill();
+                        ctx.shadowBlur = 10;
                         
+                        // Рисуем тетрадку (прямоугольник)
+                        ctx.fillRect(book.x - 8, book.y - 6, 16, 12);
+                        
+                        // Крестик на тетрадке
                         ctx.shadowBlur = 0;
-                        ctx.fillStyle = 'black';
-                        ctx.font = 'bold 12px Arial';
-                        ctx.fillText('📚', book.x-5, book.y+4);
+                        ctx.strokeStyle = 'black';
+                        ctx.lineWidth = 2;
+                        ctx.beginPath();
+                        ctx.moveTo(book.x - 4, book.y - 2);
+                        ctx.lineTo(book.x + 4, book.y + 2);
+                        ctx.moveTo(book.x + 4, book.y - 2);
+                        ctx.lineTo(book.x - 4, book.y + 2);
+                        ctx.stroke();
                     }
                 });
             }
 
-            // Игроки
+            // Рисуем игроков
             if(game.players) {
                 Object.entries(game.players).forEach(([id, p]) => {
                     if(p.escaped) return;
@@ -479,6 +535,8 @@
                         ctx.fillStyle = 'white';
                         ctx.font = 'bold 20px Arial';
                         ctx.fillText('👨‍🏫', p.x-12, p.y+5);
+                        ctx.font = 'bold 12px Arial';
+                        ctx.fillText(p.name, p.x-20, p.y-20);
                     } else {
                         // Ученики
                         if(p.caught) return;
@@ -487,14 +545,14 @@
                         ctx.shadowColor = '#ffd700';
                         ctx.shadowBlur = 15;
                         ctx.beginPath();
-                        ctx.arc(p.x, p.y, 10, 0, Math.PI * 2);
+                        ctx.arc(p.x, p.y, 12, 0, Math.PI * 2);
                         ctx.fill();
                         
                         ctx.shadowBlur = 0;
                         ctx.fillStyle = 'black';
-                        ctx.font = 'bold 10px Arial';
+                        ctx.font = 'bold 12px Arial';
                         ctx.fillText(p.name, p.x-15, p.y-15);
-                        ctx.fillText(p.books || 0, p.x+5, p.y-10);
+                        ctx.fillText(p.books || 0, p.x+10, p.y-10);
                     }
                 });
             }
@@ -519,7 +577,7 @@
         }
 
         function updateStats(game) {
-            document.getElementById('booksProgress').innerHTML = `📚 ${game.totalCollected || 0}/30`;
+            document.getElementById('booksProgress').innerHTML = `📚 ${game.totalCollected || 0}/20`;
             document.getElementById('totalCollected').textContent = game.totalCollected || 0;
             
             const activePlayers = Object.values(game.players || {}).filter(p => p.role === 'student' && !p.escaped && !p.caught).length;
