@@ -13,10 +13,3 @@ const firebaseConfig = {
 // Инициализация
 firebase.initializeApp(firebaseConfig);
 const database = firebase.database();
-
-// ===============================================
-// Глобальные константы
-// ===============================================
-const MAP_SIZE = 20;
-const GOAL_BOOKS = 30; // Нужно собрать ВСЕ 30 книг
-const TOTAL_BOOKS = 30; // Всего на карте 30 книг
