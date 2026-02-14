@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Baldie English | Ученик</title>
+    <title>Baldie English | Телефон</title>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <script src="firebase.js"></script>
@@ -33,6 +33,7 @@
             max-width: 400px;
         }
 
+        /* Экран входа */
         .join-screen {
             background: #16213e;
             padding: 30px 20px;
@@ -47,7 +48,7 @@
             margin-bottom: 30px;
         }
 
-        .join-screen input {
+        .join-screen input, .join-screen select {
             width: 100%;
             padding: 15px;
             margin: 10px 0;
@@ -57,6 +58,10 @@
             font-family: 'Press Start 2P', cursive;
             font-size: 0.8rem;
             color: white;
+        }
+
+        .join-screen select {
+            cursor: pointer;
         }
 
         .join-screen button {
@@ -72,6 +77,24 @@
             margin-top: 20px;
         }
 
+        .role-badge {
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+        }
+
+        .role-badge.baldi {
+            background: #ff0000;
+            color: white;
+        }
+
+        .role-badge.student {
+            background: #ffd700;
+            color: #16213e;
+        }
+
+        /* Игровой экран */
         .game-screen {
             display: none;
         }
@@ -86,19 +109,19 @@
             align-items: center;
         }
 
-        .player-name {
-            font-size: 0.6rem;
-            background: #0f3460;
+        .role-indicator {
             padding: 5px 10px;
             border-radius: 10px;
+            font-size: 0.6rem;
         }
 
-        .progress {
+        .role-indicator.baldi {
+            background: #ff0000;
+        }
+
+        .role-indicator.student {
             background: #ffd700;
             color: #16213e;
-            padding: 5px 10px;
-            border-radius: 10px;
-            font-size: 0.6rem;
         }
 
         .canvas-container {
@@ -108,7 +131,7 @@
             border-top: none;
         }
 
-        #studentCanvas {
+        #playerCanvas {
             width: 100%;
             aspect-ratio: 1;
             background: #2a2a4a;
@@ -147,18 +170,17 @@
             box-shadow: 0 0 20px #ffd700;
         }
 
-        .info {
-            text-align: center;
-            margin-top: 20px;
-            color: #888;
-            font-size: 0.6rem;
-        }
-
         .status-bar {
             display: flex;
             justify-content: space-between;
-            margin-top: 10px;
+            margin: 15px 0 10px;
             font-size: 0.6rem;
+        }
+
+        .info {
+            text-align: center;
+            color: #888;
+            font-size: 0.5rem;
         }
 
         .question-popup {
@@ -236,43 +258,58 @@
     <div id="overlay" class="overlay"></div>
 
     <div class="container">
+        <!-- Экран входа -->
         <div id="joinScreen" class="join-screen">
-            <h1>🧑‍🎓 УЧЕНИК</h1>
+            <h1>📱 ТЕЛЕФОН</h1>
+            
             <input type="text" id="gameCode" placeholder="КОД ИГРЫ" maxlength="6" style="text-transform: uppercase;">
             <input type="text" id="playerName" placeholder="ТВОЁ ИМЯ">
+            
+            <select id="roleSelect">
+                <option value="student">🧑‍🎓 Я УЧЕНИК</option>
+                <option value="baldi">👨‍🏫 Я BALDI</option>
+            </select>
+
+            <div id="roleInfo" class="role-badge student" style="display: none;"></div>
+
             <button id="joinBtn">ВОЙТИ В ИГРУ</button>
         </div>
 
+        <!-- Игровой экран -->
         <div id="gameScreen" class="game-screen">
             <div class="header">
-                <div class="player-name" id="nameDisplay">...</div>
-                <div class="progress" id="progressDisplay">0/30</div>
+                <div id="roleDisplay" class="role-indicator">👨‍🏫</div>
+                <div id="progressDisplay">0/30</div>
             </div>
 
             <div class="canvas-container">
-                <canvas id="studentCanvas" width="400" height="400"></canvas>
+                <canvas id="playerCanvas" width="400" height="400"></canvas>
             </div>
 
             <div class="controls">
                 <div class="joystick" id="joystick">
                     <div class="joystick-handle" id="joystickHandle"></div>
                 </div>
+                
                 <div class="status-bar">
-                    <span>📚 твои: <span id="myBooks">0</span></span>
+                    <span>📚 <span id="myBooks">0</span></span>
                     <span>👥 <span id="playersOnline">0</span></span>
                     <span id="exitStatus">🚪</span>
                 </div>
-                <div class="info">води пальцем чтобы ходить</div>
+                
+                <div class="info">води пальцем по кругу</div>
             </div>
         </div>
     </div>
 
+    <!-- Попап вопроса (только для учеников) -->
     <div id="questionPopup" class="question-popup">
         <h3 id="questionText">...</h3>
         <input type="text" id="answerInput" placeholder="ответ">
         <button id="submitAnswer">ОТВЕТИТЬ</button>
     </div>
 
+    <!-- Попап пойман (только для учеников) -->
     <div id="caughtPopup" class="caught-popup">
         <h2>😱 BALDI</h2>
         <p>ПОЙМАЛ ТЕБЯ!</p>
@@ -283,14 +320,25 @@
         let playerId = null;
         let currentGameId = null;
         let playerName = '';
+        let playerRole = 'student';
         let currentQuestion = null;
         let isCaught = false;
-        let mapWidth = 400;
-        let mapHeight = 400;
+        let mapWidth = 1280;
+        let mapHeight = 720;
+
+        // Показываем подсказку при выборе роли
+        document.getElementById('roleSelect').onchange = function() {
+            const role = this.value;
+            const info = document.getElementById('roleInfo');
+            info.style.display = 'block';
+            info.className = `role-badge ${role}`;
+            info.textContent = role === 'baldi' ? '👨‍🏫 Ты будешь ловить' : '🧑‍🎓 Ты будешь собирать книги';
+        };
 
         document.getElementById('joinBtn').onclick = function() {
             const gameCode = document.getElementById('gameCode').value.toUpperCase();
             const name = document.getElementById('playerName').value;
+            const role = document.getElementById('roleSelect').value;
 
             if(!gameCode || !name) {
                 alert('Введи код и имя!');
@@ -304,21 +352,31 @@
                     return;
                 }
 
-                if(game.gameWon) {
-                    alert('Игра уже завершена!');
+                if(game.status !== 'waiting' && game.status !== 'playing') {
+                    alert('Игра уже началась или закончилась!');
                     return;
+                }
+
+                // Проверяем, есть ли уже Baldi
+                if(role === 'baldi') {
+                    const hasBaldi = Object.values(game.players || {}).some(p => p.role === 'baldi');
+                    if(hasBaldi) {
+                        alert('Baldi уже в игре!');
+                        return;
+                    }
                 }
 
                 const playerRef = database.ref('games/' + gameCode + '/players').push();
                 playerId = playerRef.key;
                 currentGameId = gameCode;
                 playerName = name;
+                playerRole = role;
 
                 playerRef.set({
                     name: name,
-                    role: 'student',
-                    x: Math.random() * 1000 + 100,
-                    y: Math.random() * 500 + 100,
+                    role: role,
+                    x: role === 'baldi' ? 200 : Math.random() * 1000 + 100,
+                    y: role === 'baldi' ? 200 : Math.random() * 500 + 100,
                     books: 0,
                     caught: false,
                     escaped: false
@@ -326,14 +384,17 @@
 
                 document.getElementById('joinScreen').style.display = 'none';
                 document.getElementById('gameScreen').style.display = 'block';
-                document.getElementById('nameDisplay').textContent = name;
                 
-                startStudentGame();
+                const roleDisplay = document.getElementById('roleDisplay');
+                roleDisplay.textContent = role === 'baldi' ? '👨‍🏫 BALDI' : '🧑‍🎓 УЧЕНИК';
+                roleDisplay.className = `role-indicator ${role}`;
+                
+                startGame();
             });
         };
 
-        function startStudentGame() {
-            const canvas = document.getElementById('studentCanvas');
+        function startGame() {
+            const canvas = document.getElementById('playerCanvas');
             const ctx = canvas.getContext('2d');
 
             // Джойстик
@@ -390,8 +451,8 @@
                     const player = snapshot.val();
                     if(!player || player.caught || player.escaped) return;
 
-                    const newX = Math.max(20, Math.min(1260, player.x + velocityX * 5));
-                    const newY = Math.max(20, Math.min(700, player.y + velocityY * 5));
+                    const newX = Math.max(20, Math.min(mapWidth-20, player.x + velocityX * 5));
+                    const newY = Math.max(20, Math.min(mapHeight-20, player.y + velocityY * 5));
 
                     database.ref('games/' + currentGameId + '/players/' + playerId).update({
                         x: newX,
@@ -400,19 +461,6 @@
                 });
             }, 50);
 
-            // Проверка книг
-            setInterval(() => {
-                if(!currentGameId || isCaught) return;
-
-                database.ref('games/' + currentGameId).once('value', (snapshot) => {
-                    const game = snapshot.val();
-                    const player = game.players[playerId];
-                    if(!player || player.caught || player.escaped) return;
-
-                    checkNearbyBooks(game, player.x, player.y);
-                });
-            }, 200);
-
             // Отрисовка
             database.ref('games/' + currentGameId).on('value', (snapshot) => {
                 const game = snapshot.val();
@@ -420,89 +468,110 @@
 
                 drawGame(ctx, game);
                 updateUI(game);
-                
+
                 const player = game.players[playerId];
-                if(player && player.caught && !isCaught) {
+                if(player && player.caught && !isCaught && playerRole === 'student') {
                     catchPlayer();
                 }
             });
+
+            // Проверка книг (только для учеников)
+            if(playerRole === 'student') {
+                setInterval(() => {
+                    if(!currentGameId || isCaught) return;
+
+                    database.ref('games/' + currentGameId).once('value', (snapshot) => {
+                        const game = snapshot.val();
+                        const player = game.players[playerId];
+                        if(!player || player.caught || player.escaped) return;
+
+                        checkNearbyBooks(game, player.x, player.y);
+                    });
+                }, 200);
+            }
         }
 
         function drawGame(ctx, game) {
             ctx.clearRect(0, 0, 400, 400);
 
+            const player = game.players[playerId];
+            if(!player) return;
+
+            // Центрируем камеру на игроке
+            const offsetX = player.x - 200;
+            const offsetY = player.y - 200;
+
             // Рисуем других игроков
             if(game.players) {
-                Object.entries(game.players).forEach(([id, p]) => {
-                    if(id === playerId || p.role === 'baldi' || p.caught || p.escaped) return;
+                Object.values(game.players).forEach(p => {
+                    if(p.role === playerRole && p.role === 'baldi') return;
                     
-                    ctx.fillStyle = '#ffd700';
-                    ctx.beginPath();
-                    ctx.arc(p.x * 0.3, p.y * 0.3, 8, 0, Math.PI * 2);
-                    ctx.fill();
+                    const screenX = p.x - offsetX;
+                    const screenY = p.y - offsetY;
+                    
+                    if(screenX > 0 && screenX < 400 && screenY > 0 && screenY < 400) {
+                        if(p.role === 'baldi') {
+                            ctx.fillStyle = '#ff0000';
+                            ctx.shadowColor = '#ff0000';
+                            ctx.shadowBlur = 15;
+                            ctx.beginPath();
+                            ctx.arc(screenX, screenY, 12, 0, Math.PI * 2);
+                            ctx.fill();
+                            
+                            ctx.shadowBlur = 0;
+                            ctx.fillStyle = 'white';
+                            ctx.font = 'bold 16px Arial';
+                            ctx.fillText('👨‍🏫', screenX-10, screenY+4);
+                        } else {
+                            if(p.caught || p.escaped) return;
+                            
+                            ctx.fillStyle = '#ffd700';
+                            ctx.shadowColor = '#ffd700';
+                            ctx.shadowBlur = 10;
+                            ctx.beginPath();
+                            ctx.arc(screenX, screenY, 8, 0, Math.PI * 2);
+                            ctx.fill();
+                        }
+                    }
                 });
             }
 
-            // Рисуем Baldi
-            if(game.baldi) {
-                ctx.fillStyle = '#ff0000';
-                ctx.shadowColor = '#ff0000';
-                ctx.shadowBlur = 20;
-                ctx.beginPath();
-                ctx.arc(game.baldi.x * 0.3, game.baldi.y * 0.3, 12, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.shadowBlur = 0;
-                ctx.fillStyle = 'white';
-                ctx.font = 'bold 16px Arial';
-                ctx.fillText('👨‍🏫', game.baldi.x * 0.3 - 10, game.baldi.y * 0.3 + 4);
-            }
-
-            // Рисуем книги рядом
-            if(game.books) {
-                const player = game.players[playerId];
-                if(player) {
-                    Object.entries(game.books).forEach(([id, book]) => {
-                        if(!book.collected) {
-                            const dist = Math.sqrt(
-                                Math.pow(book.x - player.x, 2) + 
-                                Math.pow(book.y - player.y, 2)
-                            );
+            // Рисуем книги рядом (для учеников)
+            if(playerRole === 'student' && game.books) {
+                Object.values(game.books).forEach(book => {
+                    if(!book.collected) {
+                        const screenX = book.x - offsetX;
+                        const screenY = book.y - offsetY;
+                        
+                        if(screenX > 0 && screenX < 400 && screenY > 0 && screenY < 400) {
+                            ctx.fillStyle = '#ffd700';
+                            ctx.shadowColor = '#ffd700';
+                            ctx.shadowBlur = 8;
+                            ctx.beginPath();
+                            ctx.arc(screenX, screenY, 5, 0, Math.PI * 2);
+                            ctx.fill();
                             
-                            if(dist < 100) {
-                                ctx.fillStyle = '#ffd700';
-                                ctx.shadowColor = '#ffd700';
-                                ctx.shadowBlur = 10;
-                                ctx.beginPath();
-                                ctx.arc(book.x * 0.3, book.y * 0.3, 6, 0, Math.PI * 2);
-                                ctx.fill();
-                                ctx.shadowBlur = 0;
-                                ctx.fillStyle = 'black';
-                                ctx.font = 'bold 12px Arial';
-                                ctx.fillText('📚', book.x * 0.3 - 5, book.y * 0.3 + 3);
-                            }
+                            ctx.shadowBlur = 0;
+                            ctx.fillStyle = 'black';
+                            ctx.font = 'bold 10px Arial';
+                            ctx.fillText('📚', screenX-4, screenY+3);
                         }
-                    });
-                }
+                    }
+                });
             }
 
-            // Рисуем выход если рядом
-            if(game.exit && game.exit.active) {
-                const player = game.players[playerId];
-                if(player) {
-                    const dist = Math.sqrt(
-                        Math.pow(game.exit.x - player.x, 2) + 
-                        Math.pow(game.exit.y - player.y, 2)
-                    );
-                    
-                    if(dist < 200) {
-                        ctx.fillStyle = '#44ff44';
-                        ctx.fillRect(game.exit.x * 0.3 - 10, game.exit.y * 0.3 - 10, 20, 20);
-                        ctx.fillStyle = 'white';
-                        ctx.font = 'bold 16px Arial';
-                        ctx.fillText('🚪', game.exit.x * 0.3 - 8, game.exit.y * 0.3 + 6);
-                    }
-                }
-            }
+            // Рисуем игрока в центре
+            ctx.shadowBlur = 20;
+            ctx.fillStyle = playerRole === 'baldi' ? '#ff0000' : '#ffd700';
+            ctx.shadowColor = playerRole === 'baldi' ? '#ff0000' : '#ffd700';
+            ctx.beginPath();
+            ctx.arc(200, 200, 15, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.shadowBlur = 0;
+            ctx.fillStyle = 'white';
+            ctx.font = 'bold 20px Arial';
+            ctx.fillText(playerRole === 'baldi' ? '👨‍🏫' : '🧑', 185, 210);
         }
 
         function checkNearbyBooks(game, x, y) {
