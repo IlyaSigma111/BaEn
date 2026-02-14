@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Baldie English | Вход</title>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Press Start 2P', cursive;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Анимированный фон */
+        .baldi-run {
+            position: absolute;
+            font-size: 4rem;
+            animation: run 10s linear infinite;
+            opacity: 0.1;
+            white-space: nowrap;
+        }
+
+        @keyframes run {
+            0% { left: -100px; }
+            100% { left: 100%; }
+        }
+
+        .container {
+            background: rgba(22, 33, 62, 0.95);
+            padding: 3rem;
+            border-radius: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            text-align: center;
+            max-width: 600px;
+            width: 100%;
+            border: 3px solid #ffd700;
+            position: relative;
+            z-index: 10;
+            backdrop-filter: blur(10px);
+            animation: glow 2s ease-in-out infinite;
+        }
+
+        @keyframes glow {
+            0%, 100% { box-shadow: 0 20px 60px rgba(255,215,0,0.3); }
+            50% { box-shadow: 0 20px 80px rgba(255,215,0,0.6); }
+        }
+
+        h1 {
+            color: #ffd700;
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 20px rgba(255,215,0,0.5);
+            line-height: 1.5;
+        }
+
+        h1 span {
+            display: inline-block;
+            animation: bounce 1s ease-in-out infinite;
+        }
+
+        h1 span:nth-child(2) { animation-delay: 0.1s; }
+        h1 span:nth-child(3) { animation-delay: 0.2s; }
+        h1 span:nth-child(4) { animation-delay: 0.3s; }
+        h1 span:nth-child(5) { animation-delay: 0.4s; }
+        h1 span:nth-child(6) { animation-delay: 0.5s; }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .subtitle {
+            color: #888;
+            font-size: 0.8rem;
+            margin-bottom: 3rem;
+            line-height: 1.5;
+        }
+
+        .role-buttons {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 2rem;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 2rem 1rem;
+            border: none;
+            border-radius: 20px;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .btn-teacher {
+            background: #ffd700;
+            color: #16213e;
+            border: 3px solid #ffd700;
+        }
+
+        .btn-teacher:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 30px rgba(255,215,0,0.5);
+        }
+
+        .btn-player {
+            background: transparent;
+            color: #ffd700;
+            border: 3px solid #ffd700;
+        }
+
+        .btn-player:hover {
+            background: #ffd700;
+            color: #16213e;
+            transform: translateY(-10px);
+        }
+
+        .btn-emoji {
+            font-size: 3rem;
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 2rem;
+        }
+
+        .feature {
+            background: rgba(15, 52, 96, 0.5);
+            padding: 1rem;
+            border-radius: 10px;
+        }
+
+        .feature .emoji {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .feature .text {
+            font-size: 0.6rem;
+            color: #888;
+        }
+
+        .footer {
+            margin-top: 2rem;
+            color: #666;
+            font-size: 0.6rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="baldi-run" style="top: 10%;">👨‍🏫 Baldi 👨‍🏫 Baldi 👨‍🏫 Baldi 👨‍🏫</div>
+    <div class="baldi-run" style="top: 50%; animation-direction: reverse;">📚 English 📚 English 📚</div>
+    
+    <div class="container">
+        <h1>
+            <span>B</span>
+            <span>a</span>
+            <span>l</span>
+            <span>d</span>
+            <span>i</span>
+            <span>e</span>
+            <span>n</span>
+            <span>g</span>
+            <span>l</span>
+            <span>i</span>
+            <span>s</span>
+            <span>h</span>
+        </h1>
+        
+        <div class="subtitle">
+            Лови тетрадки, убегай от Baldi,<br>отвечай на вопросы
+        </div>
+
+        <div class="role-buttons">
+            <a href="teacher.html" class="btn btn-teacher">
+                <span class="btn-emoji">👨‍🏫</span>
+                <span>УЧИТЕЛЬ</span>
+                <span style="font-size: 0.6rem;">управляет игрой</span>
+            </a>
+            <a href="player.html" class="btn btn-player">
+                <span class="btn-emoji">🧑‍🎓</span>
+                <span>УЧЕНИК</span>
+                <span style="font-size: 0.6rem;">играет с телефона</span>
+            </a>
+        </div>
+
+        <div class="features">
+            <div class="feature">
+                <div class="emoji">👥</div>
+                <div class="text">3 команды</div>
+            </div>
+            <div class="feature">
+                <div class="emoji">📚</div>
+                <div class="text">20+ тетрадок</div>
+            </div>
+            <div class="feature">
+                <div class="emoji">👨‍🏫</div>
+                <div class="text">Baldi ловит</div>
+            </div>
+        </div>
+
+        <div class="footer">
+            Нажми на свою роль чтобы начать
+        </div>
+    </div>
+</body>
+</html>
