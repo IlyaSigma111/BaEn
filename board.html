@@ -325,7 +325,10 @@
             return books;
         }
 
-        document.getElementById('createGameBtn').onclick = function() {
+        // ИСПРАВЛЕНО: кнопка теперь работает!
+        document.getElementById('createGameBtn').addEventListener('click', function() {
+            console.log('Кнопка нажата!'); // для проверки
+            
             const gameId = Math.random().toString(36).substring(2, 8).toUpperCase();
             
             database.ref('games/' + gameId).set({
@@ -340,25 +343,29 @@
                 escapedCount: 0,
                 gameWon: false,
                 createdAt: Date.now()
-            });
+            }).then(() => {
+                console.log('Игра создана!');
+                currentGameId = gameId;
+                document.getElementById('gameCode').textContent = gameId;
+                document.getElementById('gameCodeSection').style.display = 'block';
+                document.getElementById('playersSection').style.display = 'block';
 
-            currentGameId = gameId;
-            document.getElementById('gameCode').textContent = gameId;
-            document.getElementById('gameCodeSection').style.display = 'block';
-            document.getElementById('playersSection').style.display = 'block';
-
-            // Слушаем игроков
-            database.ref('games/' + gameId + '/players').on('value', (snapshot) => {
-                const players = snapshot.val() || {};
-                updatePlayersList(players);
-                
-                const startBtn = document.getElementById('startGameBtn');
-                const hasBaldi = Object.values(players).some(p => p.role === 'baldi');
-                const hasStudents = Object.values(players).some(p => p.role === 'student');
-                
-                startBtn.disabled = !(hasBaldi && hasStudents);
+                // Слушаем игроков
+                database.ref('games/' + gameId + '/players').on('value', (snapshot) => {
+                    const players = snapshot.val() || {};
+                    updatePlayersList(players);
+                    
+                    const startBtn = document.getElementById('startGameBtn');
+                    const hasBaldi = Object.values(players).some(p => p.role === 'baldi');
+                    const hasStudents = Object.values(players).some(p => p.role === 'student');
+                    
+                    startBtn.disabled = !(hasBaldi && hasStudents);
+                });
+            }).catch((error) => {
+                console.error('Ошибка:', error);
+                alert('Ошибка при создании игры: ' + error.message);
             });
-        };
+        });
 
         function updatePlayersList(players) {
             const grid = document.getElementById('playersGrid');
@@ -379,7 +386,7 @@
             });
         }
 
-        document.getElementById('startGameBtn').onclick = function() {
+        document.getElementById('startGameBtn').addEventListener('click', function() {
             if(!currentGameId) return;
 
             database.ref('games/' + currentGameId).update({
@@ -391,7 +398,7 @@
             gameStarted = true;
             
             startGame(currentGameId);
-        };
+        });
 
         function startGame(gameId) {
             const canvas = document.getElementById('gameCanvas');
@@ -412,6 +419,7 @@
             });
         }
 
+        // ИСПРАВЛЕНО: убрал continue, переписал логику отрисовки
         function drawMap(ctx, game) {
             ctx.clearRect(0, 0, 1280, 720);
 
@@ -438,7 +446,7 @@
 
             // Книги
             if(game.books) {
-                Object.values(game.books).forEach(book => {
+                Object.entries(game.books).forEach(([id, book]) => {
                     if(!book.collected) {
                         ctx.fillStyle = '#ffd700';
                         ctx.shadowColor = '#ffd700';
@@ -457,8 +465,8 @@
 
             // Игроки
             if(game.players) {
-                Object.values(game.players).forEach(p => {
-                    if(p.escaped) return;
+                Object.entries(game.players).forEach(([id, p]) => {
+                    if(p.escaped) return;  // вместо continue используем return для forEach
                     
                     if(p.role === 'baldi') {
                         // Baldi
@@ -475,7 +483,7 @@
                         ctx.fillText('👨‍🏫', p.x-12, p.y+5);
                     } else {
                         // Ученики
-                        if(p.caught) continue;
+                        if(p.caught) return;  // вместо continue используем return для forEach
                         
                         ctx.fillStyle = '#ffd700';
                         ctx.shadowColor = '#ffd700';
