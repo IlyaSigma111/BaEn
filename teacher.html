@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Baldie English | Учитель</title>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="firebase.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #1a1a2e;
+            font-family: 'Press Start 2P', cursive;
+            color: white;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        /* Лобби */
+        .lobby {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .header h1 {
+            color: #ffd700;
+            font-size: 2rem;
+            margin-bottom: 10px;
+            text-shadow: 0 0 10px rgba(255,215,0,0.5);
+        }
+
+        .header .sub {
+            color: #888;
+            font-size: 0.7rem;
+        }
+
+        .create-section {
+            background: #16213e;
+            border-radius: 30px;
+            padding: 40px;
+            margin-bottom: 30px;
+            border: 2px solid #ffd700;
+            text-align: center;
+        }
+
+        .create-btn {
+            background: #ffd700;
+            color: #16213e;
+            border: none;
+            padding: 30px 60px;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 1.5rem;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 0 30px rgba(255,215,0,0.3);
+            margin-bottom: 30px;
+        }
+
+        .create-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 50px rgba(255,215,0,0.6);
+        }
+
+        .game-code-display {
+            background: #0f3460;
+            padding: 30px;
+            border-radius: 20px;
+            margin-bottom: 30px;
+        }
+
+        .game-code-display .label {
+            color: #888;
+            font-size: 0.8rem;
+            margin-bottom: 15px;
+        }
+
+        .game-code-display .code {
+            font-size: 4rem;
+            color: #ffd700;
+            letter-spacing: 20px;
+            text-shadow: 0 0 20px rgba(255,215,0,0.5);
+            margin-bottom: 15px;
+        }
+
+        .qr-placeholder {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            display: inline-block;
+        }
+
+        .teams-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .team-card {
+            background: #16213e;
+            border-radius: 20px;
+            padding: 20px;
+            border: 2px solid;
+            transition: transform 0.3s;
+        }
+
+        .team-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .team-card.team1 { border-color: #ff4444; }
+        .team-card.team2 { border-color: #4444ff; }
+        .team-card.team3 { border-color: #44ff44; }
+
+        .team-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            font-size: 1rem;
+        }
+
+        .team-count {
+            margin-left: auto;
+            background: rgba(255,255,255,0.1);
+            padding: 5px 10px;
+            border-radius: 10px;
+        }
+
+        .players-list {
+            list-style: none;
+            min-height: 150px;
+        }
+
+        .players-list li {
+            background: rgba(255,255,255,0.05);
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 10px;
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .player-avatar {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #ffd700;
+        }
+
+        .start-btn {
+            width: 100%;
+            padding: 30px;
+            background: #44ff44;
+            color: #16213e;
+            border: none;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 1.5rem;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 0 30px rgba(68,255,68,0.3);
+        }
+
+        .start-btn:hover:not(:disabled) {
+            transform: scale(1.02);
+            box-shadow: 0 0 50px rgba(68,255,68,0.6);
+        }
+
+        .start-btn:disabled {
+            background: #666;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        /* Игровой экран */
+        .game-screen {
+            display: none;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            background: #16213e;
+            padding: 20px;
+            border-radius: 20px;
+            border: 2px solid #ffd700;
+        }
+
+        .scores {
+            display: flex;
+            gap: 20px;
+        }
+
+        .score-badge {
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-size: 0.8rem;
+            background: #0f3460;
+        }
+
+        .score-badge.team1 { border-left: 5px solid #ff4444; }
+        .score-badge.team2 { border-left: 5px solid #4444ff; }
+        .score-badge.team3 { border-left: 5px solid #44ff44; }
+
+        .back-btn {
+            padding: 10px 20px;
+            background: #ffd700;
+            color: #16213e;
+            border: none;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.7rem;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+
+        .canvas-container {
+            background: #16213e;
+            padding: 20px;
+            border-radius: 20px;
+            border: 2px solid #ffd700;
+            position: relative;
+        }
+
+        #gameCanvas {
+            width: 100%;
+            aspect-ratio: 1;
+            background: #2a2a4a;
+            border-radius: 10px;
+            display: block;
+        }
+
+        .game-stats {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+            padding: 20px;
+            background: #16213e;
+            border-radius: 20px;
+            border: 2px solid #ffd700;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            color: #ffd700;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.6rem;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+    <!-- Лобби -->
+    <div id="lobby" class="lobby">
+        <div class="header">
+            <h1>👨‍🏫 УЧИТЕЛЬСКАЯ</h1>
+            <div class="sub">создай игру и жди учеников</div>
+        </div>
+
+        <div class="create-section">
+            <button id="createGameBtn" class="create-btn">
+                ➕ СОЗДАТЬ НОВУЮ ИГРУ
+            </button>
+
+            <div id="gameCodeSection" style="display: none;">
+                <div class="game-code-display">
+                    <div class="label">КОД ИГРЫ</div>
+                    <div id="gameCode" class="code">------</div>
+                    <div style="color: #888; margin-top: 10px; font-size: 0.7rem;">
+                        Скажи этот код ученикам
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="teamsSection" style="display: none;">
+            <div class="teams-grid">
+                <div class="team-card team1">
+                    <div class="team-header">
+                        <span>🔴 КРАСНЫЕ</span>
+                        <span class="team-count" id="team1Count">0</span>
+                    </div>
+                    <ul id="team1List" class="players-list"></ul>
+                </div>
+                <div class="team-card team2">
+                    <div class="team-header">
+                        <span>🔵 СИНИЕ</span>
+                        <span class="team-count" id="team2Count">0</span>
+                    </div>
+                    <ul id="team2List" class="players-list"></ul>
+                </div>
+                <div class="team-card team3">
+                    <div class="team-header">
+                        <span>🟢 ЗЕЛЕНЫЕ</span>
+                        <span class="team-count" id="team3Count">0</span>
+                    </div>
+                    <ul id="team3List" class="players-list"></ul>
+                </div>
+            </div>
+
+            <button id="startGameBtn" class="start-btn" disabled>
+                🎮 НАЧАТЬ ИГРУ
+            </button>
+        </div>
+    </div>
+
+    <!-- Игровой экран -->
+    <div id="gameScreen" class="game-screen">
+        <div class="game-header">
+            <div class="scores">
+                <span id="score1" class="score-badge team1">🔴 0</span>
+                <span id="score2" class="score-badge team2">🔵 0</span>
+                <span id="score3" class="score-badge team3">🟢 0</span>
+            </div>
+            <button id="backToLobbyBtn" class="back-btn">← В лобби</button>
+        </div>
+
+        <div class="canvas-container">
+            <canvas id="gameCanvas" width="750" height="750"></canvas>
+        </div>
+
+        <div class="game-stats">
+            <div class="stat">
+                <div class="stat-value" id="notebooksLeft">0</div>
+                <div class="stat-label">ТЕТРАДОК</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" id="playersCount">0</div>
+                <div class="stat-label">ИГРОКОВ</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" id="timeElapsed">0:00</div>
+                <div class="stat-label">ВРЕМЯ</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentGameId = null;
+        let mapSize = 15;
+        let gameStartTime = null;
+        let timerInterval = null;
+
+        // Генерация кода
+        function generateGameCode() {
+            return Math.random().toString(36).substring(2, 8).toUpperCase();
+        }
+
+        // Генерация тетрадок
+        function generateNotebooks(count) {
+            const notebooks = {};
+            for(let i = 0; i < count; i++) {
+                notebooks[`n${i}`] = {
+                    x: Math.floor(Math.random() * 13) + 1,
+                    y: Math.floor(Math.random() * 13) + 1,
+                    collected: false,
+                    question: 'Past of go?',
+                    answer: 'went'
+                };
+            }
+            return notebooks;
+        }
+
+        // Создание игры
+        document.getElementById('createGameBtn').onclick = function() {
+            const gameId = generateGameCode();
+            
+            database.ref('games/' + gameId).set({
+                status: 'waiting',
+                baldi: { x: 7, y: 7 },
+                players: {},
+                notebooks: generateNotebooks(20),
+                teams: {
+                    team1: { score: 0, color: '#ff4444' },
+                    team2: { score: 0, color: '#4444ff' },
+                    team3: { score: 0, color: '#44ff44' }
+                },
+                createdAt: Date.now()
+            });
+
+            currentGameId = gameId;
+            document.getElementById('gameCode').textContent = gameId;
+            document.getElementById('gameCodeSection').style.display = 'block';
+            document.getElementById('teamsSection').style.display = 'block';
+
+            // Слушаем игроков
+            database.ref('games/' + gameId + '/players').on('value', (snapshot) => {
+                const players = snapshot.val() || {};
+                updateTeams(players);
+                
+                // Включаем кнопку старта если есть игроки
+                const startBtn = document.getElementById('startGameBtn');
+                if(Object.keys(players).length > 0) {
+                    startBtn.disabled = false;
+                } else {
+                    startBtn.disabled = true;
+                }
+            });
+        };
+
+        // Обновление команд
+        function updateTeams(players) {
+            const team1List = document.getElementById('team1List');
+            const team2List = document.getElementById('team2List');
+            const team3List = document.getElementById('team3List');
+            
+            team1List.innerHTML = '';
+            team2List.innerHTML = '';
+            team3List.innerHTML = '';
+
+            let count1 = 0, count2 = 0, count3 = 0;
+
+            Object.values(players).forEach(player => {
+                const li = document.createElement('li');
+                
+                // Аватарка
+                const avatar = document.createElement('div');
+                avatar.className = 'player-avatar';
+                avatar.style.background = TEAMS[player.team].color;
+                
+                const name = document.createElement('span');
+                name.textContent = player.name;
+                
+                li.appendChild(avatar);
+                li.appendChild(name);
+                
+                if(player.team === 'team1') {
+                    team1List.appendChild(li);
+                    count1++;
+                } else if(player.team === 'team2') {
+                    team2List.appendChild(li);
+                    count2++;
+                } else if(player.team === 'team3') {
+                    team3List.appendChild(li);
+                    count3++;
+                }
+            });
+
+            document.getElementById('team1Count').textContent = count1;
+            document.getElementById('team2Count').textContent = count2;
+            document.getElementById('team3Count').textContent = count3;
+        }
+
+        // Начало игры
+        document.getElementById('startGameBtn').onclick = function() {
+            if(!currentGameId) return;
+
+            gameStartTime = Date.now();
+            
+            database.ref('games/' + currentGameId).update({
+                status: 'playing',
+                startTime: gameStartTime
+            });
+
+            document.getElementById('lobby').style.display = 'none';
+            document.getElementById('gameScreen').style.display = 'block';
+            
+            startGame(currentGameId);
+        };
+
+        // Возврат в лобби
+        document.getElementById('backToLobbyBtn').onclick = function() {
+            if(timerInterval) clearInterval(timerInterval);
+            document.getElementById('gameScreen').style.display = 'none';
+            document.getElementById('lobby').style.display = 'block';
+        };
+
+        // Запуск игры
+        function startGame(gameId) {
+            const canvas = document.getElementById('gameCanvas');
+            const ctx = canvas.getContext('2d');
+            const cellSize = 750 / mapSize;
+
+            // Таймер
+            timerInterval = setInterval(() => {
+                if(gameStartTime) {
+                    const elapsed = Math.floor((Date.now() - gameStartTime) / 1000);
+                    const minutes = Math.floor(elapsed / 60);
+                    const seconds = elapsed % 60;
+                    document.getElementById('timeElapsed').textContent = 
+                        `${minutes}:${seconds.toString().padStart(2, '0')}`;
+                }
+            }, 1000);
+
+            // Слушаем изменения
+            database.ref('games/' + gameId).on('value', (snapshot) => {
+                const game = snapshot.val();
+                if(!game) return;
+
+                drawMap(ctx, game, cellSize);
+                updateGameStats(game);
+            });
+
+            // Движение Baldi
+            setInterval(() => {
+                if(!currentGameId) return;
+                
+                database.ref('games/' + currentGameId).once('value', (snapshot) => {
+                    const game = snapshot.val();
+                    if(!game || game.status !== 'playing') return;
+
+                    const dir = Math.floor(Math.random() * 4);
+                    let newX = game.baldi.x;
+                    let newY = game.baldi.y;
+
+                    switch(dir) {
+                        case 0: newY = Math.max(0, newY - 1); break;
+                        case 1: newY = Math.min(mapSize-1, newY + 1); break;
+                        case 2: newX = Math.max(0, newX - 1); break;
+                        case 3: newX = Math.min(mapSize-1, newX + 1); break;
+                    }
+
+                    database.ref('games/' + currentGameId + '/baldi').set({
+                        x: newX,
+                        y: newY
+                    });
+                });
+            }, 2000);
+        }
+
+        // Отрисовка карты
+        function drawMap(ctx, game, cellSize) {
+            ctx.clearRect(0, 0, 750, 750);
+
+            // Сетка
+            ctx.strokeStyle = '#444';
+            ctx.lineWidth = 1;
+            for(let i = 0; i <= mapSize; i++) {
+                ctx.beginPath();
+                ctx.moveTo(i * cellSize, 0);
+                ctx.lineTo(i * cellSize, 750);
+                ctx.stroke();
+                
+                ctx.beginPath();
+                ctx.moveTo(0, i * cellSize);
+                ctx.lineTo(750, i * cellSize);
+                ctx.stroke();
+            }
+
+            // Тетрадки
+            if(game.notebooks) {
+                Object.entries(game.notebooks).forEach(([id, n]) => {
+                    if(!n.collected) {
+                        // Эффект пульсации
+                        const time = Date.now() / 500;
+                        const pulse = Math.sin(time) * 0.2 + 0.8;
+                        
+                        ctx.save();
+                        ctx.translate(n.x * cellSize + cellSize/2, n.y * cellSize + cellSize/2);
+                        ctx.scale(pulse, pulse);
+                        
+                        // Тетрадка
+                        ctx.fillStyle = '#ffd700';
+                        ctx.shadowColor = '#ffd700';
+                        ctx.shadowBlur = 15;
+                        ctx.beginPath();
+                        ctx.arc(0, 0, 15, 0, Math.PI * 2);
+                        ctx.fill();
+                        
+                        // Блик
+                        ctx.shadowBlur = 0;
+                        ctx.fillStyle = 'white';
+                        ctx.beginPath();
+                        ctx.arc(-5, -5, 4, 0, Math.PI * 2);
+                        ctx.fill();
+                        
+                        ctx.restore();
+                    }
+                });
+            }
+
+            // Игроки
+            if(game.players) {
+                Object.entries(game.players).forEach(([id, p]) => {
+                    if(p.caught) return;
+
+                    ctx.save();
+                    ctx.translate(p.x * cellSize + cellSize/2, p.y * cellSize + cellSize/2);
+                    
+                    // Кружок игрока
+                    ctx.fillStyle = game.teams[p.team].color;
+                    ctx.shadowColor = game.teams[p.team].color;
+                    ctx.shadowBlur = 15;
+                    ctx.beginPath();
+                    ctx.arc(0, 0, 20, 0, Math.PI * 2);
+                    ctx.fill();
+                    
+                    // Имя
+                    ctx.shadowBlur = 0;
+                    ctx.fillStyle = 'white';
+                    ctx.font = 'bold 10px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(p.name, 0, -25);
+                    
+                    ctx.restore();
+                });
+            }
+
+            // Baldi
+            if(game.baldi) {
+                ctx.save();
+                ctx.translate(game.baldi.x * cellSize + cellSize/2, game.baldi.y * cellSize + cellSize/2);
+                
+                // Baldi с эффектом
+                ctx.fillStyle = '#ff0000';
+                ctx.shadowColor = '#ff0000';
+                ctx.shadowBlur = 30;
+                ctx.beginPath();
+                ctx.arc(0, 0, 30, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.shadowBlur = 0;
+                ctx.fillStyle = 'white';
+                ctx.font = 'bold 24px Arial';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('👨‍🏫', 0, 0);
+                
+                ctx.restore();
+            }
+        }
+
+        // Обновление статистики
+        function updateGameStats(game) {
+            document.getElementById('score1').textContent = `🔴 ${game.teams.team1.score || 0}`;
+            document.getElementById('score2').textContent = `🔵 ${game.teams.team2.score || 0}`;
+            document.getElementById('score3').textContent = `🟢 ${game.teams.team3.score || 0}`;
+
+            const notebooksLeft = Object.values(game.notebooks || {}).filter(n => !n.collected).length;
+            document.getElementById('notebooksLeft').textContent = notebooksLeft;
+            
+            const playersCount = Object.values(game.players || {}).filter(p => !p.caught).length;
+            document.getElementById('playersCount').textContent = playersCount;
+        }
+    </script>
+</body>
+</html>
