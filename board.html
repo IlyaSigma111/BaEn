@@ -300,16 +300,20 @@
             { name: "🚻 Туалет", x: 950, y: 450, w: 200, h: 100 }
         ];
 
-        // Генерация книг
+        // Генерация книг с простыми вопросами (1+1=2 и т.д.)
         function generateBooks(count) {
             const books = {};
             const questions = [
-                { q: "Past of 'go'?", a: "went" },
-                { q: "Past of 'eat'?", a: "ate" },
-                { q: "Past of 'see'?", a: "saw" },
-                { q: "Translate: apple", a: "яблоко" },
-                { q: "Translate: book", a: "книга" },
-                { q: "What's your name?", a: "my name is" }
+                { q: "Сколько будет 1+1?", a: "2" },
+                { q: "Сколько будет 2+2?", a: "4" },
+                { q: "Сколько будет 3+3?", a: "6" },
+                { q: "Сколько будет 4+4?", a: "8" },
+                { q: "Сколько будет 5+5?", a: "10" },
+                { q: "Сколько будет 6+6?", a: "12" },
+                { q: "Сколько будет 7+7?", a: "14" },
+                { q: "Сколько будет 8+8?", a: "16" },
+                { q: "Сколько будет 9+9?", a: "18" },
+                { q: "Сколько будет 10+10?", a: "20" }
             ];
 
             for(let i = 0; i < count; i++) {
@@ -325,14 +329,12 @@
             return books;
         }
 
-        // ИСПРАВЛЕНО: кнопка теперь работает!
+        // Создание игры
         document.getElementById('createGameBtn').addEventListener('click', function() {
-            console.log('Кнопка нажата!'); // для проверки
-            
             const gameId = Math.random().toString(36).substring(2, 8).toUpperCase();
             
             database.ref('games/' + gameId).set({
-                status: 'waiting',
+                status: 'waiting',  // Важно: сначала waiting!
                 players: {},
                 books: generateBooks(30),
                 exit: {
@@ -344,7 +346,6 @@
                 gameWon: false,
                 createdAt: Date.now()
             }).then(() => {
-                console.log('Игра создана!');
                 currentGameId = gameId;
                 document.getElementById('gameCode').textContent = gameId;
                 document.getElementById('gameCodeSection').style.display = 'block';
@@ -361,9 +362,6 @@
                     
                     startBtn.disabled = !(hasBaldi && hasStudents);
                 });
-            }).catch((error) => {
-                console.error('Ошибка:', error);
-                alert('Ошибка при создании игры: ' + error.message);
             });
         });
 
@@ -386,11 +384,12 @@
             });
         }
 
+        // СТАРТ ИГРЫ - только по кнопке!
         document.getElementById('startGameBtn').addEventListener('click', function() {
             if(!currentGameId) return;
 
             database.ref('games/' + currentGameId).update({
-                status: 'playing'
+                status: 'playing'  // Меняем статус на playing
             });
 
             document.getElementById('lobby').style.display = 'none';
@@ -419,7 +418,6 @@
             });
         }
 
-        // ИСПРАВЛЕНО: убрал continue, переписал логику отрисовки
         function drawMap(ctx, game) {
             ctx.clearRect(0, 0, 1280, 720);
 
@@ -466,7 +464,7 @@
             // Игроки
             if(game.players) {
                 Object.entries(game.players).forEach(([id, p]) => {
-                    if(p.escaped) return;  // вместо continue используем return для forEach
+                    if(p.escaped) return;
                     
                     if(p.role === 'baldi') {
                         // Baldi
@@ -483,7 +481,7 @@
                         ctx.fillText('👨‍🏫', p.x-12, p.y+5);
                     } else {
                         // Ученики
-                        if(p.caught) return;  // вместо continue используем return для forEach
+                        if(p.caught) return;
                         
                         ctx.fillStyle = '#ffd700';
                         ctx.shadowColor = '#ffd700';
