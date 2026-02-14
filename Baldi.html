@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Baldie English | Baldi</title>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="firebase.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background: #1a1a2e;
+            font-family: 'Press Start 2P', cursive;
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 10px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .join-screen {
+            background: #16213e;
+            padding: 30px 20px;
+            border-radius: 30px;
+            border: 3px solid #ff0000;
+            text-align: center;
+        }
+
+        .join-screen h1 {
+            color: #ff0000;
+            font-size: 1.8rem;
+            margin-bottom: 30px;
+        }
+
+        .join-screen input {
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            background: #0f3460;
+            border: 2px solid #ff0000;
+            border-radius: 15px;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.8rem;
+            color: white;
+        }
+
+        .join-screen button {
+            width: 100%;
+            padding: 20px;
+            background: #ff0000;
+            color: white;
+            border: none;
+            border-radius: 15px;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 1rem;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+        .game-screen {
+            display: none;
+        }
+
+        .header {
+            background: #16213e;
+            padding: 20px;
+            border-radius: 20px 20px 0 0;
+            border: 2px solid #ff0000;
+            text-align: center;
+        }
+
+        .header h2 {
+            color: #ff0000;
+            font-size: 1.2rem;
+        }
+
+        .canvas-container {
+            background: #16213e;
+            padding: 10px;
+            border: 2px solid #ff0000;
+            border-top: none;
+        }
+
+        #baldiCanvas {
+            width: 100%;
+            aspect-ratio: 1;
+            background: #2a2a4a;
+            border-radius: 10px;
+            display: block;
+        }
+
+        .controls {
+            background: #16213e;
+            padding: 20px;
+            border: 2px solid #ff0000;
+            border-top: none;
+            border-radius: 0 0 20px 20px;
+        }
+
+        .joystick {
+            width: 200px;
+            height: 200px;
+            margin: 0 auto;
+            position: relative;
+            background: #0f3460;
+            border-radius: 50%;
+            border: 3px solid #ff0000;
+            touch-action: none;
+        }
+
+        .joystick-handle {
+            width: 80px;
+            height: 80px;
+            background: #ff0000;
+            border-radius: 50%;
+            position: absolute;
+            top: 60px;
+            left: 60px;
+            transition: 0.05s;
+            box-shadow: 0 0 20px #ff0000;
+        }
+
+        .info {
+            text-align: center;
+            margin-top: 20px;
+            color: #888;
+            font-size: 0.6rem;
+        }
+
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="joinScreen" class="join-screen">
+            <h1>👨‍🏫 BALDI</h1>
+            <input type="text" id="gameCode" placeholder="КОД ИГРЫ" maxlength="6" style="text-transform: uppercase;">
+            <input type="text" id="playerName" placeholder="ТВОЁ ИМЯ" value="Baldi">
+            <button id="joinBtn">ВОЙТИ КАК BALDI</button>
+        </div>
+
+        <div id="gameScreen" class="game-screen">
+            <div class="header">
+                <h2>👨‍🏫 BALDI</h2>
+            </div>
+
+            <div class="canvas-container">
+                <canvas id="baldiCanvas" width="400" height="400"></canvas>
+            </div>
+
+            <div class="controls">
+                <div class="joystick" id="joystick">
+                    <div class="joystick-handle" id="joystickHandle"></div>
+                </div>
+                <div class="status-bar">
+                    <span>📚 <span id="collectedInfo">0/30</span></span>
+                    <span>👥 <span id="playersInfo">0</span></span>
+                </div>
+                <div class="info">води пальцем по кругу</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let playerId = null;
+        let currentGameId = null;
+        let playerName = 'Baldi';
+        let mapWidth = 400;
+        let mapHeight = 400;
+
+        document.getElementById('joinBtn').onclick = function() {
+            const gameCode = document.getElementById('gameCode').value.toUpperCase();
+            const name = document.getElementById('playerName').value;
+
+            if(!gameCode) {
+                alert('Введи код игры!');
+                return;
+            }
+
+            database.ref('games/' + gameCode).once('value', (snapshot) => {
+                const game = snapshot.val();
+                if(!game) {
+                    // Создаем новую игру
+                    createNewGame(gameCode, name);
+                } else {
+                    // Присоединяемся как Baldi
+                    joinAsBaldi(game, gameCode, name);
+                }
+            });
+        };
+
+        function createNewGame(gameCode, name) {
+            const gameData = {
+                status: 'playing',
+                baldi: { 
+                    x: 200, 
+                    y: 200,
+                    name: name,
+                    role: 'baldi'
+                },
+                players: {},
+                books: generateBooks(30),
+                exit: {
+                    x: 1000, y: 500,
+                    active: false
+                },
+                totalCollected: 0,
+                escapedCount: 0,
+                gameWon: false,
+                createdAt: Date.now()
+            };
+
+            // Добавляем Baldi в players
+            const baldiRef = database.ref('games/' + gameCode + '/players').push();
+            playerId = baldiRef.key;
+            gameData.baldi.id = playerId;
+            
+            database.ref('games/' + gameCode).set(gameData);
+
+            currentGameId = gameCode;
+            startBaldiGame(gameCode, playerId);
+        }
+
+        function joinAsBaldi(game, gameCode, name) {
+            // Проверяем, есть ли уже Baldi
+            const existingBaldi = Object.values(game.players || {}).find(p => p.role === 'baldi');
+            if(existingBaldi) {
+                alert('Baldi уже в игре!');
+                return;
+            }
+
+            const baldiRef = database.ref('games/' + gameCode + '/players').push();
+            playerId = baldiRef.key;
+
+            baldiRef.set({
+                name: name,
+                role: 'baldi',
+                x: 200,
+                y: 200,
+                caught: false,
+                escaped: false
+            });
+
+            database.ref('games/' + gameCode + '/baldi').set({
+                x: 200,
+                y: 200,
+                id: playerId
+            });
+
+            currentGameId = gameCode;
+            startBaldiGame(gameCode, playerId);
+        }
+
+        function generateBooks(count) {
+            const books = {};
+            const questions = [
+                { q: "Past of 'go'?", a: "went" },
+                { q: "Past of 'eat'?", a: "ate" },
+                { q: "Past of 'see'?", a: "saw" },
+                { q: "Translate: apple", a: "яблоко" },
+                { q: "Translate: book", a: "книга" },
+                { q: "What's your name?", a: "my name is" }
+            ];
+
+            for(let i = 0; i < count; i++) {
+                const q = questions[Math.floor(Math.random() * questions.length)];
+                books[`book${i}`] = {
+                    x: Math.random() * 1200 + 50,
+                    y: Math.random() * 600 + 50,
+                    collected: false,
+                    question: q.q,
+                    answer: q.a
+                };
+            }
+            return books;
+        }
+
+        function startBaldiGame(gameId, pid) {
+            document.getElementById('joinScreen').style.display = 'none';
+            document.getElementById('gameScreen').style.display = 'block';
+
+            const canvas = document.getElementById('baldiCanvas');
+            const ctx = canvas.getContext('2d');
+
+            // Джойстик
+            const joystick = document.getElementById('joystick');
+            const handle = document.getElementById('joystickHandle');
+            let active = false;
+            let velocityX = 0, velocityY = 0;
+
+            joystick.addEventListener('touchstart', (e) => {
+                active = true;
+                updateJoystick(e.touches[0]);
+            });
+
+            joystick.addEventListener('touchmove', (e) => {
+                e.preventDefault();
+                if(active) updateJoystick(e.touches[0]);
+            });
+
+            joystick.addEventListener('touchend', () => {
+                active = false;
+                handle.style.transform = 'translate(0px, 0px)';
+                velocityX = 0;
+                velocityY = 0;
+            });
+
+            function updateJoystick(touch) {
+                const rect = joystick.getBoundingClientRect();
+                const centerX = rect.left + rect.width/2;
+                const centerY = rect.top + rect.height/2;
+                
+                let x = touch.clientX - centerX;
+                let y = touch.clientY - centerY;
+                
+                const distance = Math.sqrt(x*x + y*y);
+                const maxDistance = 60;
+                
+                if(distance > maxDistance) {
+                    x = (x / distance) * maxDistance;
+                    y = (y / distance) * maxDistance;
+                }
+                
+                handle.style.transform = `translate(${x}px, ${y}px)`;
+                
+                velocityX = (x / maxDistance) * 3;
+                velocityY = (y / maxDistance) * 3;
+            }
+
+            // Движение
+            setInterval(() => {
+                if(!currentGameId || !active) return;
+
+                database.ref('games/' + currentGameId).once('value', (snapshot) => {
+                    const game = snapshot.val();
+                    if(!game) return;
+
+                    const newX = Math.max(20, Math.min(1260, game.baldi.x + velocityX * 5));
+                    const newY = Math.max(20, Math.min(700, game.baldi.y + velocityY * 5));
+
+                    database.ref('games/' + currentGameId + '/baldi').update({
+                        x: newX,
+                        y: newY
+                    });
+
+                    database.ref('games/' + currentGameId + '/players/' + pid).update({
+                        x: newX,
+                        y: newY
+                    });
+
+                    // Проверяем ловлю
+                    checkCatches(game, newX, newY);
+                });
+            }, 50);
+
+            // Отрисовка
+            database.ref('games/' + gameId).on('value', (snapshot) => {
+                const game = snapshot.val();
+                if(!game) return;
+
+                drawGame(ctx, game);
+                
+                document.getElementById('collectedInfo').textContent = `${game.totalCollected || 0}/30`;
+                const activePlayers = Object.values(game.players || {}).filter(p => p.role === 'student' && !p.escaped && !p.caught).length;
+                document.getElementById('playersInfo').textContent = activePlayers;
+            });
+        }
+
+        function drawGame(ctx, game) {
+            ctx.clearRect(0, 0, 400, 400);
+
+            // Рисуем игроков (упрощенно)
+            if(game.players) {
+                Object.entries(game.players).forEach(([id, p]) => {
+                    if(p.role === 'student' && !p.caught && !p.escaped) {
+                        ctx.fillStyle = '#ffd700';
+                        ctx.beginPath();
+                        ctx.arc(p.x * 0.3, p.y * 0.3, 8, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                });
+            }
+
+            // Baldi
+            ctx.fillStyle = '#ff0000';
+            ctx.shadowColor = '#ff0000';
+            ctx.shadowBlur = 20;
+            ctx.beginPath();
+            ctx.arc(game.baldi.x * 0.3, game.baldi.y * 0.3, 15, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.shadowBlur = 0;
+            ctx.fillStyle = 'white';
+            ctx.font = 'bold 20px Arial';
+            ctx.fillText('👨‍🏫', game.baldi.x * 0.3 - 12, game.baldi.y * 0.3 + 5);
+        }
+
+        function checkCatches(game, baldiX, baldiY) {
+            if(!game.players) return;
+
+            Object.entries(game.players).forEach(([id, player]) => {
+                if(player.role === 'student' && !player.caught && !player.escaped) {
+                    const dist = Math.sqrt(
+                        Math.pow(player.x - baldiX, 2) + 
+                        Math.pow(player.y - baldiY, 2)
+                    );
+                    
+                    if(dist < 30) {
+                        database.ref('games/' + currentGameId + '/players/' + id).update({
+                            caught: true,
+                            caughtTime: Date.now()
+                        });
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>
