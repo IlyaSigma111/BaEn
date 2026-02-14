@@ -325,6 +325,9 @@
         let isCaught = false;
         let mapWidth = 1280;
         let mapHeight = 720;
+        let moveInterval = null;
+        let checkInterval = null;
+        let gameListener = null;
 
         // Показываем подсказку при выборе роли
         document.getElementById('roleSelect').onchange = function() {
@@ -345,15 +348,13 @@
                 return;
             }
 
+            // Очищаем предыдущие слушатели
+            if(gameListener) gameListener();
+
             database.ref('games/' + gameCode).once('value', (snapshot) => {
                 const game = snapshot.val();
                 if(!game) {
                     alert('Игра не найдена!');
-                    return;
-                }
-
-                if(game.status !== 'waiting' && game.status !== 'playing') {
-                    alert('Игра уже началась или закончилась!');
                     return;
                 }
 
@@ -404,6 +405,7 @@
             let velocityX = 0, velocityY = 0;
 
             joystick.addEventListener('touchstart', (e) => {
+                e.preventDefault();
                 if(isCaught) return;
                 active = true;
                 updateJoystick(e.touches[0]);
@@ -414,7 +416,8 @@
                 if(active && !isCaught) updateJoystick(e.touches[0]);
             });
 
-            joystick.addEventListener('touchend', () => {
+            joystick.addEventListener('touchend', (e) => {
+                e.preventDefault();
                 active = false;
                 handle.style.transform = 'translate(0px, 0px)';
                 velocityX = 0;
@@ -443,12 +446,19 @@
                 velocityY = (y / maxDistance) * 3;
             }
 
-            // Движение
-            setInterval(() => {
+            // Движение - очищаем предыдущий интервал
+            if(moveInterval) clearInterval(moveInterval);
+            moveInterval = setInterval(() => {
                 if(!currentGameId || !active || isCaught) return;
 
-                database.ref('games/' + currentGameId + '/players/' + playerId).once('value', (snapshot) => {
-                    const player = snapshot.val();
+                database.ref('games/' + currentGameId).once('value', (snapshot) => {
+                    const game = snapshot.val();
+                    if(!game) return;
+                    
+                    // Проверяем статус игры - двигаться можно только если игра началась!
+                    if(game.status !== 'playing') return;
+                    
+                    const player = game.players[playerId];
                     if(!player || player.caught || player.escaped) return;
 
                     const newX = Math.max(20, Math.min(mapWidth-20, player.x + velocityX * 5));
@@ -461,8 +471,9 @@
                 });
             }, 50);
 
-            // Отрисовка
-            database.ref('games/' + currentGameId).on('value', (snapshot) => {
+            // Слушаем изменения игры
+            if(gameListener) gameListener();
+            gameListener = database.ref('games/' + currentGameId).on('value', (snapshot) => {
                 const game = snapshot.val();
                 if(!game) return;
 
@@ -475,13 +486,19 @@
                 }
             });
 
-            // Проверка книг (только для учеников)
+            // Проверка книг (только для учеников и только если игра началась)
             if(playerRole === 'student') {
-                setInterval(() => {
+                if(checkInterval) clearInterval(checkInterval);
+                checkInterval = setInterval(() => {
                     if(!currentGameId || isCaught) return;
 
                     database.ref('games/' + currentGameId).once('value', (snapshot) => {
                         const game = snapshot.val();
+                        if(!game) return;
+                        
+                        // Проверяем книги только если игра началась
+                        if(game.status !== 'playing') return;
+                        
                         const player = game.players[playerId];
                         if(!player || player.caught || player.escaped) return;
 
@@ -503,17 +520,19 @@
 
             // Рисуем других игроков
             if(game.players) {
-                Object.values(game.players).forEach(p => {
-                    if(p.role === playerRole && p.role === 'baldi') return;
+                Object.entries(game.players).forEach(([id, p]) => {
+                    if(id === playerId) return; // не рисуем себя
+                    if(p.escaped) return;
                     
                     const screenX = p.x - offsetX;
                     const screenY = p.y - offsetY;
                     
                     if(screenX > 0 && screenX < 400 && screenY > 0 && screenY < 400) {
                         if(p.role === 'baldi') {
+                            // Baldi
                             ctx.fillStyle = '#ff0000';
                             ctx.shadowColor = '#ff0000';
-                            ctx.shadowBlur = 15;
+                            ctx.shadowBlur = 20;
                             ctx.beginPath();
                             ctx.arc(screenX, screenY, 12, 0, Math.PI * 2);
                             ctx.fill();
@@ -523,14 +542,20 @@
                             ctx.font = 'bold 16px Arial';
                             ctx.fillText('👨‍🏫', screenX-10, screenY+4);
                         } else {
-                            if(p.caught || p.escaped) return;
+                            // Ученики
+                            if(p.caught) return;
                             
                             ctx.fillStyle = '#ffd700';
                             ctx.shadowColor = '#ffd700';
-                            ctx.shadowBlur = 10;
+                            ctx.shadowBlur = 15;
                             ctx.beginPath();
                             ctx.arc(screenX, screenY, 8, 0, Math.PI * 2);
                             ctx.fill();
+                            
+                            ctx.shadowBlur = 0;
+                            ctx.fillStyle = 'black';
+                            ctx.font = 'bold 8px Arial';
+                            ctx.fillText(p.name, screenX-10, screenY-10);
                         }
                     }
                 });
@@ -538,7 +563,7 @@
 
             // Рисуем книги рядом (для учеников)
             if(playerRole === 'student' && game.books) {
-                Object.values(game.books).forEach(book => {
+                Object.entries(game.books).forEach(([id, book]) => {
                     if(!book.collected) {
                         const screenX = book.x - offsetX;
                         const screenY = book.y - offsetY;
@@ -546,14 +571,14 @@
                         if(screenX > 0 && screenX < 400 && screenY > 0 && screenY < 400) {
                             ctx.fillStyle = '#ffd700';
                             ctx.shadowColor = '#ffd700';
-                            ctx.shadowBlur = 8;
+                            ctx.shadowBlur = 10;
                             ctx.beginPath();
                             ctx.arc(screenX, screenY, 5, 0, Math.PI * 2);
                             ctx.fill();
                             
                             ctx.shadowBlur = 0;
                             ctx.fillStyle = 'black';
-                            ctx.font = 'bold 10px Arial';
+                            ctx.font = 'bold 8px Arial';
                             ctx.fillText('📚', screenX-4, screenY+3);
                         }
                     }
@@ -666,6 +691,12 @@
                 });
             }, 10000);
         }
+
+        // Очищаем интервалы при уходе со страницы
+        window.addEventListener('beforeunload', function() {
+            if(moveInterval) clearInterval(moveInterval);
+            if(checkInterval) clearInterval(checkInterval);
+        });
     </script>
 </body>
 </html>
