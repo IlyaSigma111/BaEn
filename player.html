@@ -267,7 +267,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0,0,0,0.5);
+            background: rgba(0,0,0,0.7);
             display: none;
             z-index: 1500;
             pointer-events: none;
@@ -282,15 +282,16 @@
             color: #16213e;
             padding: 20px;
             border-radius: 50%;
-            width: 80px;
-            height: 80px;
+            width: 100px;
+            height: 100px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 2rem;
+            font-size: 3rem;
             font-weight: bold;
             z-index: 1600;
             border: 4px solid white;
+            box-shadow: 0 0 30px #ffd700;
         }
 
         .caught-popup {
@@ -496,7 +497,7 @@
         let catchTimerInterval = null;
         let caughtStartTime = 0;
         let baldiSpeedMultiplier = 1.4;
-        let cooldownTimer = null;
+        let cooldownInterval = null;
 
         // ================== КАРТА ==================
         const WALL_SIZE = 30;
@@ -698,24 +699,26 @@
             return { x: oldX, y: oldY };
         }
 
-        function startCooldown() {
+        function startCooldown(seconds = 5) {
+            if(isOnCooldown) return;
+            
             isOnCooldown = true;
-            let seconds = 5;
+            let timeLeft = seconds;
             
             const cooldownOverlay = document.getElementById('cooldownOverlay');
             const cooldownTimer = document.getElementById('cooldownTimer');
             
             cooldownOverlay.style.display = 'block';
             cooldownTimer.style.display = 'flex';
-            cooldownTimer.textContent = seconds;
+            cooldownTimer.textContent = timeLeft;
             
-            if(cooldownTimer) clearInterval(cooldownTimer);
-            cooldownTimer = setInterval(() => {
-                seconds--;
-                cooldownTimer.textContent = seconds;
+            if(cooldownInterval) clearInterval(cooldownInterval);
+            cooldownInterval = setInterval(() => {
+                timeLeft--;
+                cooldownTimer.textContent = timeLeft;
                 
-                if(seconds <= 0) {
-                    clearInterval(cooldownTimer);
+                if(timeLeft <= 0) {
+                    clearInterval(cooldownInterval);
                     cooldownOverlay.style.display = 'none';
                     cooldownTimer.style.display = 'none';
                     isOnCooldown = false;
@@ -724,6 +727,9 @@
         }
 
         function startGame() {
+            // Стартовый кулдаун 3 секунды при входе в игру
+            startCooldown(3);
+            
             const canvas = document.getElementById('gameCanvas');
             const ctx = canvas.getContext('2d');
             ctx.imageSmoothingEnabled = false;
@@ -1117,7 +1123,7 @@
             
             showAnswerFeedback(isCorrect);
             closeQuestionPopup();
-            startCooldown();
+            startCooldown(5);
         };
 
         document.getElementById('closeQuestionBtn').onclick = function() {
@@ -1181,7 +1187,7 @@
             if(moveInterval) clearInterval(moveInterval);
             if(checkInterval) clearInterval(checkInterval);
             if(catchTimerInterval) clearInterval(catchTimerInterval);
-            if(cooldownTimer) clearInterval(cooldownTimer);
+            if(cooldownInterval) clearInterval(cooldownInterval);
         });
     </script>
 </body>
