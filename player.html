@@ -8,7 +8,6 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <script src="firebase.js"></script>
     <style>
-        /* Стили остаются такими же, как в предыдущей версии */
         @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
         
         * {
@@ -433,122 +432,36 @@
         let catchTimerInterval = null;
         let caughtStartTime = 0;
         let baldiSpeedMultiplier = 1.4;
+        let lastBookCheck = 0;
 
-        // ================== ПРОСТАЯ И ПОНЯТНАЯ КАРТА ==================
-        // Карта размером 2000x2000 с широкими коридорами
+        // ================== ПРОСТАЯ КАРТА ==================
+        const WALL_SIZE = 30;
+        const DOOR_SIZE = 80;
         
-        // Основные параметры
-        const WALL_SIZE = 30; // Тонкие стены
-        const DOOR_SIZE = 80;  // Широкие двери
-        
-        // Комнаты (все отдельно, ничего не пересекается)
         const rooms = [
-            // Верхний ряд
-            { 
-                name: "🧪 ЛАБОРАТОРИЯ", 
-                x: 150, y: 150, w: 250, h: 200,
-                door: { x: 275, y: 350 },
-                color: "#4B0082",
-                hasBooks: true
-            },
-            { 
-                name: "🔬 ХИМИЯ", 
-                x: 550, y: 150, w: 250, h: 200,
-                door: { x: 675, y: 350 },
-                color: "#9400D3",
-                hasBooks: true
-            },
-            { 
-                name: "📚 БИБЛИОТЕКА", 
-                x: 950, y: 150, w: 300, h: 220,
-                door: { x: 1100, y: 370 },
-                color: "#4682B4",
-                hasBooks: true
-            },
-            { 
-                name: "🎨 МАСТЕРСКАЯ", 
-                x: 1400, y: 150, w: 280, h: 200,
-                door: { x: 1540, y: 350 },
-                color: "#FF69B4",
-                hasBooks: true
-            },
-            
-            // Средний ряд
-            { 
-                name: "⚙️ ПОДСОБКА", 
-                x: 200, y: 600, w: 220, h: 180,
-                door: { x: 310, y: 780 },
-                color: "#696969",
-                hasBooks: false
-            },
-            { 
-                name: "🏛️ ХОЛЛ", 
-                x: 800, y: 550, w: 400, h: 300,
-                door: { x: 1000, y: 850 },
-                color: "#B8860B",
-                hasBooks: false
-            },
-            { 
-                name: "🎵 МУЗЫКА", 
-                x: 1350, y: 550, w: 250, h: 200,
-                door: { x: 1475, y: 750 },
-                color: "#9932CC",
-                hasBooks: true
-            },
-            
-            // Нижний ряд
-            { 
-                name: "📜 ИСТОРИЯ", 
-                x: 250, y: 1000, w: 280, h: 220,
-                door: { x: 390, y: 1220 },
-                color: "#CD5C5C",
-                hasBooks: true
-            },
-            { 
-                name: "🌍 ГЕОГРАФИЯ", 
-                x: 650, y: 1050, w: 260, h: 200,
-                door: { x: 780, y: 1250 },
-                color: "#2E8B57",
-                hasBooks: true
-            },
-            { 
-                name: "🏫 АКТОВЫЙ ЗАЛ", 
-                x: 1050, y: 1000, w: 350, h: 250,
-                door: { x: 1225, y: 1250 },
-                color: "#C71585",
-                hasBooks: false
-            },
-            { 
-                name: "🚪 ГАРДЕРОБ", 
-                x: 1550, y: 1100, w: 200, h: 150,
-                door: { x: 1650, y: 1250 },
-                color: "#8B4513",
-                hasBooks: false
-            }
+            { name: "🧪 ЛАБОРАТОРИЯ", x: 150, y: 150, w: 250, h: 200, door: { x: 275, y: 350 }, hasBooks: true },
+            { name: "🔬 ХИМИЯ", x: 550, y: 150, w: 250, h: 200, door: { x: 675, y: 350 }, hasBooks: true },
+            { name: "📚 БИБЛИОТЕКА", x: 950, y: 150, w: 300, h: 220, door: { x: 1100, y: 370 }, hasBooks: true },
+            { name: "🎨 МАСТЕРСКАЯ", x: 1400, y: 150, w: 280, h: 200, door: { x: 1540, y: 350 }, hasBooks: true },
+            { name: "⚙️ ПОДСОБКА", x: 200, y: 600, w: 220, h: 180, door: { x: 310, y: 780 }, hasBooks: false },
+            { name: "🏛️ ХОЛЛ", x: 800, y: 550, w: 400, h: 300, door: { x: 1000, y: 850 }, hasBooks: false },
+            { name: "🎵 МУЗЫКА", x: 1350, y: 550, w: 250, h: 200, door: { x: 1475, y: 750 }, hasBooks: true },
+            { name: "📜 ИСТОРИЯ", x: 250, y: 1000, w: 280, h: 220, door: { x: 390, y: 1220 }, hasBooks: true },
+            { name: "🌍 ГЕОГРАФИЯ", x: 650, y: 1050, w: 260, h: 200, door: { x: 780, y: 1250 }, hasBooks: true },
+            { name: "🏫 АКТОВЫЙ ЗАЛ", x: 1050, y: 1000, w: 350, h: 250, door: { x: 1225, y: 1250 }, hasBooks: false },
+            { name: "🚪 ГАРДЕРОБ", x: 1550, y: 1100, w: 200, h: 150, door: { x: 1650, y: 1250 }, hasBooks: false }
         ];
 
-        // Широкие коридоры (все проходы не меньше 150px)
         const corridors = [
-            // Главная горизонталь
-            { x: 0, y: 400, w: 2000, h: 150 },  // верхний коридор
-            { x: 0, y: 900, w: 2000, h: 150 },  // средний коридор
-            { x: 0, y: 1400, w: 2000, h: 150 }, // нижний коридор
-            
-            // Главные вертикали
-            { x: 400, y: 0, w: 150, h: 2000 },  // левая вертикаль
-            { x: 900, y: 0, w: 150, h: 2000 },  // центральная левая
-            { x: 1300, y: 0, w: 150, h: 2000 }, // центральная правая
-            { x: 1700, y: 0, w: 150, h: 2000 }, // правая вертикаль
-            
-            // Дополнительные соединения
-            { x: 600, y: 300, w: 100, h: 300 },
-            { x: 1100, y: 500, w: 100, h: 300 },
-            { x: 300, y: 800, w: 100, h: 300 },
-            { x: 1500, y: 700, w: 100, h: 300 },
-            { x: 800, y: 1100, w: 100, h: 300 }
+            { x: 0, y: 400, w: 2000, h: 150 },
+            { x: 0, y: 900, w: 2000, h: 150 },
+            { x: 0, y: 1400, w: 2000, h: 150 },
+            { x: 400, y: 0, w: 150, h: 2000 },
+            { x: 900, y: 0, w: 150, h: 2000 },
+            { x: 1300, y: 0, w: 150, h: 2000 },
+            { x: 1700, y: 0, w: 150, h: 2000 }
         ];
 
-        // Стены (только внешние)
         const walls = [
             { x: 0, y: 0, w: 2000, h: WALL_SIZE },
             { x: 0, y: 2000 - WALL_SIZE, w: 2000, h: WALL_SIZE },
@@ -616,12 +529,10 @@
                 let startX, startY;
                 
                 if(role === 'student') {
-                    // Случайная комната
                     const room = rooms[Math.floor(Math.random() * rooms.length)];
                     startX = room.x + 50 + Math.random() * (room.w - 100);
                     startY = room.y + 50 + Math.random() * (room.h - 100);
                 } else {
-                    // Baldi в центре
                     startX = 1000;
                     startY = 1000;
                 }
@@ -670,43 +581,32 @@
             return null;
         }
 
-        // ПРОСТАЯ ПРОВЕРКА СТОЛКНОВЕНИЙ
         function checkCollision(x, y) {
-            // Границы карты
             if(x < WALL_SIZE + 10 || x > 2000 - WALL_SIZE - 10 || 
                y < WALL_SIZE + 10 || y > 2000 - WALL_SIZE - 10) {
                 return true;
             }
 
-            // Стены
             for(let wall of walls) {
-                if(x > wall.x && x < wall.x + wall.w && 
-                   y > wall.y && y < wall.y + wall.h) {
+                if(x > wall.x && x < wall.x + wall.w && y > wall.y && y < wall.y + wall.h) {
                     return true;
                 }
             }
 
-            // Комнаты - можно ходить только через двери
             for(let room of rooms) {
-                // Если мы внутри комнаты
                 if(x > room.x && x < room.x + room.w && y > room.y && y < room.y + room.h) {
-                    // Всегда можно находиться внутри
                     return false;
                 }
                 
-                // Если мы снаружи, но близко к комнате
                 if(x > room.x - 20 && x < room.x + room.w + 20 && 
                    y > room.y - 20 && y < room.y + room.h + 20) {
                     
-                    // Проверяем, не пытаемся ли войти не через дверь
                     const distToDoor = Math.sqrt(
                         Math.pow(x - room.door.x, 2) + 
                         Math.pow(y - room.door.y, 2)
                     );
                     
-                    // Если мы снаружи и далеко от двери - не пускаем
-                    if(distToDoor > 60) {
-                        // Но разрешаем ходить вдоль стен
+                    if(distToDoor > 70) {
                         if(x < room.x - 5 || x > room.x + room.w + 5 || 
                            y < room.y - 5 || y > room.y + room.h + 5) {
                             return false;
@@ -720,17 +620,14 @@
         }
 
         function tryMove(oldX, oldY, targetX, targetY) {
-            // Пробуем двигаться прямо
             if(!checkCollision(targetX, targetY)) {
                 return { x: targetX, y: targetY };
             }
             
-            // Пробуем скользить по X
             if(!checkCollision(targetX, oldY)) {
                 return { x: targetX, y: oldY };
             }
             
-            // Пробуем скользить по Y
             if(!checkCollision(oldX, targetY)) {
                 return { x: oldX, y: targetY };
             }
@@ -866,6 +763,7 @@
                         const player = game.players[playerId];
                         if(!player || player.caught || player.escaped) return;
 
+                        // Проверяем книги каждые 200ms
                         checkNearbyBooks(game, player.x, player.y);
                     });
                 }, 200);
@@ -895,7 +793,7 @@
             ctx.fillStyle = '#1a1a2e';
             ctx.fillRect(0, 0, 400, 400);
 
-            // Рисуем коридоры (широкие и свободные)
+            // Рисуем коридоры
             ctx.fillStyle = '#2a2a4a';
             corridors.forEach(cor => {
                 const screenX = cor.x - offsetX;
@@ -905,7 +803,7 @@
                 }
             });
 
-            // Стены (только внешние)
+            // Стены
             ctx.fillStyle = '#4a4a8a';
             walls.forEach(wall => {
                 const screenX = wall.x - offsetX;
@@ -922,14 +820,14 @@
                 
                 const isCurrentRoom = currentRoom && currentRoom.name === room.name;
                 
-                // Стены комнаты (тонкие, чтобы было видно)
+                // Стены комнаты
                 ctx.fillStyle = '#6a6a9a';
-                ctx.fillRect(screenX - 4, screenY - 4, room.w + 8, 4); // верх
-                ctx.fillRect(screenX - 4, screenY + room.h, room.w + 8, 4); // низ
-                ctx.fillRect(screenX - 4, screenY - 4, 4, room.h + 8); // лево
-                ctx.fillRect(screenX + room.w, screenY - 4, 4, room.h + 8); // право
+                ctx.fillRect(screenX - 4, screenY - 4, room.w + 8, 4);
+                ctx.fillRect(screenX - 4, screenY + room.h, room.w + 8, 4);
+                ctx.fillRect(screenX - 4, screenY - 4, 4, room.h + 8);
+                ctx.fillRect(screenX + room.w, screenY - 4, 4, room.h + 8);
                 
-                // Дверь (яркая и заметная)
+                // Дверь
                 const doorX = room.door.x - offsetX;
                 const doorY = room.door.y - offsetY;
                 ctx.fillStyle = 'rgba(255, 215, 0, 0.9)';
@@ -943,45 +841,38 @@
                     ctx.fillStyle = '#ffd700';
                     ctx.font = 'bold 7px "Press Start 2P"';
                     ctx.fillText(room.name, screenX + 10, screenY + 25);
-                } else {
-                    // Если не текущая комната, показываем только если рядом
-                    const distToPlayer = Math.sqrt(
-                        Math.pow(room.x + room.w/2 - player.x, 2) + 
-                        Math.pow(room.y + room.h/2 - player.y, 2)
-                    );
-                    if(distToPlayer < 300) {
-                        ctx.fillStyle = '#3a3a5a';
-                        ctx.globalAlpha = 0.5;
-                        ctx.fillRect(screenX, screenY, room.w, room.h);
-                        ctx.globalAlpha = 1;
-                    }
                 }
             });
 
-            // Книги
-            if(game.books && currentRoom) {
-                Object.entries(game.books).forEach(([id, book]) => {
-                    if(!book.collected) {
-                        const bookRoom = getCurrentRoom(book.x, book.y);
-                        if(bookRoom && bookRoom.name === currentRoom.name) {
-                            const bookX = book.x - offsetX;
-                            const bookY = book.y - offsetY;
-                            
-                            if(bookX > 0 && bookX < 400 && bookY > 0 && bookY < 400) {
-                                const pulse = Math.sin(Date.now() / 200) * 3;
-                                ctx.fillStyle = '#ffd700';
-                                ctx.shadowColor = '#ffd700';
-                                ctx.shadowBlur = 15 + pulse;
-                                ctx.fillRect(bookX - 8, bookY - 6, 16, 12);
+            // Книги - рисуем ВСЕГДА, если игрок в комнате
+            if(game.books) {
+                if(currentRoom) {
+                    // Показываем только книги в текущей комнате
+                    Object.entries(game.books).forEach(([id, book]) => {
+                        if(!book.collected) {
+                            // Проверяем, в какой комнате книга
+                            const bookRoom = getCurrentRoom(book.x, book.y);
+                            if(bookRoom && bookRoom.name === currentRoom.name) {
+                                const bookX = book.x - offsetX;
+                                const bookY = book.y - offsetY;
                                 
-                                ctx.shadowBlur = 0;
-                                ctx.fillStyle = '#000';
-                                ctx.font = 'bold 10px Arial';
-                                ctx.fillText('📘', bookX - 6, bookY);
+                                if(bookX > 0 && bookX < 400 && bookY > 0 && bookY < 400) {
+                                    // Мерцающий эффект
+                                    const pulse = Math.sin(Date.now() / 200) * 3;
+                                    ctx.fillStyle = '#ffd700';
+                                    ctx.shadowColor = '#ffd700';
+                                    ctx.shadowBlur = 15 + pulse;
+                                    ctx.fillRect(bookX - 8, bookY - 6, 16, 12);
+                                    
+                                    ctx.shadowBlur = 0;
+                                    ctx.fillStyle = '#000';
+                                    ctx.font = 'bold 10px Arial';
+                                    ctx.fillText('📘', bookX - 6, bookY);
+                                }
                             }
                         }
-                    }
-                });
+                    });
+                }
             }
 
             // Другие игроки
@@ -1062,34 +953,47 @@
             else document.getElementById('compass').innerHTML = '⏺️ ЦЕНТР';
         }
 
+        // ИСПРАВЛЕННАЯ ПРОВЕРКА КНИГ
         function checkNearbyBooks(game, x, y) {
             if(!game.books) return;
 
             const currentRoom = getCurrentRoom(x, y);
-            if(!currentRoom) return;
+            if(!currentRoom) return; // В коридоре книг нет
 
+            // Проверяем все книги
             Object.entries(game.books).forEach(([id, book]) => {
+                // Только если книга еще не собрана
                 if(!book.collected) {
+                    // Проверяем, в какой комнате книга
                     const bookRoom = getCurrentRoom(book.x, book.y);
                     
+                    // Книга должна быть в той же комнате, где игрок
                     if(bookRoom && bookRoom.name === currentRoom.name) {
+                        // Рассчитываем расстояние до книги
                         const dist = Math.sqrt(
                             Math.pow(book.x - x, 2) + 
                             Math.pow(book.y - y, 2)
                         );
                         
-                        if(dist < 60) {
+                        // Если игрок близко к книге и попап еще не открыт
+                        if(dist < 60 && !currentQuestion) {
+                            console.log("Книга найдена!", book);
+                            
+                            // Сохраняем вопрос
                             currentQuestion = { ...book, id };
                             
+                            // Устанавливаем текст вопроса
                             const questionEl = document.getElementById('questionText');
                             const answerEl = document.getElementById('answerInput');
                             
                             questionEl.textContent = book.question;
                             answerEl.value = '';
                             
+                            // Показываем попап
                             document.getElementById('questionPopup').style.display = 'block';
                             document.getElementById('overlay').style.display = 'block';
                             
+                            // Фокус на поле ввода
                             setTimeout(() => {
                                 answerEl.focus();
                             }, 300);
@@ -1110,23 +1014,33 @@
             }, 1000);
         }
 
+        // ИСПРАВЛЕННАЯ ОТПРАВКА ОТВЕТА
         document.getElementById('submitAnswer').onclick = function() {
-            if(!currentQuestion) return;
+            if(!currentQuestion) {
+                console.log("Нет текущего вопроса");
+                return;
+            }
 
             const answer = document.getElementById('answerInput').value.trim().toLowerCase();
-            const isCorrect = (answer === currentQuestion.answer.toLowerCase());
+            const correctAnswer = currentQuestion.answer.toLowerCase();
+            const isCorrect = (answer === correctAnswer);
             
+            console.log("Ответ:", answer, "Правильный:", correctAnswer, "Результат:", isCorrect);
+            
+            // Сохраняем результат ответа
             database.ref('games/' + currentGameId + '/players/' + playerId).update({
                 lastAnswer: isCorrect,
                 lastAnswerTime: Date.now()
             });
             
             if(isCorrect) {
+                // Правильный ответ - собираем книгу
                 database.ref('games/' + currentGameId + '/books/' + currentQuestion.id).update({
                     collected: true,
                     collectedBy: playerId
                 });
 
+                // Увеличиваем счетчик книг у игрока
                 database.ref('games/' + currentGameId + '/players/' + playerId).once('value', (snapshot) => {
                     const player = snapshot.val();
                     const newCount = (player.books || 0) + 1;
@@ -1135,6 +1049,7 @@
                         books: newCount
                     });
 
+                    // Увеличиваем общий счет
                     database.ref('games/' + currentGameId).once('value', (snapshot) => {
                         const game = snapshot.val();
                         database.ref('games/' + currentGameId).update({
@@ -1144,13 +1059,16 @@
                 });
             }
             
+            // Показываем обратную связь
             showAnswerFeedback(isCorrect);
             
+            // Закрываем попап
             document.getElementById('questionPopup').style.display = 'none';
             document.getElementById('overlay').style.display = 'none';
             currentQuestion = null;
         };
 
+        // Закрытие по клику на оверлей
         document.getElementById('overlay').onclick = function() {
             if(document.getElementById('questionPopup').style.display === 'block') {
                 document.getElementById('questionPopup').style.display = 'none';
