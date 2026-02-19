@@ -364,7 +364,7 @@
                 <div class="progress" id="booksProgress">📚 0/20</div>
                 <div id="playersCount">👥 0</div>
                 <div id="exitStatus">🚪 ЗАКРЫТ</div>
-                <div class="room-indicator" id="totalRooms">🏫 15 КОМНАТ</div>
+                <div class="room-indicator" id="totalRooms">🏫 11 КОМНАТ</div>
             </div>
 
             <div class="canvas-container" id="canvasContainer">
@@ -380,7 +380,7 @@
                 <button class="canvas-btn" id="findBaldiBtn">👨‍🏫 BALDI</button>
             </div>
 
-            <div id="zoomIndicator" class="zoom-indicator" style="display: none;">🔍 x1.0</div>
+            <div id="zoomIndicator" class="zoom-indicator" style="display: none;">🔍 x0.5</div>
 
             <div class="legend">
                 <div class="legend-item">
@@ -439,59 +439,44 @@
         let isDragging = false;
         let dragStartX, dragStartY;
 
-        // ================== ПЛАНИРОВКА ШКОЛЫ (такая же как в player.html) ==================
+        // ================== ТА ЖЕ КАРТА, ЧТО И В player.html ==================
+        const WALL_SIZE = 30;
+        const DOOR_SIZE = 80;
+        
         const rooms = [
-            { name: "🧪 ЛАБОРАТОРИЯ", x: 650, y: 350, w: 280, h: 200, door: { x: 780, y: 550 }, hasBooks: true },
-            { name: "🔬 ХИМИЯ", x: 1050, y: 300, w: 250, h: 220, door: { x: 1170, y: 520 }, hasBooks: true },
-            { name: "⚗️ АЛХИМИЯ", x: 450, y: 200, w: 230, h: 180, door: { x: 560, y: 380 }, hasBooks: false },
-            { name: "🎨 МАСТЕРСКАЯ", x: 1400, y: 700, w: 300, h: 240, door: { x: 1550, y: 940 }, hasBooks: true },
-            { name: "🎵 МУЗЫКА", x: 1300, y: 1000, w: 280, h: 200, door: { x: 1440, y: 1200 }, hasBooks: true },
-            { name: "📸 ФОТО", x: 1550, y: 1150, w: 220, h: 180, door: { x: 1660, y: 1330 }, hasBooks: false },
-            { name: "📜 ИСТОРИЯ", x: 900, y: 1300, w: 260, h: 210, door: { x: 1030, y: 1510 }, hasBooks: true },
-            { name: "🌍 ГЕОГРАФИЯ", x: 600, y: 1450, w: 240, h: 190, door: { x: 720, y: 1640 }, hasBooks: true },
-            { name: "🏛️ АРХЕОЛОГИЯ", x: 1150, y: 1500, w: 280, h: 200, door: { x: 1290, y: 1700 }, hasBooks: false },
-            { name: "📚 БИБЛИОТЕКА", x: 200, y: 900, w: 320, h: 280, door: { x: 360, y: 1180 }, hasBooks: true },
-            { name: "🔮 ЗАКУЛИСЬЕ", x: 50, y: 600, w: 220, h: 200, door: { x: 160, y: 800 }, hasBooks: false },
-            { name: "⚙️ ПОДСОБКА", x: 300, y: 500, w: 200, h: 180, door: { x: 400, y: 680 }, hasBooks: false },
-            { name: "🍎 СТОЛОВАЯ", x: 1100, y: 550, w: 300, h: 200, door: { x: 1250, y: 750 }, hasBooks: false },
-            { name: "🏫 АКТОВЫЙ ЗАЛ", x: 450, y: 1100, w: 350, h: 250, door: { x: 620, y: 1350 }, hasBooks: false },
-            { name: "🚪 ГАРДЕРОБ", x: 800, y: 1800, w: 200, h: 150, door: { x: 900, y: 1950 }, hasBooks: false }
+            { name: "🧪 ЛАБОРАТОРИЯ", x: 150, y: 150, w: 250, h: 200, door: { x: 275, y: 350 }, hasBooks: true },
+            { name: "🔬 ХИМИЯ", x: 550, y: 150, w: 250, h: 200, door: { x: 675, y: 350 }, hasBooks: true },
+            { name: "📚 БИБЛИОТЕКА", x: 950, y: 150, w: 300, h: 220, door: { x: 1100, y: 370 }, hasBooks: true },
+            { name: "🎨 МАСТЕРСКАЯ", x: 1400, y: 150, w: 280, h: 200, door: { x: 1540, y: 350 }, hasBooks: true },
+            { name: "⚙️ ПОДСОБКА", x: 200, y: 600, w: 220, h: 180, door: { x: 310, y: 780 }, hasBooks: false },
+            { name: "🏛️ ХОЛЛ", x: 800, y: 550, w: 400, h: 300, door: { x: 1000, y: 850 }, hasBooks: false },
+            { name: "🎵 МУЗЫКА", x: 1350, y: 550, w: 250, h: 200, door: { x: 1475, y: 750 }, hasBooks: true },
+            { name: "📜 ИСТОРИЯ", x: 250, y: 1000, w: 280, h: 220, door: { x: 390, y: 1220 }, hasBooks: true },
+            { name: "🌍 ГЕОГРАФИЯ", x: 650, y: 1050, w: 260, h: 200, door: { x: 780, y: 1250 }, hasBooks: true },
+            { name: "🏫 АКТОВЫЙ ЗАЛ", x: 1050, y: 1000, w: 350, h: 250, door: { x: 1225, y: 1250 }, hasBooks: false },
+            { name: "🚪 ГАРДЕРОБ", x: 1550, y: 1100, w: 200, h: 150, door: { x: 1650, y: 1250 }, hasBooks: false }
         ];
 
         const corridors = [
-            { x: 800, y: 800, w: 400, h: 400 },
-            { x: 900, y: 550, w: 200, h: 250 },
-            { x: 650, y: 550, w: 250, h: 200 },
-            { x: 1050, y: 520, w: 200, h: 200 },
-            { x: 1200, y: 900, w: 300, h: 200 },
-            { x: 1400, y: 940, w: 200, h: 260 },
-            { x: 1300, y: 1200, w: 240, h: 200 },
-            { x: 900, y: 1200, w: 200, h: 300 },
-            { x: 600, y: 1350, w: 300, h: 200 },
-            { x: 1100, y: 1400, w: 250, h: 200 },
-            { x: 500, y: 900, w: 300, h: 200 },
-            { x: 200, y: 900, w: 300, h: 200 },
-            { x: 300, y: 700, w: 200, h: 200 }
+            { x: 0, y: 400, w: 2000, h: 150 },
+            { x: 0, y: 900, w: 2000, h: 150 },
+            { x: 0, y: 1400, w: 2000, h: 150 },
+            { x: 400, y: 0, w: 150, h: 2000 },
+            { x: 900, y: 0, w: 150, h: 2000 },
+            { x: 1300, y: 0, w: 150, h: 2000 },
+            { x: 1700, y: 0, w: 150, h: 2000 },
+            { x: 600, y: 300, w: 100, h: 300 },
+            { x: 1100, y: 500, w: 100, h: 300 },
+            { x: 300, y: 800, w: 100, h: 300 },
+            { x: 1500, y: 700, w: 100, h: 300 },
+            { x: 800, y: 1100, w: 100, h: 300 }
         ];
 
-        // ДОБАВЛЕНО БОЛЬШЕ СТЕН (как в player.html)
         const walls = [
-            { x: 0, y: 0, w: 2000, h: 40 },
-            { x: 0, y: 1960, w: 2000, h: 40 },
-            { x: 0, y: 0, w: 40, h: 2000 },
-            { x: 1960, y: 0, w: 40, h: 2000 },
-            { x: 400, y: 400, w: 40, h: 400 },
-            { x: 1500, y: 500, w: 40, h: 500 },
-            { x: 300, y: 1300, w: 400, h: 40 },
-            { x: 1300, y: 300, w: 400, h: 40 },
-            { x: 700, y: 700, w: 40, h: 300 },
-            { x: 1100, y: 1100, w: 40, h: 300 },
-            { x: 500, y: 800, w: 300, h: 40 },
-            { x: 1200, y: 600, w: 300, h: 40 },
-            { x: 800, y: 400, w: 40, h: 200 },
-            { x: 1000, y: 1500, w: 200, h: 40 },
-            { x: 200, y: 400, w: 40, h: 300 },
-            { x: 1700, y: 1200, w: 40, h: 300 }
+            { x: 0, y: 0, w: 2000, h: WALL_SIZE },
+            { x: 0, y: 2000 - WALL_SIZE, w: 2000, h: WALL_SIZE },
+            { x: 0, y: 0, w: WALL_SIZE, h: 2000 },
+            { x: 2000 - WALL_SIZE, y: 0, w: WALL_SIZE, h: 2000 }
         ];
 
         function generateBooks() {
@@ -718,16 +703,16 @@
             ctx.fillStyle = '#1a1a2e';
             ctx.fillRect(0, 0, 2000, 2000);
 
-            // Рисуем стены
-            ctx.fillStyle = '#4a4a8a';
-            walls.forEach(wall => {
-                ctx.fillRect(wall.x, wall.y, wall.w, wall.h);
-            });
-
             // Рисуем коридоры
             ctx.fillStyle = '#2a2a4a';
             corridors.forEach(cor => {
                 ctx.fillRect(cor.x, cor.y, cor.w, cor.h);
+            });
+
+            // Стены
+            ctx.fillStyle = '#4a4a8a';
+            walls.forEach(wall => {
+                ctx.fillRect(wall.x, wall.y, wall.w, wall.h);
             });
 
             // Рисуем комнаты
@@ -738,14 +723,14 @@
                 
                 // Стены комнаты
                 ctx.fillStyle = '#6a6a9a';
-                ctx.fillRect(room.x - 6, room.y - 6, room.w + 12, 6);
-                ctx.fillRect(room.x - 6, room.y + room.h, room.w + 12, 6);
-                ctx.fillRect(room.x - 6, room.y - 6, 6, room.h + 12);
-                ctx.fillRect(room.x + room.w, room.y - 6, 6, room.h + 12);
+                ctx.fillRect(room.x - 4, room.y - 4, room.w + 8, 4);
+                ctx.fillRect(room.x - 4, room.y + room.h, room.w + 8, 4);
+                ctx.fillRect(room.x - 4, room.y - 4, 4, room.h + 8);
+                ctx.fillRect(room.x + room.w, room.y - 4, 4, room.h + 8);
                 
                 // Дверь
                 ctx.fillStyle = 'rgba(255, 215, 0, 0.9)';
-                ctx.fillRect(room.door.x - 25, room.door.y - 15, 50, 30);
+                ctx.fillRect(room.door.x - 30, room.door.y - 15, 60, 30);
                 
                 // Название комнаты
                 ctx.fillStyle = '#ffd700';
@@ -781,17 +766,15 @@
                 });
             }
 
-            // Рисуем игроков (с динамическим размером текста)
+            // Рисуем игроков
             if(game.players) {
                 Object.entries(game.players).forEach(([id, p]) => {
                     if(p.escaped) return;
                     
-                    // Размер текста зависит от масштаба
                     const baseFontSize = Math.max(10, 14 / canvasScale);
                     const smallFontSize = Math.max(8, 10 / canvasScale);
                     
                     if(p.role === 'baldi') {
-                        // Baldi
                         ctx.fillStyle = '#ff0000';
                         ctx.shadowColor = '#ff0000';
                         ctx.shadowBlur = 30;
@@ -804,12 +787,10 @@
                         ctx.font = `bold ${baseFontSize + 6}px Arial`;
                         ctx.fillText('👨‍🏫', p.x-12, p.y+7);
                         
-                        // Имя Baldi (всегда читаемо)
                         ctx.fillStyle = 'white';
                         ctx.font = `bold ${smallFontSize}px "Press Start 2P"`;
                         ctx.fillText(p.name, p.x-30, p.y-35);
                     } else {
-                        // Ученики
                         if(p.caught) {
                             ctx.fillStyle = '#666666';
                         } else {
@@ -826,17 +807,14 @@
                         ctx.font = `bold ${baseFontSize}px Arial`;
                         ctx.fillText('🧑', p.x-9, p.y+5);
                         
-                        // Имя ученика (увеличенное при отдалении)
                         ctx.fillStyle = 'white';
                         ctx.font = `bold ${smallFontSize}px "Press Start 2P"`;
                         ctx.fillText(p.name, p.x-25, p.y-30);
                         
-                        // Количество книг
                         ctx.fillStyle = '#ffd700';
                         ctx.font = `bold ${smallFontSize}px Arial`;
                         ctx.fillText(`📚${p.books || 0}`, p.x+15, p.y-20);
                         
-                        // Результат последнего ответа (увеличенный)
                         if(p.lastAnswer === true) {
                             ctx.fillStyle = '#44ff44';
                             ctx.font = `bold ${baseFontSize + 10}px Arial`;
@@ -867,13 +845,6 @@
                 ctx.font = 'bold 36px Arial';
                 ctx.fillText('🚪', game.exit.x-15, game.exit.y+12);
             }
-
-            // Центральный холл
-            ctx.strokeStyle = '#ffd700';
-            ctx.lineWidth = 3;
-            ctx.strokeRect(800, 800, 400, 400);
-            ctx.fillStyle = 'rgba(255,215,0,0.1)';
-            ctx.fillRect(800, 800, 400, 400);
         }
 
         function updateStats(game) {
