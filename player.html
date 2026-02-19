@@ -57,6 +57,7 @@
             font-family: 'Press Start 2P', cursive;
             font-size: 0.8rem;
             color: white;
+            outline: none;
         }
 
         .join-screen input::placeholder {
@@ -232,6 +233,7 @@
             font-size: 0.8rem;
             color: white;
             margin-bottom: 15px;
+            outline: none;
         }
 
         .question-popup button {
@@ -355,10 +357,38 @@
         .room-name.visible {
             display: block;
         }
+
+        .answer-feedback {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 5rem;
+            z-index: 3000;
+            display: none;
+            animation: pop 0.5s;
+        }
+
+        @keyframes pop {
+            0% { transform: translate(-50%, -50%) scale(0); }
+            50% { transform: translate(-50%, -50%) scale(1.5); }
+            100% { transform: translate(-50%, -50%) scale(1); }
+        }
+
+        .answer-feedback.correct {
+            color: #44ff44;
+            text-shadow: 0 0 30px #44ff44;
+        }
+
+        .answer-feedback.wrong {
+            color: #ff4444;
+            text-shadow: 0 0 30px #ff4444;
+        }
     </style>
 </head>
 <body>
     <div id="overlay" class="overlay"></div>
+    <div id="answerFeedback" class="answer-feedback"></div>
 
     <div class="container">
         <div id="joinScreen" class="join-screen">
@@ -619,9 +649,9 @@
 
             // Проверка комнат
             for(let room of rooms) {
-                // Если пытаемся войти в комнату не через дверь
-                if(x > room.x - 10 && x < room.x + room.w + 10 && 
-                   y > room.y - 10 && y < room.y + room.h + 10) {
+                // Если пытаемся войти в комнату
+                if(x > room.x - 15 && x < room.x + room.w + 15 && 
+                   y > room.y - 15 && y < room.y + room.h + 15) {
                     
                     // Проверяем, не внутри ли мы уже комнаты
                     const wasInside = (oldX > room.x && oldX < room.x + room.w && 
@@ -629,9 +659,14 @@
                     
                     // Если мы были снаружи и пытаемся войти
                     if(!wasInside) {
-                        const atDoor = Math.abs(x - room.door.x) < 50 && Math.abs(y - room.door.y) < 40;
-                        if(!atDoor) {
-                            // Пытаемся войти через стену
+                        // Проверяем, достаточно ли близко к двери
+                        const distToDoor = Math.sqrt(
+                            Math.pow(x - room.door.x, 2) + 
+                            Math.pow(y - room.door.y, 2)
+                        );
+                        
+                        // Увеличен радиус входа
+                        if(distToDoor > 60) {
                             return true;
                         }
                     }
@@ -641,14 +676,26 @@
             return false;
         }
 
-        // ПЛАВНОЕ ДВИЖЕНИЕ СКОЛЬЖЕНИЕМ ВДОЛЬ СТЕН
+        // ПЛАВНОЕ ДВИЖЕНИЕ
         function tryMove(oldX, oldY, targetX, targetY) {
             // Сначала пробуем двигаться прямо
             if(!checkCollision(targetX, targetY, oldX, oldY)) {
                 return { x: targetX, y: targetY };
             }
             
-            // Если уперлись, пробуем скользить по X
+            // Пробуем разные варианты для скольжения
+            const steps = 5;
+            for(let i = 1; i <= steps; i++) {
+                const t = i / steps;
+                const tryX = oldX + (targetX - oldX) * t;
+                const tryY = oldY + (targetY - oldY) * t;
+                
+                if(!checkCollision(tryX, tryY, oldX, oldY)) {
+                    return { x: tryX, y: tryY };
+                }
+            }
+            
+            // Пробуем скользить по X
             let slideX = targetX;
             let slideY = oldY;
             if(!checkCollision(slideX, slideY, oldX, oldY)) {
@@ -740,7 +787,6 @@
                     let targetX = oldX + velocityX * 2;
                     let targetY = oldY + velocityY * 2;
                     
-                    // Плавное движение с учетом коллизий
                     const newPos = tryMove(oldX, oldY, targetX, targetY);
                     
                     if(playerRole === 'baldi') {
@@ -760,7 +806,6 @@
                         });
                     }
                     
-                    // Обновляем позицию только если она изменилась
                     if(newPos.x !== oldX || newPos.y !== oldY) {
                         database.ref('games/' + currentGameId + '/players/' + playerId).update({
                             x: newPos.x,
@@ -823,11 +868,21 @@
                 document.getElementById('currentRoom').classList.add('visible');
             }
 
-            // Пол
-            ctx.fillStyle = '#1a1a2e';
+            // Пол коридоров
+            ctx.fillStyle = '#2a2a4a';
+            corridors.forEach(cor => {
+                const screenX = cor.x - offsetX;
+                const screenY = cor.y - offsetY;
+                if(screenX > -200 && screenX < 600 && screenY > -200 && screenY < 600) {
+                    ctx.fillRect(screenX, screenY, cor.w, cor.h);
+                }
+            });
+
+            // Пол между коридорами (чтобы не было дыр)
+            ctx.fillStyle = '#2a2a4a';
             ctx.fillRect(0, 0, 400, 400);
 
-            // Рисуем стены (всегда видны)
+            // Стены
             ctx.fillStyle = '#4a4a8a';
             walls.forEach(wall => {
                 const screenX = wall.x - offsetX;
@@ -837,57 +892,47 @@
                 }
             });
 
-            // Рисуем коридоры
-            ctx.fillStyle = '#2a2a4a';
-            corridors.forEach(cor => {
-                const screenX = cor.x - offsetX;
-                const screenY = cor.y - offsetY;
-                if(screenX > -150 && screenX < 550 && screenY > -150 && screenY < 550) {
-                    ctx.fillRect(screenX, screenY, cor.w, cor.h);
-                }
-            });
-
-            // Рисуем комнаты и их стены (видимые из коридора)
+            // Рисуем комнаты
             rooms.forEach(room => {
                 const screenX = room.x - offsetX;
                 const screenY = room.y - offsetY;
                 
-                // Всегда рисуем внешние стены комнат (чтобы было видно границы)
-                ctx.fillStyle = '#6a6a9a';
-                
-                // Верхняя стена
-                if(screenY - 5 > -50 && screenY - 5 < 450) {
-                    ctx.fillRect(screenX - 5, screenY - 5, room.w + 10, 5);
-                }
-                // Нижняя стена
-                if(screenY + room.h > -50 && screenY + room.h < 450) {
-                    ctx.fillRect(screenX - 5, screenY + room.h, room.w + 10, 5);
-                }
-                // Левая стена
-                if(screenX - 5 > -50 && screenX - 5 < 450) {
-                    ctx.fillRect(screenX - 5, screenY - 5, 5, room.h + 10);
-                }
-                // Правая стена
-                if(screenX + room.w > -50 && screenX + room.w < 450) {
-                    ctx.fillRect(screenX + room.w, screenY - 5, 5, room.h + 10);
-                }
-                
-                // Дверь (видна всегда)
-                const doorX = room.door.x - offsetX;
-                const doorY = room.door.y - offsetY;
-                if(doorX > -50 && doorX < 450 && doorY > -50 && doorY < 450) {
-                    ctx.fillStyle = 'rgba(139, 69, 19, 0.7)';
-                    ctx.fillRect(doorX - 20, doorY - 10, 40, 20);
-                }
-                
-                // Пол комнаты виден только если игрок внутри или рядом с дверью
                 const isCurrentRoom = currentRoom && currentRoom.name === room.name;
                 const distToDoor = Math.sqrt(
                     Math.pow(room.door.x - player.x, 2) + 
                     Math.pow(room.door.y - player.y, 2)
                 );
                 
-                if(isCurrentRoom || distToDoor < 150) {
+                // Всегда рисуем внешние стены комнат
+                ctx.fillStyle = '#6a6a9a';
+                
+                // Верхняя стена
+                if(screenY - 5 > -100 && screenY - 5 < 500) {
+                    ctx.fillRect(screenX - 5, screenY - 5, room.w + 10, 5);
+                }
+                // Нижняя стена
+                if(screenY + room.h > -100 && screenY + room.h < 500) {
+                    ctx.fillRect(screenX - 5, screenY + room.h, room.w + 10, 5);
+                }
+                // Левая стена
+                if(screenX - 5 > -100 && screenX - 5 < 500) {
+                    ctx.fillRect(screenX - 5, screenY - 5, 5, room.h + 10);
+                }
+                // Правая стена
+                if(screenX + room.w > -100 && screenX + room.w < 500) {
+                    ctx.fillRect(screenX + room.w, screenY - 5, 5, room.h + 10);
+                }
+                
+                // Дверь
+                const doorX = room.door.x - offsetX;
+                const doorY = room.door.y - offsetY;
+                if(doorX > -50 && doorX < 450 && doorY > -50 && doorY < 450) {
+                    ctx.fillStyle = 'rgba(139, 69, 19, 0.8)';
+                    ctx.fillRect(doorX - 20, doorY - 10, 40, 20);
+                }
+                
+                // Пол комнаты (только если игрок внутри или рядом)
+                if(isCurrentRoom || distToDoor < 200) {
                     ctx.fillStyle = room.hasBooks ? '#4a4a6a' : '#3a3a5a';
                     ctx.fillRect(screenX, screenY, room.w, room.h);
                     
@@ -899,7 +944,7 @@
                 }
             });
 
-            // Книги (только в текущей комнате)
+            // Книги
             if(game.books && currentRoom) {
                 Object.entries(game.books).forEach(([id, book]) => {
                     if(!book.collected) {
@@ -946,6 +991,11 @@
                             ctx.fillStyle = 'white';
                             ctx.font = 'bold 16px Arial';
                             ctx.fillText('👨‍🏫', screenX-9, screenY+5);
+                            
+                            // Имя Baldi
+                            ctx.fillStyle = 'white';
+                            ctx.font = 'bold 8px "Press Start 2P"';
+                            ctx.fillText(p.name, screenX-20, screenY-20);
                         } else if(!p.caught) {
                             ctx.fillStyle = '#ffd700';
                             ctx.shadowColor = '#ffd700';
@@ -958,6 +1008,22 @@
                             ctx.fillStyle = '#000';
                             ctx.font = 'bold 12px Arial';
                             ctx.fillText('🧑', screenX-7, screenY+3);
+                            
+                            // Имя ученика
+                            ctx.fillStyle = 'white';
+                            ctx.font = 'bold 6px "Press Start 2P"';
+                            ctx.fillText(p.name, screenX-15, screenY-15);
+                            
+                            // Результат ответа
+                            if(p.lastAnswer === true) {
+                                ctx.fillStyle = '#44ff44';
+                                ctx.font = 'bold 12px Arial';
+                                ctx.fillText('✓', screenX+10, screenY-10);
+                            } else if(p.lastAnswer === false) {
+                                ctx.fillStyle = '#ff4444';
+                                ctx.font = 'bold 12px Arial';
+                                ctx.fillText('✗', screenX+10, screenY-10);
+                            }
                         }
                     }
                 });
@@ -1021,19 +1087,41 @@
                             document.getElementById('answerInput').value = '';
                             document.getElementById('questionPopup').style.display = 'block';
                             document.getElementById('overlay').style.display = 'block';
-                            setTimeout(() => document.getElementById('answerInput').focus(), 100);
+                            
+                            // Фокус на инпут с небольшой задержкой
+                            setTimeout(() => {
+                                document.getElementById('answerInput').focus();
+                            }, 200);
                         }
                     }
                 }
             });
         }
 
+        function showAnswerFeedback(isCorrect) {
+            const feedback = document.getElementById('answerFeedback');
+            feedback.textContent = isCorrect ? '✓' : '✗';
+            feedback.className = `answer-feedback ${isCorrect ? 'correct' : 'wrong'}`;
+            feedback.style.display = 'block';
+            
+            setTimeout(() => {
+                feedback.style.display = 'none';
+            }, 1000);
+        }
+
         document.getElementById('submitAnswer').onclick = function() {
             if(!currentQuestion) return;
 
             const answer = document.getElementById('answerInput').value.toLowerCase().trim();
+            const isCorrect = (answer === currentQuestion.answer.toLowerCase());
             
-            if(answer === currentQuestion.answer.toLowerCase()) {
+            // Сохраняем результат ответа для отображения на доске
+            database.ref('games/' + currentGameId + '/players/' + playerId).update({
+                lastAnswer: isCorrect,
+                lastAnswerTime: Date.now()
+            });
+            
+            if(isCorrect) {
                 database.ref('games/' + currentGameId + '/books/' + currentQuestion.id).update({
                     collected: true,
                     collectedBy: playerId
@@ -1054,12 +1142,10 @@
                         });
                     });
                 });
-
-                closeQuestionPopup();
-            } else {
-                alert('❌ Неправильно!');
-                closeQuestionPopup();
             }
+            
+            showAnswerFeedback(isCorrect);
+            closeQuestionPopup();
         };
 
         function closeQuestionPopup() {
