@@ -147,11 +147,11 @@
             left: 10px;
             right: 10px;
             bottom: 10px;
-            background: radial-gradient(circle at center, transparent 30%, #1a1a2e 90%);
+            background: radial-gradient(circle at center, transparent 40%, #1a1a2e 100%);
             pointer-events: none;
             border-radius: 10px;
             z-index: 5;
-            opacity: 0.7;
+            opacity: 0.5;
         }
 
         .controls {
@@ -361,7 +361,6 @@
     <div id="overlay" class="overlay"></div>
 
     <div class="container">
-        <!-- ТОЛЬКО ЭКРАН ВХОДА, НИКАКОГО ЛОББИ -->
         <div id="joinScreen" class="join-screen">
             <h1>📱 ТЕЛЕФОН</h1>
             
@@ -378,7 +377,6 @@
             <button id="joinBtn">ВОЙТИ В ИГРУ</button>
         </div>
 
-        <!-- ИГРОВОЙ ЭКРАН -->
         <div id="gameScreen" class="game-screen">
             <div class="header">
                 <div id="roleDisplay" class="role-indicator">👨‍🏫</div>
@@ -409,7 +407,6 @@
         </div>
     </div>
 
-    <!-- ПОПАПЫ -->
     <div id="questionPopup" class="question-popup">
         <h3 id="questionText">...</h3>
         <input type="text" id="answerInput" placeholder="ОТВЕТ">
@@ -486,19 +483,16 @@
             { x: 1300, y: 300, w: 400, h: 30 }
         ];
 
-        // Выбор роли
         document.getElementById('roleSelect').onchange = function() {
             const role = this.value;
             document.getElementById('speedIndicator').className = role === 'baldi' ? 'speed-indicator baldi' : 'speed-indicator';
         };
 
-        // Вход в игру
         document.getElementById('joinBtn').onclick = async function() {
             const gameCode = document.getElementById('gameCode').value.trim();
             const name = document.getElementById('playerName').value.trim();
             const role = document.getElementById('roleSelect').value;
 
-            // Валидация
             if(!gameCode || gameCode.length !== 6 || !/^\d+$/.test(gameCode)) {
                 showError('Код должен быть из 6 цифр!');
                 return;
@@ -525,7 +519,6 @@
                     return;
                 }
 
-                // Проверка уникальности имени
                 const players = game.players || {};
                 const nameExists = Object.values(players).some(p => p.name.toLowerCase() === name.toLowerCase());
                 
@@ -548,7 +541,6 @@
                 playerName = name;
                 playerRole = role;
 
-                // Рандомный спавн
                 let startX, startY;
                 
                 if(role === 'student') {
@@ -578,7 +570,6 @@
                     lastCaught: 0
                 });
 
-                // Переключаемся на игровой экран
                 document.getElementById('joinScreen').style.display = 'none';
                 document.getElementById('gameScreen').style.display = 'block';
                 
@@ -605,7 +596,6 @@
             }, 3000);
         }
 
-        // Проверка в комнате ли игрок
         function getCurrentRoom(x, y) {
             for(let room of rooms) {
                 if(x > room.x && x < room.x + room.w && y > room.y && y < room.y + room.h) {
@@ -615,32 +605,65 @@
             return null;
         }
 
-        // Проверка столкновений
-        function checkCollision(x, y) {
+        // УЛУЧШЕННАЯ ПРОВЕРКА СТОЛКНОВЕНИЙ
+        function checkCollision(x, y, oldX, oldY) {
+            // Границы карты
             if(x < 40 || x > 1960 || y < 40 || y > 1960) return true;
 
+            // Проверка стен
             for(let wall of walls) {
                 if(x > wall.x && x < wall.x + wall.w && y > wall.y && y < wall.y + wall.h) {
                     return true;
                 }
             }
 
+            // Проверка комнат
             for(let room of rooms) {
+                // Если пытаемся войти в комнату не через дверь
                 if(x > room.x - 10 && x < room.x + room.w + 10 && 
                    y > room.y - 10 && y < room.y + room.h + 10) {
                     
-                    if(x > room.x && x < room.x + room.w && y > room.y && y < room.y + room.h) {
-                        return false;
-                    }
+                    // Проверяем, не внутри ли мы уже комнаты
+                    const wasInside = (oldX > room.x && oldX < room.x + room.w && 
+                                      oldY > room.y && oldY < room.y + room.h);
                     
-                    const atDoor = Math.abs(x - room.door.x) < 50 && Math.abs(y - room.door.y) < 40;
-                    if(!atDoor) {
-                        return true;
+                    // Если мы были снаружи и пытаемся войти
+                    if(!wasInside) {
+                        const atDoor = Math.abs(x - room.door.x) < 50 && Math.abs(y - room.door.y) < 40;
+                        if(!atDoor) {
+                            // Пытаемся войти через стену
+                            return true;
+                        }
                     }
                 }
             }
             
             return false;
+        }
+
+        // ПЛАВНОЕ ДВИЖЕНИЕ СКОЛЬЖЕНИЕМ ВДОЛЬ СТЕН
+        function tryMove(oldX, oldY, targetX, targetY) {
+            // Сначала пробуем двигаться прямо
+            if(!checkCollision(targetX, targetY, oldX, oldY)) {
+                return { x: targetX, y: targetY };
+            }
+            
+            // Если уперлись, пробуем скользить по X
+            let slideX = targetX;
+            let slideY = oldY;
+            if(!checkCollision(slideX, slideY, oldX, oldY)) {
+                return { x: slideX, y: slideY };
+            }
+            
+            // Пробуем скользить по Y
+            slideX = oldX;
+            slideY = targetY;
+            if(!checkCollision(slideX, slideY, oldX, oldY)) {
+                return { x: slideX, y: slideY };
+            }
+            
+            // Если ничего не помогает, остаемся на месте
+            return { x: oldX, y: oldY };
         }
 
         function startGame() {
@@ -711,19 +734,21 @@
                     const player = game.players[playerId];
                     if(!player || player.caught || player.escaped) return;
 
-                    let newX = player.x + velocityX * 2;
-                    let newY = player.y + velocityY * 2;
+                    const oldX = player.x;
+                    const oldY = player.y;
                     
-                    if(checkCollision(newX, newY)) {
-                        return;
-                    }
+                    let targetX = oldX + velocityX * 2;
+                    let targetY = oldY + velocityY * 2;
+                    
+                    // Плавное движение с учетом коллизий
+                    const newPos = tryMove(oldX, oldY, targetX, targetY);
                     
                     if(playerRole === 'baldi') {
                         Object.entries(game.players).forEach(([id, p]) => {
                             if(p.role === 'student' && !p.caught && !p.escaped) {
                                 const dist = Math.sqrt(
-                                    Math.pow(newX - p.x, 2) + 
-                                    Math.pow(newY - p.y, 2)
+                                    Math.pow(newPos.x - p.x, 2) + 
+                                    Math.pow(newPos.y - p.y, 2)
                                 );
                                 if(dist < 40) {
                                     database.ref('games/' + currentGameId + '/players/' + id).update({
@@ -735,10 +760,13 @@
                         });
                     }
                     
-                    database.ref('games/' + currentGameId + '/players/' + playerId).update({
-                        x: newX,
-                        y: newY
-                    });
+                    // Обновляем позицию только если она изменилась
+                    if(newPos.x !== oldX || newPos.y !== oldY) {
+                        database.ref('games/' + currentGameId + '/players/' + playerId).update({
+                            x: newPos.x,
+                            y: newPos.y
+                        });
+                    }
                 });
             }, 30);
 
@@ -795,68 +823,83 @@
                 document.getElementById('currentRoom').classList.add('visible');
             }
 
+            // Пол
             ctx.fillStyle = '#1a1a2e';
             ctx.fillRect(0, 0, 400, 400);
 
+            // Рисуем стены (всегда видны)
             ctx.fillStyle = '#4a4a8a';
             walls.forEach(wall => {
                 const screenX = wall.x - offsetX;
                 const screenY = wall.y - offsetY;
-                if(screenX > -50 && screenX < 450 && screenY > -50 && screenY < 450) {
+                if(screenX > -100 && screenX < 500 && screenY > -100 && screenY < 500) {
                     ctx.fillRect(screenX, screenY, wall.w, wall.h);
                 }
             });
 
+            // Рисуем коридоры
             ctx.fillStyle = '#2a2a4a';
             corridors.forEach(cor => {
                 const screenX = cor.x - offsetX;
                 const screenY = cor.y - offsetY;
-                if(screenX > -100 && screenX < 500 && screenY > -100 && screenY < 500) {
+                if(screenX > -150 && screenX < 550 && screenY > -150 && screenY < 550) {
                     ctx.fillRect(screenX, screenY, cor.w, cor.h);
                 }
             });
 
+            // Рисуем комнаты и их стены (видимые из коридора)
             rooms.forEach(room => {
                 const screenX = room.x - offsetX;
                 const screenY = room.y - offsetY;
                 
+                // Всегда рисуем внешние стены комнат (чтобы было видно границы)
+                ctx.fillStyle = '#6a6a9a';
+                
+                // Верхняя стена
+                if(screenY - 5 > -50 && screenY - 5 < 450) {
+                    ctx.fillRect(screenX - 5, screenY - 5, room.w + 10, 5);
+                }
+                // Нижняя стена
+                if(screenY + room.h > -50 && screenY + room.h < 450) {
+                    ctx.fillRect(screenX - 5, screenY + room.h, room.w + 10, 5);
+                }
+                // Левая стена
+                if(screenX - 5 > -50 && screenX - 5 < 450) {
+                    ctx.fillRect(screenX - 5, screenY - 5, 5, room.h + 10);
+                }
+                // Правая стена
+                if(screenX + room.w > -50 && screenX + room.w < 450) {
+                    ctx.fillRect(screenX + room.w, screenY - 5, 5, room.h + 10);
+                }
+                
+                // Дверь (видна всегда)
+                const doorX = room.door.x - offsetX;
+                const doorY = room.door.y - offsetY;
+                if(doorX > -50 && doorX < 450 && doorY > -50 && doorY < 450) {
+                    ctx.fillStyle = 'rgba(139, 69, 19, 0.7)';
+                    ctx.fillRect(doorX - 20, doorY - 10, 40, 20);
+                }
+                
+                // Пол комнаты виден только если игрок внутри или рядом с дверью
                 const isCurrentRoom = currentRoom && currentRoom.name === room.name;
-                const distToRoom = Math.sqrt(
-                    Math.pow(room.x + room.w/2 - player.x, 2) + 
-                    Math.pow(room.y + room.h/2 - player.y, 2)
+                const distToDoor = Math.sqrt(
+                    Math.pow(room.door.x - player.x, 2) + 
+                    Math.pow(room.door.y - player.y, 2)
                 );
                 
-                if(isCurrentRoom || distToRoom < 150) {
+                if(isCurrentRoom || distToDoor < 150) {
                     ctx.fillStyle = room.hasBooks ? '#4a4a6a' : '#3a3a5a';
                     ctx.fillRect(screenX, screenY, room.w, room.h);
                     
-                    ctx.fillStyle = '#6a6a9a';
-                    ctx.fillRect(screenX - 4, screenY - 4, room.w + 8, 4);
-                    ctx.fillRect(screenX - 4, screenY + room.h, room.w + 8, 4);
-                    ctx.fillRect(screenX - 4, screenY, 4, room.h);
-                    ctx.fillRect(screenX + room.w, screenY, 4, room.h);
-                    
-                    const doorX = room.door.x - offsetX;
-                    const doorY = room.door.y - offsetY;
-                    ctx.fillStyle = 'rgba(139, 69, 19, 0.5)';
-                    ctx.fillRect(doorX - 20, doorY - 10, 40, 20);
-                    
-                    if(isCurrentRoom || distToRoom < 100) {
+                    if(isCurrentRoom) {
                         ctx.fillStyle = '#ffd700';
                         ctx.font = 'bold 7px "Press Start 2P"';
                         ctx.fillText(room.name, screenX + 10, screenY + 25);
                     }
-                } else {
-                    ctx.fillStyle = '#1a1a2e';
-                    ctx.fillRect(screenX, screenY, room.w, room.h);
-                    ctx.fillStyle = '#2a2a4a';
-                    ctx.fillRect(screenX - 4, screenY - 4, room.w + 8, 4);
-                    ctx.fillRect(screenX - 4, screenY + room.h, room.w + 8, 4);
-                    ctx.fillRect(screenX - 4, screenY, 4, room.h);
-                    ctx.fillRect(screenX + room.w, screenY, 4, room.h);
                 }
             });
 
+            // Книги (только в текущей комнате)
             if(game.books && currentRoom) {
                 Object.entries(game.books).forEach(([id, book]) => {
                     if(!book.collected) {
@@ -882,6 +925,7 @@
                 });
             }
 
+            // Другие игроки
             if(game.players) {
                 Object.entries(game.players).forEach(([id, p]) => {
                     if(id === playerId || p.escaped) return;
@@ -919,6 +963,7 @@
                 });
             }
 
+            // Игрок в центре
             ctx.shadowBlur = 30;
             if(playerRole === 'baldi') {
                 ctx.fillStyle = '#ff0000';
@@ -942,6 +987,7 @@
                 ctx.fillText(player.books, 215, 190);
             }
 
+            // Компас
             if(player.y < 500) document.getElementById('compass').innerHTML = '⬆️ СЕВЕР';
             else if(player.y > 1500) document.getElementById('compass').innerHTML = '⬇️ ЮГ';
             else if(player.x < 500) document.getElementById('compass').innerHTML = '⬅️ ЗАПАД';
