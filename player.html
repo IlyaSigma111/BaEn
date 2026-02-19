@@ -142,19 +142,6 @@
             image-rendering: crisp-edges;
         }
 
-        .fog-overlay {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            right: 10px;
-            bottom: 10px;
-            background: radial-gradient(circle at center, transparent 40%, #1a1a2e 100%);
-            pointer-events: none;
-            border-radius: 10px;
-            z-index: 5;
-            opacity: 0.5;
-        }
-
         .controls {
             background: #16213e;
             padding: 20px;
@@ -307,24 +294,6 @@
             z-index: 999;
         }
 
-        .speed-indicator {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: rgba(0,0,0,0.7);
-            padding: 5px 8px;
-            border-radius: 10px;
-            font-size: 0.5rem;
-            display: none;
-            z-index: 10;
-            border: 1px solid #ffd700;
-        }
-
-        .speed-indicator.baldi {
-            color: #ff0000;
-            display: block;
-        }
-
         .compass {
             position: absolute;
             top: 10px;
@@ -415,9 +384,7 @@
 
             <div class="canvas-container">
                 <canvas id="gameCanvas" width="400" height="400"></canvas>
-                <div class="fog-overlay"></div>
                 <div id="compass" class="compass">⬆️ СЕВЕР</div>
-                <div id="speedIndicator" class="speed-indicator">👟 1.0x</div>
                 <div id="currentRoom" class="room-name">🚪 КОРИДОР</div>
             </div>
 
@@ -467,7 +434,7 @@
         let baldiSpeedMultiplier = 1.4;
         let currentRoomName = '';
 
-        // ================== ПЛАНИРОВКА ШКОЛЫ ==================
+        // ================== УЛУЧШЕННАЯ ПЛАНИРОВКА ==================
         const rooms = [
             { name: "🧪 ЛАБОРАТОРИЯ", x: 650, y: 350, w: 280, h: 200, door: { x: 780, y: 550 }, hasBooks: true },
             { name: "🔬 ХИМИЯ", x: 1050, y: 300, w: 250, h: 220, door: { x: 1170, y: 520 }, hasBooks: true },
@@ -502,20 +469,31 @@
             { x: 300, y: 700, w: 200, h: 200 }
         ];
 
+        // ДОБАВЛЕНО БОЛЬШЕ СТЕН
         const walls = [
-            { x: 0, y: 0, w: 2000, h: 30 },
-            { x: 0, y: 1970, w: 2000, h: 30 },
-            { x: 0, y: 0, w: 30, h: 2000 },
-            { x: 1970, y: 0, w: 30, h: 2000 },
-            { x: 400, y: 400, w: 30, h: 400 },
-            { x: 1500, y: 500, w: 30, h: 500 },
-            { x: 300, y: 1300, w: 400, h: 30 },
-            { x: 1300, y: 300, w: 400, h: 30 }
+            // Внешние стены
+            { x: 0, y: 0, w: 2000, h: 40 },
+            { x: 0, y: 1960, w: 2000, h: 40 },
+            { x: 0, y: 0, w: 40, h: 2000 },
+            { x: 1960, y: 0, w: 40, h: 2000 },
+            
+            // Внутренние стены (лабиринт)
+            { x: 400, y: 400, w: 40, h: 400 },
+            { x: 1500, y: 500, w: 40, h: 500 },
+            { x: 300, y: 1300, w: 400, h: 40 },
+            { x: 1300, y: 300, w: 400, h: 40 },
+            { x: 700, y: 700, w: 40, h: 300 },
+            { x: 1100, y: 1100, w: 40, h: 300 },
+            { x: 500, y: 800, w: 300, h: 40 },
+            { x: 1200, y: 600, w: 300, h: 40 },
+            { x: 800, y: 400, w: 40, h: 200 },
+            { x: 1000, y: 1500, w: 200, h: 40 },
+            { x: 200, y: 400, w: 40, h: 300 },
+            { x: 1700, y: 1200, w: 40, h: 300 }
         ];
 
         document.getElementById('roleSelect').onchange = function() {
             const role = this.value;
-            document.getElementById('speedIndicator').className = role === 'baldi' ? 'speed-indicator baldi' : 'speed-indicator';
         };
 
         document.getElementById('joinBtn').onclick = async function() {
@@ -607,8 +585,6 @@
                 roleDisplay.textContent = role === 'baldi' ? '👨‍🏫 BALDI' : '🧑‍🎓 УЧЕНИК';
                 roleDisplay.className = `role-indicator ${role}`;
                 
-                document.getElementById('speedIndicator').className = role === 'baldi' ? 'speed-indicator baldi' : 'speed-indicator';
-                
                 startGame();
                 
             } catch(error) {
@@ -636,37 +612,42 @@
         }
 
         // УЛУЧШЕННАЯ ПРОВЕРКА СТОЛКНОВЕНИЙ
-        function checkCollision(x, y, oldX, oldY) {
+        function checkCollision(x, y) {
             // Границы карты
-            if(x < 40 || x > 1960 || y < 40 || y > 1960) return true;
+            if(x < 50 || x > 1950 || y < 50 || y > 1950) return true;
 
             // Проверка стен
             for(let wall of walls) {
-                if(x > wall.x && x < wall.x + wall.w && y > wall.y && y < wall.y + wall.h) {
-                    return true;
+                // Добавляем небольшой буфер для более плавного скольжения
+                if(x > wall.x - 5 && x < wall.x + wall.w + 5 && 
+                   y > wall.y - 5 && y < wall.y + wall.h + 5) {
+                    
+                    // Точная проверка внутри стены
+                    if(x > wall.x && x < wall.x + wall.w && 
+                       y > wall.y && y < wall.y + wall.h) {
+                        return true;
+                    }
                 }
             }
 
-            // Проверка комнат
+            // Проверка входа в комнаты
             for(let room of rooms) {
-                // Если пытаемся войти в комнату
-                if(x > room.x - 15 && x < room.x + room.w + 15 && 
-                   y > room.y - 15 && y < room.y + room.h + 15) {
+                // Проверяем, не пытаемся ли войти не через дверь
+                if(x > room.x - 10 && x < room.x + room.w + 10 && 
+                   y > room.y - 10 && y < room.y + room.h + 10) {
                     
-                    // Проверяем, не внутри ли мы уже комнаты
-                    const wasInside = (oldX > room.x && oldX < room.x + room.w && 
-                                      oldY > room.y && oldY < room.y + room.h);
-                    
-                    // Если мы были снаружи и пытаемся войти
-                    if(!wasInside) {
-                        // Проверяем, достаточно ли близко к двери
+                    // Если мы пытаемся войти в комнату
+                    if(x > room.x && x < room.x + room.w && 
+                       y > room.y && y < room.y + room.h) {
+                        
+                        // Проверяем расстояние до двери
                         const distToDoor = Math.sqrt(
                             Math.pow(x - room.door.x, 2) + 
                             Math.pow(y - room.door.y, 2)
                         );
                         
-                        // Увеличен радиус входа
-                        if(distToDoor > 60) {
+                        // Если далеко от двери - не пускаем
+                        if(distToDoor > 70) {
                             return true;
                         }
                     }
@@ -678,38 +659,35 @@
 
         // ПЛАВНОЕ ДВИЖЕНИЕ
         function tryMove(oldX, oldY, targetX, targetY) {
-            // Сначала пробуем двигаться прямо
-            if(!checkCollision(targetX, targetY, oldX, oldY)) {
+            // Пробуем двигаться прямо
+            if(!checkCollision(targetX, targetY)) {
                 return { x: targetX, y: targetY };
-            }
-            
-            // Пробуем разные варианты для скольжения
-            const steps = 5;
-            for(let i = 1; i <= steps; i++) {
-                const t = i / steps;
-                const tryX = oldX + (targetX - oldX) * t;
-                const tryY = oldY + (targetY - oldY) * t;
-                
-                if(!checkCollision(tryX, tryY, oldX, oldY)) {
-                    return { x: tryX, y: tryY };
-                }
             }
             
             // Пробуем скользить по X
             let slideX = targetX;
             let slideY = oldY;
-            if(!checkCollision(slideX, slideY, oldX, oldY)) {
+            if(!checkCollision(slideX, slideY)) {
                 return { x: slideX, y: slideY };
             }
             
             // Пробуем скользить по Y
             slideX = oldX;
             slideY = targetY;
-            if(!checkCollision(slideX, slideY, oldX, oldY)) {
+            if(!checkCollision(slideX, slideY)) {
                 return { x: slideX, y: slideY };
             }
             
-            // Если ничего не помогает, остаемся на месте
+            // Пробуем диагональное скольжение
+            const angles = [0.3, 0.5, 0.7];
+            for(let angle of angles) {
+                slideX = oldX + (targetX - oldX) * angle;
+                slideY = oldY + (targetY - oldY) * angle;
+                if(!checkCollision(slideX, slideY)) {
+                    return { x: slideX, y: slideY };
+                }
+            }
+            
             return { x: oldX, y: oldY };
         }
 
@@ -796,7 +774,7 @@
                                     Math.pow(newPos.x - p.x, 2) + 
                                     Math.pow(newPos.y - p.y, 2)
                                 );
-                                if(dist < 40) {
+                                if(dist < 45) {
                                     database.ref('games/' + currentGameId + '/players/' + id).update({
                                         caught: true,
                                         caughtTime: Date.now()
@@ -868,7 +846,11 @@
                 document.getElementById('currentRoom').classList.add('visible');
             }
 
-            // Пол коридоров
+            // Пол
+            ctx.fillStyle = '#1a1a2e';
+            ctx.fillRect(0, 0, 400, 400);
+
+            // Рисуем коридоры
             ctx.fillStyle = '#2a2a4a';
             corridors.forEach(cor => {
                 const screenX = cor.x - offsetX;
@@ -878,11 +860,7 @@
                 }
             });
 
-            // Пол между коридорами (чтобы не было дыр)
-            ctx.fillStyle = '#2a2a4a';
-            ctx.fillRect(0, 0, 400, 400);
-
-            // Стены
+            // Рисуем стены
             ctx.fillStyle = '#4a4a8a';
             walls.forEach(wall => {
                 const screenX = wall.x - offsetX;
@@ -898,49 +876,33 @@
                 const screenY = room.y - offsetY;
                 
                 const isCurrentRoom = currentRoom && currentRoom.name === room.name;
-                const distToDoor = Math.sqrt(
-                    Math.pow(room.door.x - player.x, 2) + 
-                    Math.pow(room.door.y - player.y, 2)
-                );
                 
                 // Всегда рисуем внешние стены комнат
                 ctx.fillStyle = '#6a6a9a';
                 
                 // Верхняя стена
-                if(screenY - 5 > -100 && screenY - 5 < 500) {
-                    ctx.fillRect(screenX - 5, screenY - 5, room.w + 10, 5);
-                }
+                ctx.fillRect(screenX - 6, screenY - 6, room.w + 12, 6);
                 // Нижняя стена
-                if(screenY + room.h > -100 && screenY + room.h < 500) {
-                    ctx.fillRect(screenX - 5, screenY + room.h, room.w + 10, 5);
-                }
+                ctx.fillRect(screenX - 6, screenY + room.h, room.w + 12, 6);
                 // Левая стена
-                if(screenX - 5 > -100 && screenX - 5 < 500) {
-                    ctx.fillRect(screenX - 5, screenY - 5, 5, room.h + 10);
-                }
+                ctx.fillRect(screenX - 6, screenY - 6, 6, room.h + 12);
                 // Правая стена
-                if(screenX + room.w > -100 && screenX + room.w < 500) {
-                    ctx.fillRect(screenX + room.w, screenY - 5, 5, room.h + 10);
-                }
+                ctx.fillRect(screenX + room.w, screenY - 6, 6, room.h + 12);
                 
-                // Дверь
+                // Дверь (более заметная)
                 const doorX = room.door.x - offsetX;
                 const doorY = room.door.y - offsetY;
-                if(doorX > -50 && doorX < 450 && doorY > -50 && doorY < 450) {
-                    ctx.fillStyle = 'rgba(139, 69, 19, 0.8)';
-                    ctx.fillRect(doorX - 20, doorY - 10, 40, 20);
-                }
+                ctx.fillStyle = 'rgba(255, 215, 0, 0.8)';
+                ctx.fillRect(doorX - 25, doorY - 12, 50, 24);
                 
-                // Пол комнаты (только если игрок внутри или рядом)
-                if(isCurrentRoom || distToDoor < 200) {
+                // Пол комнаты (только если внутри)
+                if(isCurrentRoom) {
                     ctx.fillStyle = room.hasBooks ? '#4a4a6a' : '#3a3a5a';
                     ctx.fillRect(screenX, screenY, room.w, room.h);
                     
-                    if(isCurrentRoom) {
-                        ctx.fillStyle = '#ffd700';
-                        ctx.font = 'bold 7px "Press Start 2P"';
-                        ctx.fillText(room.name, screenX + 10, screenY + 25);
-                    }
+                    ctx.fillStyle = '#ffd700';
+                    ctx.font = 'bold 7px "Press Start 2P"';
+                    ctx.fillText(room.name, screenX + 10, screenY + 25);
                 }
             });
 
@@ -992,10 +954,9 @@
                             ctx.font = 'bold 16px Arial';
                             ctx.fillText('👨‍🏫', screenX-9, screenY+5);
                             
-                            // Имя Baldi
                             ctx.fillStyle = 'white';
-                            ctx.font = 'bold 8px "Press Start 2P"';
-                            ctx.fillText(p.name, screenX-20, screenY-20);
+                            ctx.font = 'bold 6px "Press Start 2P"';
+                            ctx.fillText(p.name, screenX-15, screenY-20);
                         } else if(!p.caught) {
                             ctx.fillStyle = '#ffd700';
                             ctx.shadowColor = '#ffd700';
@@ -1009,21 +970,9 @@
                             ctx.font = 'bold 12px Arial';
                             ctx.fillText('🧑', screenX-7, screenY+3);
                             
-                            // Имя ученика
                             ctx.fillStyle = 'white';
                             ctx.font = 'bold 6px "Press Start 2P"';
-                            ctx.fillText(p.name, screenX-15, screenY-15);
-                            
-                            // Результат ответа
-                            if(p.lastAnswer === true) {
-                                ctx.fillStyle = '#44ff44';
-                                ctx.font = 'bold 12px Arial';
-                                ctx.fillText('✓', screenX+10, screenY-10);
-                            } else if(p.lastAnswer === false) {
-                                ctx.fillStyle = '#ff4444';
-                                ctx.font = 'bold 12px Arial';
-                                ctx.fillText('✗', screenX+10, screenY-10);
-                            }
+                            ctx.fillText(p.name, screenX-12, screenY-15);
                         }
                     }
                 });
@@ -1059,10 +1008,6 @@
             else if(player.x < 500) document.getElementById('compass').innerHTML = '⬅️ ЗАПАД';
             else if(player.x > 1500) document.getElementById('compass').innerHTML = '➡️ ВОСТОК';
             else document.getElementById('compass').innerHTML = '⏺️ ЦЕНТР';
-
-            if(playerRole === 'baldi') {
-                document.getElementById('speedIndicator').textContent = `👟 ${baldiSpeedMultiplier}x`;
-            }
         }
 
         function checkNearbyBooks(game, x, y) {
@@ -1081,17 +1026,25 @@
                             Math.pow(book.y - y, 2)
                         );
                         
-                        if(dist < 50) {
+                        if(dist < 60) {
+                            // Сохраняем вопрос и показываем попап
                             currentQuestion = { ...book, id };
-                            document.getElementById('questionText').textContent = book.question;
-                            document.getElementById('answerInput').value = '';
+                            
+                            // Важно: устанавливаем значение ДО показа
+                            const questionEl = document.getElementById('questionText');
+                            const answerEl = document.getElementById('answerInput');
+                            
+                            questionEl.textContent = book.question;
+                            answerEl.value = '';
+                            
+                            // Показываем попап
                             document.getElementById('questionPopup').style.display = 'block';
                             document.getElementById('overlay').style.display = 'block';
                             
-                            // Фокус на инпут с небольшой задержкой
+                            // Фокус с задержкой
                             setTimeout(() => {
-                                document.getElementById('answerInput').focus();
-                            }, 200);
+                                answerEl.focus();
+                            }, 300);
                         }
                     }
                 }
@@ -1112,16 +1065,17 @@
         document.getElementById('submitAnswer').onclick = function() {
             if(!currentQuestion) return;
 
-            const answer = document.getElementById('answerInput').value.toLowerCase().trim();
+            const answer = document.getElementById('answerInput').value.trim().toLowerCase();
             const isCorrect = (answer === currentQuestion.answer.toLowerCase());
             
-            // Сохраняем результат ответа для отображения на доске
+            // Сохраняем результат
             database.ref('games/' + currentGameId + '/players/' + playerId).update({
                 lastAnswer: isCorrect,
                 lastAnswerTime: Date.now()
             });
             
             if(isCorrect) {
+                // Правильный ответ - собираем книгу
                 database.ref('games/' + currentGameId + '/books/' + currentQuestion.id).update({
                     collected: true,
                     collectedBy: playerId
@@ -1145,18 +1099,19 @@
             }
             
             showAnswerFeedback(isCorrect);
-            closeQuestionPopup();
-        };
-
-        function closeQuestionPopup() {
+            
+            // Закрываем попап
             document.getElementById('questionPopup').style.display = 'none';
             document.getElementById('overlay').style.display = 'none';
             currentQuestion = null;
-        }
+        };
 
+        // Закрытие по клику на оверлей
         document.getElementById('overlay').onclick = function() {
             if(document.getElementById('questionPopup').style.display === 'block') {
-                closeQuestionPopup();
+                document.getElementById('questionPopup').style.display = 'none';
+                document.getElementById('overlay').style.display = 'none';
+                currentQuestion = null;
             }
         };
 
