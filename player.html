@@ -289,6 +289,17 @@
             color: #ff0000;
             display: block;
         }
+
+        .compass {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0,0,0,0.5);
+            padding: 5px;
+            border-radius: 5px;
+            font-size: 0.5rem;
+            color: #ffd700;
+        }
     </style>
 </head>
 <body>
@@ -317,6 +328,7 @@
 
             <div class="canvas-container">
                 <canvas id="gameCanvas" width="400" height="400"></canvas>
+                <div id="compass" class="compass">⬆️ СЕВЕР</div>
                 <div id="speedIndicator" class="speed-indicator">👟 1.0x</div>
             </div>
 
@@ -363,42 +375,193 @@
         let gameListener = null;
         let catchTimerInterval = null;
         let caughtStartTime = 0;
-        let baldiSpeedMultiplier = 1.3; // Baldi на 30% быстрее учеников
+        let baldiSpeedMultiplier = 1.4; // Baldi на 40% быстрее
 
-        // Обновленная планировка школы с широкими коридорами
+        // ================== НОВАЯ ПЛАНИРОВКА ШКОЛЫ ==================
+        // Большая карта 2000x2000 с интересной архитектурой
+        
+        // Центральный холл (сердце школы)
+        const centralHall = {
+            x: 800, y: 800, w: 400, h: 400,
+            doors: [
+                { x: 1000, y: 1200 }, // выход в южное крыло
+                { x: 1000, y: 800 },  // выход в северное крыло
+                { x: 1200, y: 1000 }, // выход в восточное крыло
+                { x: 800, y: 1000 }   // выход в западное крыло
+            ]
+        };
+
+        // Все комнаты школы (неправильная форма, разбросаны)
         const rooms = [
-            // Верхний ряд
-            { name: "📐 МАТЕМАТИКА", x: 150, y: 100, w: 220, h: 160, 
-              door: { x: 260, y: 260 }, color: "#8B4513" },
-            { name: "📖 АНГЛИЙСКИЙ", x: 450, y: 100, w: 220, h: 160, 
-              door: { x: 560, y: 260 }, color: "#2E8B57" },
-            { name: "🔬 ФИЗИКА", x: 750, y: 100, w: 220, h: 160, 
-              door: { x: 860, y: 260 }, color: "#B8860B" },
-            { name: "🧪 ХИМИЯ", x: 1050, y: 100, w: 220, h: 160, 
-              door: { x: 1160, y: 260 }, color: "#4B0082" },
+            // СЕВЕРНОЕ КРЫЛО (лаборатории и наука)
+            { 
+                name: "🧪 ЛАБОРАТОРИЯ", 
+                x: 650, y: 350, w: 280, h: 200,
+                door: { x: 780, y: 550 },
+                color: "#4B0082",
+                hasBooks: true
+            },
+            { 
+                name: "🔬 ХИМИЯ", 
+                x: 1050, y: 300, w: 250, h: 220,
+                door: { x: 1170, y: 520 },
+                color: "#9400D3",
+                hasBooks: true
+            },
+            { 
+                name: "⚗️ АЛХИМИЯ", 
+                x: 450, y: 200, w: 230, h: 180,
+                door: { x: 560, y: 380 },
+                color: "#8B008B",
+                hasBooks: false
+            },
             
-            // Нижний ряд
-            { name: "📜 ИСТОРИЯ", x: 150, y: 350, w: 220, h: 160, 
-              door: { x: 260, y: 510 }, color: "#CD5C5C" },
-            { name: "🎨 РИСОВАНИЕ", x: 450, y: 350, w: 220, h: 160, 
-              door: { x: 560, y: 510 }, color: "#FF69B4" },
-            { name: "🎵 МУЗЫКА", x: 750, y: 350, w: 220, h: 160, 
-              door: { x: 860, y: 510 }, color: "#9932CC" },
-            { name: "💻 ИНФОРМАТИКА", x: 1050, y: 350, w: 220, h: 160, 
-              door: { x: 1160, y: 510 }, color: "#4682B4" }
+            // ВОСТОЧНОЕ КРЫЛО (искусство)
+            { 
+                name: "🎨 МАСТЕРСКАЯ", 
+                x: 1400, y: 700, w: 300, h: 240,
+                door: { x: 1550, y: 940 },
+                color: "#FF69B4",
+                hasBooks: true
+            },
+            { 
+                name: "🎵 МУЗЫКА", 
+                x: 1300, y: 1000, w: 280, h: 200,
+                door: { x: 1440, y: 1200 },
+                color: "#9932CC",
+                hasBooks: true
+            },
+            { 
+                name: "📸 ФОТО", 
+                x: 1550, y: 1150, w: 220, h: 180,
+                door: { x: 1660, y: 1330 },
+                color: "#CD5C5C",
+                hasBooks: false
+            },
+            
+            // ЮЖНОЕ КРЫЛО (гуманитарные)
+            { 
+                name: "📜 ИСТОРИЯ", 
+                x: 900, y: 1300, w: 260, h: 210,
+                door: { x: 1030, y: 1510 },
+                color: "#B8860B",
+                hasBooks: true
+            },
+            { 
+                name: "🌍 ГЕОГРАФИЯ", 
+                x: 600, y: 1450, w: 240, h: 190,
+                door: { x: 720, y: 1640 },
+                color: "#2E8B57",
+                hasBooks: true
+            },
+            { 
+                name: "🏛️ АРХЕОЛОГИЯ", 
+                x: 1150, y: 1500, w: 280, h: 200,
+                door: { x: 1290, y: 1700 },
+                color: "#8B4513",
+                hasBooks: false
+            },
+            
+            // ЗАПАДНОЕ КРЫЛО (секретные комнаты)
+            { 
+                name: "📚 БИБЛИОТЕКА", 
+                x: 200, y: 900, w: 320, h: 280,
+                door: { x: 360, y: 1180 },
+                color: "#4682B4",
+                hasBooks: true
+            },
+            { 
+                name: "🔮 ЗАКУЛИСЬЕ", 
+                x: 50, y: 600, w: 220, h: 200,
+                door: { x: 160, y: 800 },
+                color: "#2F4F4F",
+                hasBooks: false
+            },
+            { 
+                name: "⚙️ ПОДСОБКА", 
+                x: 300, y: 500, w: 200, h: 180,
+                door: { x: 400, y: 680 },
+                color: "#696969",
+                hasBooks: false
+            },
+            
+            // ТУПИКИ И ЗАКОУЛКИ (дополнительные помещения)
+            { 
+                name: "🚽 ТУАЛЕТ", 
+                x: 500, y: 900, w: 150, h: 120,
+                door: { x: 570, y: 1020 },
+                color: "#708090",
+                hasBooks: false
+            },
+            { 
+                name: "🍎 СТОЛОВАЯ", 
+                x: 1100, y: 550, w: 300, h: 200,
+                door: { x: 1250, y: 750 },
+                color: "#D2691E",
+                hasBooks: false
+            },
+            { 
+                name: "🏫 АКТОВЫЙ ЗАЛ", 
+                x: 450, y: 1100, w: 350, h: 250,
+                door: { x: 620, y: 1350 },
+                color: "#C71585",
+                hasBooks: false
+            }
         ];
 
-        // Коридоры (широкие проходы)
+        // Коридоры (связывают все в лабиринт)
         const corridors = [
-            // Горизонтальные коридоры
-            { x: 0, y: 280, w: 1400, h: 40 }, // верхний коридор
-            { x: 0, y: 530, w: 1400, h: 40 }, // нижний коридор
+            // Центральный холл
+            { x: 800, y: 800, w: 400, h: 400 },
             
-            // Вертикальные коридоры
-            { x: 380, y: 0, w: 40, h: 700 }, // левый проход
-            { x: 680, y: 0, w: 40, h: 700 }, // центральный проход
-            { x: 980, y: 0, w: 40, h: 700 }  // правый проход
+            // Северный коридор
+            { x: 900, y: 550, w: 200, h: 250 },
+            { x: 650, y: 550, w: 250, h: 200 },
+            { x: 1050, y: 520, w: 200, h: 200 },
+            
+            // Восточный коридор
+            { x: 1200, y: 900, w: 300, h: 200 },
+            { x: 1400, y: 940, w: 200, h: 260 },
+            { x: 1300, y: 1200, w: 240, h: 200 },
+            
+            // Южный коридор
+            { x: 900, y: 1200, w: 200, h: 300 },
+            { x: 600, y: 1350, w: 300, h: 200 },
+            { x: 1100, y: 1400, w: 250, h: 200 },
+            
+            // Западный коридор
+            { x: 500, y: 900, w: 300, h: 200 },
+            { x: 200, y: 900, w: 300, h: 200 },
+            { x: 300, y: 700, w: 200, h: 200 },
+            
+            // Диагональные проходы
+            { x: 700, y: 700, w: 100, h: 100 },
+            { x: 1100, y: 700, w: 100, h: 100 },
+            { x: 700, y: 1100, w: 100, h: 100 },
+            { x: 1100, y: 1100, w: 100, h: 100 }
         ];
+
+        // Стены (непроходимые зоны)
+        const walls = [
+            // Внешние стены
+            { x: 0, y: 0, w: 2000, h: 30 },
+            { x: 0, y: 1970, w: 2000, h: 30 },
+            { x: 0, y: 0, w: 30, h: 2000 },
+            { x: 1970, y: 0, w: 30, h: 2000 },
+            
+            // Внутренние стены для лабиринта
+            { x: 400, y: 400, w: 30, h: 400 },
+            { x: 1500, y: 500, w: 30, h: 500 },
+            { x: 300, y: 1300, w: 400, h: 30 },
+            { x: 1300, y: 300, w: 400, h: 30 },
+            { x: 800, y: 500, w: 30, h: 300 },
+            { x: 1100, y: 1000, w: 30, h: 300 }
+        ];
+
+        // Комнаты с тетрадями (только некоторые)
+        const bookRooms = rooms.filter(r => r.hasBooks).map(r => r.name);
+
+        // ============================================
 
         document.getElementById('roleSelect').onchange = function() {
             const role = this.value;
@@ -438,15 +601,17 @@
                 playerName = name;
                 playerRole = role;
 
-                // Стартовая позиция
-                let startX = 400, startY = 400;
+                // Случайная стартовая позиция
+                let startX, startY;
                 if(role === 'student') {
+                    // Ученики стартуют в случайной комнате с книгами или без
                     const room = rooms[Math.floor(Math.random() * rooms.length)];
-                    startX = room.x + 100;
-                    startY = room.y + 80;
+                    startX = room.x + room.w/2 + (Math.random() * 40 - 20);
+                    startY = room.y + room.h/2 + (Math.random() * 40 - 20);
                 } else {
-                    startX = 200; // Baldi стартует в коридоре
-                    startY = 300;
+                    // Baldi стартует в центре холла
+                    startX = 1000;
+                    startY = 1000;
                 }
 
                 playerRef.set({
@@ -474,29 +639,39 @@
         };
 
         // Улучшенная проверка столкновений
-        function checkCollision(x, y, role) {
+        function checkCollision(x, y) {
             // Границы карты
-            if(x < 30 || x > 1250 || y < 30 || y > 670) return true;
+            if(x < 40 || x > 1960 || y < 40 || y > 1960) return true;
+
+            // Проверка стен
+            for(let wall of walls) {
+                if(x > wall.x && x < wall.x + wall.w && 
+                   y > wall.y && y < wall.y + wall.h) {
+                    return true;
+                }
+            }
 
             // Проверка комнат и дверей
             for(let room of rooms) {
-                if(x > room.x - 10 && x < room.x + room.w + 10 && 
-                   y > room.y - 10 && y < room.y + room.h + 10) {
+                // Если внутри комнаты или рядом
+                if(x > room.x - 20 && x < room.x + room.w + 20 && 
+                   y > room.y - 20 && y < room.y + room.h + 20) {
                     
-                    // Если внутри комнаты или рядом со стеной
+                    // Проверка, не в стене ли
                     if(x > room.x - 5 && x < room.x + room.w + 5 && 
                        y > room.y - 5 && y < room.y + room.h + 5) {
                         
-                        // Проверка двери (широкий проем)
-                        const atDoor = Math.abs(x - room.door.x) < 50 && 
-                                      Math.abs(y - room.door.y) < 30;
+                        // Проверка двери (широкий проход)
+                        const doorX = room.door.x;
+                        const doorY = room.door.y;
+                        const atDoor = Math.abs(x - doorX) < 60 && Math.abs(y - doorY) < 40;
                         
                         if(!atDoor) {
-                            // Проверка конкретных стен
-                            if(y < room.y + 5 && y > room.y - 5) return true; // верхняя стена
-                            if(y > room.y + room.h - 5 && y < room.y + room.h + 5) return true; // нижняя
-                            if(x < room.x + 5 && x > room.x - 5) return true; // левая
-                            if(x > room.x + room.w - 5 && x < room.x + room.w + 5) return true; // правая
+                            // Проверка стен комнаты
+                            if(y < room.y + 5 && y > room.y - 5) return true; // верх
+                            if(y > room.y + room.h - 5 && y < room.y + room.h + 5) return true; // низ
+                            if(x < room.x + 5 && x > room.x - 5) return true; // лево
+                            if(x > room.x + room.w - 5 && x < room.x + room.w + 5) return true; // право
                         }
                     }
                 }
@@ -553,8 +728,8 @@
                 handle.style.transform = `translate(${x}px, ${y}px)`;
                 
                 const speedMultiplier = playerRole === 'baldi' ? baldiSpeedMultiplier : 1;
-                velocityX = (x / maxDistance) * 2.5 * speedMultiplier;
-                velocityY = (y / maxDistance) * 2.5 * speedMultiplier;
+                velocityX = (x / maxDistance) * 2.8 * speedMultiplier;
+                velocityY = (y / maxDistance) * 2.8 * speedMultiplier;
             }
 
             function resetJoystick() {
@@ -579,7 +754,7 @@
                     let newY = player.y + velocityY * 2;
                     
                     // Проверка столкновений
-                    if(checkCollision(newX, newY, playerRole)) {
+                    if(checkCollision(newX, newY)) {
                         return;
                     }
                     
@@ -591,16 +766,11 @@
                                     Math.pow(newX - p.x, 2) + 
                                     Math.pow(newY - p.y, 2)
                                 );
-                                if(dist < 30) { // Радиус ловли
+                                if(dist < 35) { // Радиус ловли
                                     database.ref('games/' + currentGameId + '/players/' + id).update({
                                         caught: true,
                                         caughtTime: Date.now()
                                     });
-                                    
-                                    // Показать уведомление Baldi
-                                    if(playerId === id) {
-                                        showCaughtPopup();
-                                    }
                                 }
                             }
                         });
@@ -611,7 +781,7 @@
                         y: newY
                     });
                 });
-            }, 30); // Чаще обновление для плавности
+            }, 30);
 
             // Слушаем изменения игры
             if(gameListener) gameListener();
@@ -656,16 +826,26 @@
             const offsetX = player.x - 200;
             const offsetY = player.y - 200;
 
-            // Рисуем пол (всегда виден)
+            // Пол
             ctx.fillStyle = '#1a1a2e';
             ctx.fillRect(0, 0, 400, 400);
 
-            // Рисуем коридоры (всегда видны)
+            // Рисуем стены (темные линии)
+            ctx.fillStyle = '#4a4a8a';
+            walls.forEach(wall => {
+                const screenX = wall.x - offsetX;
+                const screenY = wall.y - offsetY;
+                if(screenX > -50 && screenX < 450 && screenY > -50 && screenY < 450) {
+                    ctx.fillRect(screenX, screenY, wall.w, wall.h);
+                }
+            });
+
+            // Рисуем коридоры
             ctx.fillStyle = '#2a2a4a';
             corridors.forEach(cor => {
                 const screenX = cor.x - offsetX;
                 const screenY = cor.y - offsetY;
-                if(screenX > -50 && screenX < 450 && screenY > -50 && screenY < 450) {
+                if(screenX > -100 && screenX < 500 && screenY > -100 && screenY < 500) {
                     ctx.fillRect(screenX, screenY, cor.w, cor.h);
                 }
             });
@@ -675,35 +855,42 @@
                 const screenX = room.x - offsetX;
                 const screenY = room.y - offsetY;
                 
-                // Рисуем, если комната рядом
-                if(screenX > -100 && screenX < 500 && screenY > -100 && screenY < 500) {
-                    // Пол комнаты
-                    ctx.fillStyle = '#3a3a5a';
+                if(screenX > -150 && screenX < 550 && screenY > -150 && screenY < 550) {
+                    // Пол комнаты (более светлый если есть книги)
+                    if(room.hasBooks) {
+                        ctx.fillStyle = '#4a4a6a';
+                    } else {
+                        ctx.fillStyle = '#3a3a5a';
+                    }
                     ctx.fillRect(screenX, screenY, room.w, room.h);
                     
-                    // Стены
-                    ctx.fillStyle = '#4a4a8a';
-                    ctx.fillRect(screenX - 4, screenY - 4, room.w + 8, 4); // верх
-                    ctx.fillRect(screenX - 4, screenY + room.h, room.w + 8, 4); // низ
-                    ctx.fillRect(screenX - 4, screenY, 4, room.h); // лево
-                    ctx.fillRect(screenX + room.w, screenY, 4, room.h); // право
+                    // Стены комнаты
+                    ctx.fillStyle = '#6a6a9a';
+                    ctx.fillRect(screenX - 5, screenY - 5, room.w + 10, 5); // верх
+                    ctx.fillRect(screenX - 5, screenY + room.h, room.w + 10, 5); // низ
+                    ctx.fillRect(screenX - 5, screenY, 5, room.h); // лево
+                    ctx.fillRect(screenX + room.w, screenY, 5, room.h); // право
                     
-                    // Дверь (широкий проем)
+                    // Дверь
                     const doorX = room.door.x - offsetX;
                     const doorY = room.door.y - offsetY;
-                    ctx.fillStyle = 'rgba(139, 69, 19, 0.3)';
-                    ctx.fillRect(doorX - 25, doorY - 12, 50, 24);
+                    ctx.fillStyle = 'rgba(139, 69, 19, 0.4)';
+                    ctx.fillRect(doorX - 25, doorY - 15, 50, 30);
                     
-                    // Название (только если близко)
-                    if(Math.abs(screenX - 200) < 300 && Math.abs(screenY - 200) < 300) {
+                    // Название комнаты (только если близко)
+                    const distToPlayer = Math.sqrt(
+                        Math.pow(room.x + room.w/2 - player.x, 2) + 
+                        Math.pow(room.y + room.h/2 - player.y, 2)
+                    );
+                    if(distToPlayer < 300) {
                         ctx.fillStyle = '#ffd700';
-                        ctx.font = 'bold 10px "Press Start 2P"';
-                        ctx.fillText(room.name.substring(0, 2), screenX + 20, screenY + 30);
+                        ctx.font = 'bold 8px "Press Start 2P"';
+                        ctx.fillText(room.name.substring(0, 2) + '..', screenX + 10, screenY + 20);
                     }
                 }
             });
 
-            // Рисуем книги
+            // Рисуем книги (только в комнатах с книгами)
             if(game.books) {
                 Object.entries(game.books).forEach(([id, book]) => {
                     if(!book.collected) {
@@ -711,16 +898,17 @@
                         const bookY = book.y - offsetY;
                         
                         if(bookX > 0 && bookX < 400 && bookY > 0 && bookY < 400) {
-                            // Тетрадка (более заметная)
+                            // Тетрадка с мерцанием
+                            const pulse = Math.sin(Date.now() / 200) * 3;
                             ctx.fillStyle = '#ffd700';
                             ctx.shadowColor = '#ffd700';
-                            ctx.shadowBlur = 15;
+                            ctx.shadowBlur = 15 + pulse;
                             ctx.fillRect(bookX - 8, bookY - 6, 16, 12);
                             
                             ctx.shadowBlur = 0;
                             ctx.fillStyle = '#000';
-                            ctx.font = 'bold 8px Arial';
-                            ctx.fillText('📘', bookX - 5, bookY);
+                            ctx.font = 'bold 10px Arial';
+                            ctx.fillText('📘', bookX - 6, bookY);
                         }
                     }
                 });
@@ -736,38 +924,45 @@
                     
                     if(screenX > 0 && screenX < 400 && screenY > 0 && screenY < 400) {
                         if(p.role === 'baldi') {
-                            // Baldi
+                            // Baldi с эффектом свечения
                             ctx.fillStyle = '#ff0000';
                             ctx.shadowColor = '#ff0000';
-                            ctx.shadowBlur = 20;
+                            ctx.shadowBlur = 25;
                             ctx.beginPath();
-                            ctx.arc(screenX, screenY, 12, 0, Math.PI * 2);
+                            ctx.arc(screenX, screenY, 14, 0, Math.PI * 2);
                             ctx.fill();
                             
                             ctx.shadowBlur = 0;
                             ctx.fillStyle = 'white';
-                            ctx.font = 'bold 14px Arial';
-                            ctx.fillText('👨‍🏫', screenX-8, screenY+4);
+                            ctx.font = 'bold 16px Arial';
+                            ctx.fillText('👨‍🏫', screenX-9, screenY+5);
                         } else if(!p.caught) {
                             // Ученики
                             ctx.fillStyle = '#ffd700';
                             ctx.shadowColor = '#ffd700';
                             ctx.shadowBlur = 15;
                             ctx.beginPath();
-                            ctx.arc(screenX, screenY, 8, 0, Math.PI * 2);
+                            ctx.arc(screenX, screenY, 9, 0, Math.PI * 2);
                             ctx.fill();
                             
                             ctx.shadowBlur = 0;
                             ctx.fillStyle = '#000';
-                            ctx.font = 'bold 10px Arial';
-                            ctx.fillText('🧑', screenX-6, screenY+3);
+                            ctx.font = 'bold 12px Arial';
+                            ctx.fillText('🧑', screenX-7, screenY+3);
+                            
+                            // Количество книг над учеником
+                            if(p.books > 0) {
+                                ctx.fillStyle = '#fff';
+                                ctx.font = 'bold 8px Arial';
+                                ctx.fillText(p.books, screenX+5, screenY-10);
+                            }
                         }
                     }
                 });
             }
 
             // Рисуем игрока в центре
-            ctx.shadowBlur = 25;
+            ctx.shadowBlur = 30;
             if(playerRole === 'baldi') {
                 ctx.fillStyle = '#ff0000';
                 ctx.shadowColor = '#ff0000';
@@ -776,21 +971,27 @@
                 ctx.shadowColor = '#ffd700';
             }
             ctx.beginPath();
-            ctx.arc(200, 200, 14, 0, Math.PI * 2);
+            ctx.arc(200, 200, 16, 0, Math.PI * 2);
             ctx.fill();
             
             ctx.shadowBlur = 0;
             ctx.fillStyle = 'white';
-            ctx.font = 'bold 18px Arial';
-            ctx.fillText(playerRole === 'baldi' ? '👨‍🏫' : '🧑', 188, 205);
+            ctx.font = 'bold 20px Arial';
+            ctx.fillText(playerRole === 'baldi' ? '👨‍🏫' : '🧑', 186, 207);
             
             if(playerRole === 'student' && player.books > 0) {
                 ctx.fillStyle = 'white';
-                ctx.font = 'bold 12px "Press Start 2P"';
+                ctx.font = 'bold 14px "Press Start 2P"';
                 ctx.fillText(player.books, 215, 190);
             }
 
-            // Индикатор скорости Baldi
+            // Компас
+            if(player.y < 500) document.getElementById('compass').innerHTML = '⬆️ СЕВЕР';
+            else if(player.y > 1500) document.getElementById('compass').innerHTML = '⬇️ ЮГ';
+            else if(player.x < 500) document.getElementById('compass').innerHTML = '⬅️ ЗАПАД';
+            else if(player.x > 1500) document.getElementById('compass').innerHTML = '➡️ ВОСТОК';
+            else document.getElementById('compass').innerHTML = '⏺️ ЦЕНТР';
+
             if(playerRole === 'baldi') {
                 document.getElementById('speedIndicator').textContent = `👟 ${baldiSpeedMultiplier}x`;
             }
@@ -806,12 +1007,23 @@
                         Math.pow(book.y - y, 2)
                     );
                     
-                    if(dist < 30) { // Увеличен радиус сбора
+                    if(dist < 40) {
+                        // Сохраняем вопрос и показываем попап
                         currentQuestion = { ...book, id };
-                        document.getElementById('questionText').textContent = book.question;
-                        document.getElementById('answerInput').value = '';
+                        
+                        // Важно: сохраняем вопрос ДО показа попапа
+                        const questionText = document.getElementById('questionText');
+                        const answerInput = document.getElementById('answerInput');
+                        
+                        questionText.textContent = book.question;
+                        answerInput.value = '';
+                        
+                        // Показываем попап
                         document.getElementById('questionPopup').style.display = 'block';
                         document.getElementById('overlay').style.display = 'block';
+                        
+                        // Фокус на инпут
+                        setTimeout(() => answerInput.focus(), 100);
                     }
                 }
             });
@@ -823,11 +1035,13 @@
             const answer = document.getElementById('answerInput').value.toLowerCase().trim();
             
             if(answer === currentQuestion.answer.toLowerCase()) {
+                // Помечаем книгу как собранную
                 database.ref('games/' + currentGameId + '/books/' + currentQuestion.id).update({
                     collected: true,
                     collectedBy: playerId
                 });
 
+                // Обновляем счет игрока
                 database.ref('games/' + currentGameId + '/players/' + playerId).once('value', (snapshot) => {
                     const player = snapshot.val();
                     const newCount = (player.books || 0) + 1;
@@ -836,6 +1050,7 @@
                         books: newCount
                     });
 
+                    // Обновляем общий счет
                     database.ref('games/' + currentGameId).once('value', (snapshot) => {
                         const game = snapshot.val();
                         database.ref('games/' + currentGameId).update({
@@ -846,16 +1061,24 @@
 
                 closeQuestionPopup();
             } else {
-                alert('❌ Неправильно! Попробуй еще раз');
+                alert('❌ Неправильно!');
                 closeQuestionPopup();
             }
         };
 
+        // Закрытие попапа с вопросом
         function closeQuestionPopup() {
             document.getElementById('questionPopup').style.display = 'none';
             document.getElementById('overlay').style.display = 'none';
             currentQuestion = null;
         }
+
+        // Закрытие по клику на оверлей
+        document.getElementById('overlay').onclick = function() {
+            if(document.getElementById('questionPopup').style.display === 'block') {
+                closeQuestionPopup();
+            }
+        };
 
         function updateUI(game) {
             document.getElementById('progressDisplay').textContent = `${game.totalCollected || 0}/20`;
@@ -904,13 +1127,6 @@
                 }
             }, 100);
         }
-
-        // Закрытие попапов по клику на оверлей
-        document.getElementById('overlay').onclick = function() {
-            if(document.getElementById('questionPopup').style.display === 'block') {
-                closeQuestionPopup();
-            }
-        };
 
         window.addEventListener('beforeunload', function() {
             if(moveInterval) clearInterval(moveInterval);
