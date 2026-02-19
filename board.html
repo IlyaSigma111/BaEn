@@ -135,6 +135,19 @@
             margin-top: 10px;
         }
 
+        .player-card .answer-result {
+            font-size: 1.5rem;
+            margin-top: 5px;
+        }
+
+        .player-card .answer-result.correct {
+            color: #44ff44;
+        }
+
+        .player-card .answer-result.wrong {
+            color: #ff4444;
+        }
+
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
@@ -295,6 +308,20 @@
             color: #44ff44;
             margin-top: 10px;
         }
+
+        .player-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .player-stat {
+            background: #0f3460;
+            padding: 10px;
+            border-radius: 10px;
+            border: 1px solid #ffd700;
+        }
     </style>
 </head>
 <body>
@@ -352,6 +379,7 @@
                 <button class="canvas-btn" id="resetViewBtn">🔄 ВСЯ КАРТА</button>
                 <button class="canvas-btn" id="centerHallBtn">🏛️ ЦЕНТР</button>
                 <button class="canvas-btn" id="findBooksBtn">🔍 КНИГИ</button>
+                <button class="canvas-btn" id="findBaldiBtn">👨‍🏫 BALDI</button>
             </div>
 
             <div class="legend">
@@ -374,6 +402,14 @@
                 <div class="legend-item">
                     <div class="legend-color" style="background: #ffd700; border-radius: 0;"></div>
                     <span>📒 Тетради</span>
+                </div>
+                <div class="legend-item">
+                    <div style="color: #44ff44; font-size: 1.2rem;">✓</div>
+                    <span>Правильно</span>
+                </div>
+                <div class="legend-item">
+                    <div style="color: #ff4444; font-size: 1.2rem;">✗</div>
+                    <span>Неправильно</span>
                 </div>
             </div>
 
@@ -475,7 +511,6 @@
 
         // СОЗДАНИЕ ИГРЫ - 6 цифр
         document.getElementById('createGameBtn').addEventListener('click', function() {
-            // Генерируем 6-значный код из цифр
             const gameId = Math.floor(100000 + Math.random() * 900000).toString();
             
             database.ref('games/' + gameId).set({
@@ -518,11 +553,19 @@
                 const card = document.createElement('div');
                 card.className = `player-card ${player.role === 'baldi' ? 'baldi' : ''}`;
                 
+                let answerHtml = '';
+                if(player.lastAnswer === true) {
+                    answerHtml = '<div class="answer-result correct">✓</div>';
+                } else if(player.lastAnswer === false) {
+                    answerHtml = '<div class="answer-result wrong">✗</div>';
+                }
+                
                 card.innerHTML = `
                     <div class="avatar">${player.role === 'baldi' ? '👨‍🏫' : '🧑‍🎓'}</div>
                     <div class="name">${player.name}</div>
                     <div class="role">${player.role === 'baldi' ? 'BALDI' : 'УЧЕНИК'}</div>
                     <div class="books">📚 ${player.books || 0}</div>
+                    ${answerHtml}
                 `;
                 
                 grid.appendChild(card);
@@ -584,6 +627,20 @@
                     }
                 });
             });
+
+            document.getElementById('findBaldiBtn').addEventListener('click', () => {
+                database.ref('games/' + currentGameId + '/players').once('value', (snapshot) => {
+                    const players = snapshot.val();
+                    if(!players) return;
+                    
+                    const baldi = Object.values(players).find(p => p.role === 'baldi');
+                    if(baldi) {
+                        canvasOffsetX = -baldi.x * canvasScale + container.clientWidth/2;
+                        canvasOffsetY = -baldi.y * canvasScale + container.clientHeight/2;
+                        applyCanvasTransform();
+                    }
+                });
+            });
             
             canvas.addEventListener('mousedown', (e) => {
                 isDragging = true;
@@ -639,34 +696,42 @@
         function drawMap(ctx, game) {
             ctx.clearRect(0, 0, 2000, 2000);
 
+            // Базовый пол
             ctx.fillStyle = '#1a1a2e';
             ctx.fillRect(0, 0, 2000, 2000);
 
+            // Рисуем стены
             ctx.fillStyle = '#4a4a8a';
             walls.forEach(wall => {
                 ctx.fillRect(wall.x, wall.y, wall.w, wall.h);
             });
 
+            // Рисуем коридоры
             ctx.fillStyle = '#2a2a4a';
             corridors.forEach(cor => {
                 ctx.fillRect(cor.x, cor.y, cor.w, cor.h);
             });
 
+            // Рисуем комнаты
             rooms.forEach(room => {
+                // Пол комнаты
                 ctx.fillStyle = room.hasBooks ? '#4a4a6a' : '#3a3a5a';
                 ctx.fillRect(room.x, room.y, room.w, room.h);
                 
+                // Стены комнаты
                 ctx.fillStyle = '#6a6a9a';
                 ctx.fillRect(room.x - 5, room.y - 5, room.w + 10, 5);
                 ctx.fillRect(room.x - 5, room.y + room.h, room.w + 10, 5);
                 ctx.fillRect(room.x - 5, room.y, 5, room.h);
                 ctx.fillRect(room.x + room.w, room.y, 5, room.h);
                 
-                ctx.fillStyle = 'rgba(139, 69, 19, 0.7)';
+                // Дверь
+                ctx.fillStyle = 'rgba(139, 69, 19, 0.8)';
                 ctx.fillRect(room.door.x - 25, room.door.y - 15, 50, 30);
                 
+                // Название комнаты
                 ctx.fillStyle = '#ffd700';
-                ctx.font = 'bold 16px "Press Start 2P"';
+                ctx.font = 'bold 14px "Press Start 2P"';
                 ctx.fillText(room.name, room.x + 20, room.y + 40);
                 
                 if(room.hasBooks) {
@@ -676,6 +741,7 @@
                 }
             });
 
+            // Рисуем книги
             if(game.books) {
                 Object.entries(game.books).forEach(([id, book]) => {
                     if(!book.collected) {
@@ -697,11 +763,13 @@
                 });
             }
 
+            // Рисуем игроков
             if(game.players) {
                 Object.entries(game.players).forEach(([id, p]) => {
                     if(p.escaped) return;
                     
                     if(p.role === 'baldi') {
+                        // Baldi
                         ctx.fillStyle = '#ff0000';
                         ctx.shadowColor = '#ff0000';
                         ctx.shadowBlur = 30;
@@ -711,12 +779,17 @@
                         
                         ctx.shadowBlur = 0;
                         ctx.fillStyle = 'white';
-                        ctx.font = 'bold 26px Arial';
-                        ctx.fillText('👨‍🏫', p.x-13, p.y+8);
-                        ctx.font = 'bold 14px "Press Start 2P"';
-                        ctx.fillText(p.name, p.x-35, p.y-30);
+                        ctx.font = 'bold 24px Arial';
+                        ctx.fillText('👨‍🏫', p.x-12, p.y+7);
+                        ctx.font = 'bold 12px "Press Start 2P"';
+                        ctx.fillText(p.name, p.x-30, p.y-30);
                     } else {
-                        ctx.fillStyle = p.caught ? '#666666' : '#ffd700';
+                        // Ученики
+                        if(p.caught) {
+                            ctx.fillStyle = '#666666';
+                        } else {
+                            ctx.fillStyle = '#ffd700';
+                        }
                         ctx.shadowColor = '#ffd700';
                         ctx.shadowBlur = 20;
                         ctx.beginPath();
@@ -728,18 +801,37 @@
                         ctx.font = 'bold 18px Arial';
                         ctx.fillText('🧑', p.x-9, p.y+5);
                         ctx.fillStyle = 'white';
-                        ctx.font = 'bold 12px "Press Start 2P"';
-                        ctx.fillText(p.books || 0, p.x+12, p.y-20);
-                        ctx.fillStyle = 'white';
-                        ctx.font = '10px "Press Start 2P"';
-                        ctx.fillText(p.name, p.x-25, p.y-35);
+                        ctx.font = 'bold 10px "Press Start 2P"';
+                        ctx.fillText(p.name, p.x-25, p.y-25);
+                        
+                        // Количество книг
+                        ctx.fillStyle = '#ffd700';
+                        ctx.font = 'bold 12px Arial';
+                        ctx.fillText(`📚${p.books || 0}`, p.x+15, p.y-15);
+                        
+                        // Результат последнего ответа
+                        if(p.lastAnswer === true) {
+                            ctx.fillStyle = '#44ff44';
+                            ctx.font = 'bold 20px Arial';
+                            ctx.fillText('✓', p.x+10, p.y-35);
+                        } else if(p.lastAnswer === false) {
+                            ctx.fillStyle = '#ff4444';
+                            ctx.font = 'bold 20px Arial';
+                            ctx.fillText('✗', p.x+10, p.y-35);
+                        }
                     }
                 });
             }
 
+            // Выход
             if(game.exit) {
-                ctx.fillStyle = game.exit.active ? '#44ff44' : '#666666';
-                ctx.shadowColor = game.exit.active ? '#44ff44' : '#666666';
+                if(game.exit.active) {
+                    ctx.fillStyle = '#44ff44';
+                    ctx.shadowColor = '#44ff44';
+                } else {
+                    ctx.fillStyle = '#666666';
+                    ctx.shadowColor = '#666666';
+                }
                 ctx.shadowBlur = 25;
                 ctx.fillRect(game.exit.x-25, game.exit.y-25, 50, 50);
                 
@@ -749,6 +841,7 @@
                 ctx.fillText('🚪', game.exit.x-15, game.exit.y+12);
             }
 
+            // Центральный холл (обводка)
             ctx.strokeStyle = '#ffd700';
             ctx.lineWidth = 3;
             ctx.strokeRect(800, 800, 400, 400);
