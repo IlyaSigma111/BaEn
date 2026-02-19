@@ -203,11 +203,37 @@
             z-index: 1000;
         }
 
-        .question-popup h3 {
+        .popup-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .popup-header h3 {
             color: #ffd700;
             font-size: 1rem;
-            margin-bottom: 20px;
-            line-height: 1.5;
+            margin: 0;
+        }
+
+        .close-btn {
+            background: none;
+            border: 2px solid #ffd700;
+            color: #ffd700;
+            font-size: 1.5rem;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-family: 'Press Start 2P', cursive;
+        }
+
+        .close-btn:hover {
+            background: #ffd700;
+            color: #16213e;
         }
 
         .question-popup input {
@@ -233,6 +259,38 @@
             font-family: 'Press Start 2P', cursive;
             font-size: 0.8rem;
             cursor: pointer;
+        }
+
+        .cooldown-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            z-index: 1500;
+            pointer-events: none;
+        }
+
+        .cooldown-timer {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #ffd700;
+            color: #16213e;
+            padding: 20px;
+            border-radius: 50%;
+            width: 80px;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: bold;
+            z-index: 1600;
+            border: 4px solid white;
         }
 
         .caught-popup {
@@ -357,6 +415,8 @@
 </head>
 <body>
     <div id="overlay" class="overlay"></div>
+    <div id="cooldownOverlay" class="cooldown-overlay"></div>
+    <div id="cooldownTimer" class="cooldown-timer" style="display: none;">5</div>
     <div id="answerFeedback" class="answer-feedback"></div>
 
     <div class="container">
@@ -405,7 +465,10 @@
     </div>
 
     <div id="questionPopup" class="question-popup">
-        <h3 id="questionText">...</h3>
+        <div class="popup-header">
+            <h3 id="questionText">...</h3>
+            <button class="close-btn" id="closeQuestionBtn">✗</button>
+        </div>
         <input type="text" id="answerInput" placeholder="ОТВЕТ">
         <button id="submitAnswer">ОТВЕТИТЬ</button>
     </div>
@@ -426,14 +489,16 @@
         let playerRole = 'student';
         let currentQuestion = null;
         let isCaught = false;
+        let isOnCooldown = false;
         let moveInterval = null;
         let checkInterval = null;
         let gameListener = null;
         let catchTimerInterval = null;
         let caughtStartTime = 0;
         let baldiSpeedMultiplier = 1.4;
+        let cooldownTimer = null;
 
-        // ================== ТА ЖЕ КАРТА ==================
+        // ================== КАРТА ==================
         const WALL_SIZE = 30;
         
         const rooms = [
@@ -633,6 +698,31 @@
             return { x: oldX, y: oldY };
         }
 
+        function startCooldown() {
+            isOnCooldown = true;
+            let seconds = 5;
+            
+            const cooldownOverlay = document.getElementById('cooldownOverlay');
+            const cooldownTimer = document.getElementById('cooldownTimer');
+            
+            cooldownOverlay.style.display = 'block';
+            cooldownTimer.style.display = 'flex';
+            cooldownTimer.textContent = seconds;
+            
+            if(cooldownTimer) clearInterval(cooldownTimer);
+            cooldownTimer = setInterval(() => {
+                seconds--;
+                cooldownTimer.textContent = seconds;
+                
+                if(seconds <= 0) {
+                    clearInterval(cooldownTimer);
+                    cooldownOverlay.style.display = 'none';
+                    cooldownTimer.style.display = 'none';
+                    isOnCooldown = false;
+                }
+            }, 1000);
+        }
+
         function startGame() {
             const canvas = document.getElementById('gameCanvas');
             const ctx = canvas.getContext('2d');
@@ -752,7 +842,7 @@
             if(playerRole === 'student') {
                 if(checkInterval) clearInterval(checkInterval);
                 checkInterval = setInterval(() => {
-                    if(!currentGameId || isCaught) return;
+                    if(!currentGameId || isCaught || isOnCooldown) return;
 
                     database.ref('games/' + currentGameId).once('value', (snapshot) => {
                         const game = snapshot.val();
@@ -952,7 +1042,7 @@
                             Math.pow(book.y - y, 2)
                         );
                         
-                        if(dist < 60 && !currentQuestion) {
+                        if(dist < 60 && !currentQuestion && !isOnCooldown) {
                             currentQuestion = { ...book, id };
                             
                             const questionEl = document.getElementById('questionText');
@@ -982,6 +1072,12 @@
             setTimeout(() => {
                 feedback.style.display = 'none';
             }, 1000);
+        }
+
+        function closeQuestionPopup() {
+            document.getElementById('questionPopup').style.display = 'none';
+            document.getElementById('overlay').style.display = 'none';
+            currentQuestion = null;
         }
 
         document.getElementById('submitAnswer').onclick = function() {
@@ -1020,17 +1116,17 @@
             }
             
             showAnswerFeedback(isCorrect);
-            
-            document.getElementById('questionPopup').style.display = 'none';
-            document.getElementById('overlay').style.display = 'none';
-            currentQuestion = null;
+            closeQuestionPopup();
+            startCooldown();
+        };
+
+        document.getElementById('closeQuestionBtn').onclick = function() {
+            closeQuestionPopup();
         };
 
         document.getElementById('overlay').onclick = function() {
             if(document.getElementById('questionPopup').style.display === 'block') {
-                document.getElementById('questionPopup').style.display = 'none';
-                document.getElementById('overlay').style.display = 'none';
-                currentQuestion = null;
+                closeQuestionPopup();
             }
         };
 
@@ -1085,6 +1181,7 @@
             if(moveInterval) clearInterval(moveInterval);
             if(checkInterval) clearInterval(checkInterval);
             if(catchTimerInterval) clearInterval(catchTimerInterval);
+            if(cooldownTimer) clearInterval(cooldownTimer);
         });
     </script>
 </body>
