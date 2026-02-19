@@ -59,6 +59,10 @@
             color: white;
         }
 
+        .join-screen input::placeholder {
+            color: #666;
+        }
+
         .join-screen select {
             cursor: pointer;
         }
@@ -74,6 +78,19 @@
             font-size: 1rem;
             cursor: pointer;
             margin-top: 20px;
+            transition: all 0.2s;
+        }
+
+        .join-screen button:hover {
+            transform: scale(1.02);
+            box-shadow: 0 0 20px #ffd700;
+        }
+
+        .error-message {
+            color: #ff4444;
+            font-size: 0.6rem;
+            margin-top: 10px;
+            display: none;
         }
 
         .game-screen {
@@ -111,6 +128,7 @@
             border: 2px solid #ffd700;
             border-top: none;
             border-bottom: none;
+            position: relative;
         }
 
         #gameCanvas {
@@ -121,6 +139,19 @@
             display: block;
             image-rendering: pixelated;
             image-rendering: crisp-edges;
+        }
+
+        .fog-overlay {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            right: 10px;
+            bottom: 10px;
+            background: radial-gradient(circle at center, transparent 30%, #1a1a2e 90%);
+            pointer-events: none;
+            border-radius: 10px;
+            z-index: 5;
+            opacity: 0.7;
         }
 
         .controls {
@@ -278,11 +309,13 @@
             position: absolute;
             top: 10px;
             right: 10px;
-            background: rgba(0,0,0,0.5);
-            padding: 5px;
-            border-radius: 5px;
+            background: rgba(0,0,0,0.7);
+            padding: 5px 8px;
+            border-radius: 10px;
             font-size: 0.5rem;
             display: none;
+            z-index: 10;
+            border: 1px solid #ffd700;
         }
 
         .speed-indicator.baldi {
@@ -294,11 +327,33 @@
             position: absolute;
             top: 10px;
             left: 10px;
-            background: rgba(0,0,0,0.5);
-            padding: 5px;
-            border-radius: 5px;
+            background: rgba(0,0,0,0.7);
+            padding: 5px 8px;
+            border-radius: 10px;
             font-size: 0.5rem;
             color: #ffd700;
+            z-index: 10;
+            border: 1px solid #ffd700;
+        }
+
+        .room-name {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.8);
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.6rem;
+            color: #ffd700;
+            border: 1px solid #ffd700;
+            z-index: 10;
+            white-space: nowrap;
+            display: none;
+        }
+
+        .room-name.visible {
+            display: block;
         }
     </style>
 </head>
@@ -309,13 +364,15 @@
         <div id="joinScreen" class="join-screen">
             <h1>📱 ТЕЛЕФОН</h1>
             
-            <input type="text" id="gameCode" placeholder="КОД ИГРЫ" maxlength="6" style="text-transform: uppercase;">
-            <input type="text" id="playerName" placeholder="ТВОЁ ИМЯ">
+            <input type="text" id="gameCode" placeholder="КОД ИГРЫ (6 ЦИФР)" maxlength="6" pattern="[0-9]{6}" inputmode="numeric">
+            <input type="text" id="playerName" placeholder="ТВОЁ ИМЯ" maxlength="15">
             
             <select id="roleSelect">
                 <option value="student">🧑‍🎓 Я УЧЕНИК</option>
                 <option value="baldi">👨‍🏫 Я BALDI</option>
             </select>
+
+            <div id="errorMessage" class="error-message"></div>
 
             <button id="joinBtn">ВОЙТИ В ИГРУ</button>
         </div>
@@ -328,8 +385,10 @@
 
             <div class="canvas-container">
                 <canvas id="gameCanvas" width="400" height="400"></canvas>
+                <div class="fog-overlay"></div>
                 <div id="compass" class="compass">⬆️ СЕВЕР</div>
                 <div id="speedIndicator" class="speed-indicator">👟 1.0x</div>
+                <div id="currentRoom" class="room-name">🚪 КОРИДОР</div>
             </div>
 
             <div class="controls">
@@ -375,25 +434,14 @@
         let gameListener = null;
         let catchTimerInterval = null;
         let caughtStartTime = 0;
-        let baldiSpeedMultiplier = 1.4; // Baldi на 40% быстрее
+        let baldiSpeedMultiplier = 1.4;
+        let currentRoomName = '';
 
-        // ================== НОВАЯ ПЛАНИРОВКА ШКОЛЫ ==================
-        // Большая карта 2000x2000 с интересной архитектурой
+        // ================== УЛУЧШЕННАЯ ПЛАНИРОВКА ==================
         
-        // Центральный холл (сердце школы)
-        const centralHall = {
-            x: 800, y: 800, w: 400, h: 400,
-            doors: [
-                { x: 1000, y: 1200 }, // выход в южное крыло
-                { x: 1000, y: 800 },  // выход в северное крыло
-                { x: 1200, y: 1000 }, // выход в восточное крыло
-                { x: 800, y: 1000 }   // выход в западное крыло
-            ]
-        };
-
-        // Все комнаты школы (неправильная форма, разбросаны)
+        // Комнаты с четкими границами
         const rooms = [
-            // СЕВЕРНОЕ КРЫЛО (лаборатории и наука)
+            // СЕВЕРНОЕ КРЫЛО
             { 
                 name: "🧪 ЛАБОРАТОРИЯ", 
                 x: 650, y: 350, w: 280, h: 200,
@@ -416,7 +464,7 @@
                 hasBooks: false
             },
             
-            // ВОСТОЧНОЕ КРЫЛО (искусство)
+            // ВОСТОЧНОЕ КРЫЛО
             { 
                 name: "🎨 МАСТЕРСКАЯ", 
                 x: 1400, y: 700, w: 300, h: 240,
@@ -439,7 +487,7 @@
                 hasBooks: false
             },
             
-            // ЮЖНОЕ КРЫЛО (гуманитарные)
+            // ЮЖНОЕ КРЫЛО
             { 
                 name: "📜 ИСТОРИЯ", 
                 x: 900, y: 1300, w: 260, h: 210,
@@ -462,7 +510,7 @@
                 hasBooks: false
             },
             
-            // ЗАПАДНОЕ КРЫЛО (секретные комнаты)
+            // ЗАПАДНОЕ КРЫЛО
             { 
                 name: "📚 БИБЛИОТЕКА", 
                 x: 200, y: 900, w: 320, h: 280,
@@ -485,14 +533,7 @@
                 hasBooks: false
             },
             
-            // ТУПИКИ И ЗАКОУЛКИ (дополнительные помещения)
-            { 
-                name: "🚽 ТУАЛЕТ", 
-                x: 500, y: 900, w: 150, h: 120,
-                door: { x: 570, y: 1020 },
-                color: "#708090",
-                hasBooks: false
-            },
+            // ДОПОЛНИТЕЛЬНЫЕ
             { 
                 name: "🍎 СТОЛОВАЯ", 
                 x: 1100, y: 550, w: 300, h: 200,
@@ -506,91 +547,99 @@
                 door: { x: 620, y: 1350 },
                 color: "#C71585",
                 hasBooks: false
+            },
+            { 
+                name: "🚪 ГАРДЕРОБ", 
+                x: 800, y: 1800, w: 200, h: 150,
+                door: { x: 900, y: 1950 },
+                color: "#8B4513",
+                hasBooks: false
             }
         ];
 
-        // Коридоры (связывают все в лабиринт)
+        // Коридоры (проходы)
         const corridors = [
-            // Центральный холл
-            { x: 800, y: 800, w: 400, h: 400 },
-            
-            // Северный коридор
+            { x: 800, y: 800, w: 400, h: 400 }, // центр
             { x: 900, y: 550, w: 200, h: 250 },
             { x: 650, y: 550, w: 250, h: 200 },
             { x: 1050, y: 520, w: 200, h: 200 },
-            
-            // Восточный коридор
             { x: 1200, y: 900, w: 300, h: 200 },
             { x: 1400, y: 940, w: 200, h: 260 },
             { x: 1300, y: 1200, w: 240, h: 200 },
-            
-            // Южный коридор
             { x: 900, y: 1200, w: 200, h: 300 },
             { x: 600, y: 1350, w: 300, h: 200 },
             { x: 1100, y: 1400, w: 250, h: 200 },
-            
-            // Западный коридор
             { x: 500, y: 900, w: 300, h: 200 },
             { x: 200, y: 900, w: 300, h: 200 },
             { x: 300, y: 700, w: 200, h: 200 },
-            
-            // Диагональные проходы
-            { x: 700, y: 700, w: 100, h: 100 },
-            { x: 1100, y: 700, w: 100, h: 100 },
-            { x: 700, y: 1100, w: 100, h: 100 },
-            { x: 1100, y: 1100, w: 100, h: 100 }
+            { x: 800, y: 400, w: 100, h: 150 },
+            { x: 1000, y: 1600, w: 200, h: 150 }
         ];
 
-        // Стены (непроходимые зоны)
+        // Стены
         const walls = [
-            // Внешние стены
             { x: 0, y: 0, w: 2000, h: 30 },
             { x: 0, y: 1970, w: 2000, h: 30 },
             { x: 0, y: 0, w: 30, h: 2000 },
             { x: 1970, y: 0, w: 30, h: 2000 },
-            
-            // Внутренние стены для лабиринта
             { x: 400, y: 400, w: 30, h: 400 },
             { x: 1500, y: 500, w: 30, h: 500 },
             { x: 300, y: 1300, w: 400, h: 30 },
             { x: 1300, y: 300, w: 400, h: 30 },
-            { x: 800, y: 500, w: 30, h: 300 },
-            { x: 1100, y: 1000, w: 30, h: 300 }
+            { x: 700, y: 700, w: 30, h: 200 },
+            { x: 1200, y: 1100, w: 30, h: 200 }
         ];
-
-        // Комнаты с тетрадями (только некоторые)
-        const bookRooms = rooms.filter(r => r.hasBooks).map(r => r.name);
-
-        // ============================================
 
         document.getElementById('roleSelect').onchange = function() {
             const role = this.value;
             document.getElementById('speedIndicator').className = role === 'baldi' ? 'speed-indicator baldi' : 'speed-indicator';
         };
 
-        document.getElementById('joinBtn').onclick = function() {
-            const gameCode = document.getElementById('gameCode').value.toUpperCase();
-            const name = document.getElementById('playerName').value;
+        document.getElementById('joinBtn').onclick = async function() {
+            const gameCode = document.getElementById('gameCode').value.trim();
+            const name = document.getElementById('playerName').value.trim();
             const role = document.getElementById('roleSelect').value;
 
-            if(!gameCode || !name) {
-                alert('Введи код и имя!');
+            // Валидация
+            if(!gameCode || gameCode.length !== 6 || !/^\d+$/.test(gameCode)) {
+                showError('Код должен быть из 6 цифр!');
+                return;
+            }
+
+            if(!name) {
+                showError('Введи имя!');
+                return;
+            }
+
+            if(name.length < 2 || name.length > 15) {
+                showError('Имя от 2 до 15 символов');
                 return;
             }
 
             if(gameListener) gameListener();
 
-            database.ref('games/' + gameCode).once('value', (snapshot) => {
+            try {
+                const snapshot = await database.ref('games/' + gameCode).once('value');
                 const game = snapshot.val();
+                
                 if(!game) {
-                    alert('Игра не найдена!');
+                    showError('Игра не найдена!');
+                    return;
+                }
+
+                // Проверка уникальности имени
+                const players = game.players || {};
+                const nameExists = Object.values(players).some(p => p.name.toLowerCase() === name.toLowerCase());
+                
+                if(nameExists) {
+                    showError('Игрок с таким именем уже есть!');
                     return;
                 }
 
                 if(role === 'baldi') {
-                    const hasBaldi = Object.values(game.players || {}).some(p => p.role === 'baldi');
+                    const hasBaldi = Object.values(players).some(p => p.role === 'baldi');
                     if(hasBaldi) {
-                        alert('Baldi уже в игре!');
+                        showError('Baldi уже в игре!');
                         return;
                     }
                 }
@@ -601,20 +650,32 @@
                 playerName = name;
                 playerRole = role;
 
-                // Случайная стартовая позиция
+                // Рандомный спавн
                 let startX, startY;
+                
                 if(role === 'student') {
-                    // Ученики стартуют в случайной комнате с книгами или без
-                    const room = rooms[Math.floor(Math.random() * rooms.length)];
-                    startX = room.x + room.w/2 + (Math.random() * 40 - 20);
-                    startY = room.y + room.h/2 + (Math.random() * 40 - 20);
+                    // Ученики спавнятся в рандомных местах
+                    const spawnPoints = [
+                        // В разных комнатах
+                        ...rooms.map(r => ({ x: r.x + r.w/2, y: r.y + r.h/2 })),
+                        // В коридорах
+                        { x: 1000, y: 1000 },
+                        { x: 500, y: 500 },
+                        { x: 1500, y: 1500 },
+                        { x: 300, y: 300 },
+                        { x: 1700, y: 1700 }
+                    ];
+                    
+                    const spawn = spawnPoints[Math.floor(Math.random() * spawnPoints.length)];
+                    startX = spawn.x + (Math.random() * 60 - 30);
+                    startY = spawn.y + (Math.random() * 60 - 30);
                 } else {
-                    // Baldi стартует в центре холла
+                    // Baldi спавнится в центре
                     startX = 1000;
                     startY = 1000;
                 }
 
-                playerRef.set({
+                await playerRef.set({
                     name: name,
                     role: role,
                     x: startX,
@@ -635,44 +696,58 @@
                 document.getElementById('speedIndicator').className = role === 'baldi' ? 'speed-indicator baldi' : 'speed-indicator';
                 
                 startGame();
-            });
+                
+            } catch(error) {
+                showError('Ошибка подключения');
+                console.error(error);
+            }
         };
 
-        // Улучшенная проверка столкновений
+        function showError(text) {
+            const errorEl = document.getElementById('errorMessage');
+            errorEl.textContent = text;
+            errorEl.style.display = 'block';
+            setTimeout(() => {
+                errorEl.style.display = 'none';
+            }, 3000);
+        }
+
+        // Проверка в комнате ли игрок
+        function getCurrentRoom(x, y) {
+            for(let room of rooms) {
+                if(x > room.x && x < room.x + room.w && 
+                   y > room.y && y < room.y + room.h) {
+                    return room;
+                }
+            }
+            return null;
+        }
+
+        // Проверка столкновений
         function checkCollision(x, y) {
-            // Границы карты
             if(x < 40 || x > 1960 || y < 40 || y > 1960) return true;
 
-            // Проверка стен
+            // Стены
             for(let wall of walls) {
-                if(x > wall.x && x < wall.x + wall.w && 
-                   y > wall.y && y < wall.y + wall.h) {
+                if(x > wall.x && x < wall.x + wall.w && y > wall.y && y < wall.y + wall.h) {
                     return true;
                 }
             }
 
-            // Проверка комнат и дверей
+            // Комнаты и двери
             for(let room of rooms) {
-                // Если внутри комнаты или рядом
-                if(x > room.x - 20 && x < room.x + room.w + 20 && 
-                   y > room.y - 20 && y < room.y + room.h + 20) {
+                if(x > room.x - 10 && x < room.x + room.w + 10 && 
+                   y > room.y - 10 && y < room.y + room.h + 10) {
                     
-                    // Проверка, не в стене ли
-                    if(x > room.x - 5 && x < room.x + room.w + 5 && 
-                       y > room.y - 5 && y < room.y + room.h + 5) {
-                        
-                        // Проверка двери (широкий проход)
-                        const doorX = room.door.x;
-                        const doorY = room.door.y;
-                        const atDoor = Math.abs(x - doorX) < 60 && Math.abs(y - doorY) < 40;
-                        
-                        if(!atDoor) {
-                            // Проверка стен комнаты
-                            if(y < room.y + 5 && y > room.y - 5) return true; // верх
-                            if(y > room.y + room.h - 5 && y < room.y + room.h + 5) return true; // низ
-                            if(x < room.x + 5 && x > room.x - 5) return true; // лево
-                            if(x > room.x + room.w - 5 && x < room.x + room.w + 5) return true; // право
-                        }
+                    if(x > room.x && x < room.x + room.w && y > room.y && y < room.y + room.h) {
+                        // Внутри комнаты - ок
+                        return false;
+                    }
+                    
+                    // Проверка двери
+                    const atDoor = Math.abs(x - room.door.x) < 50 && Math.abs(y - room.door.y) < 40;
+                    if(!atDoor) {
+                        return true;
                     }
                 }
             }
@@ -690,7 +765,6 @@
             let active = false;
             let velocityX = 0, velocityY = 0;
 
-            // Джойстик для мобилок
             joystick.addEventListener('touchstart', (e) => {
                 e.preventDefault();
                 if(isCaught) return;
@@ -728,8 +802,8 @@
                 handle.style.transform = `translate(${x}px, ${y}px)`;
                 
                 const speedMultiplier = playerRole === 'baldi' ? baldiSpeedMultiplier : 1;
-                velocityX = (x / maxDistance) * 2.8 * speedMultiplier;
-                velocityY = (y / maxDistance) * 2.8 * speedMultiplier;
+                velocityX = (x / maxDistance) * 3 * speedMultiplier;
+                velocityY = (y / maxDistance) * 3 * speedMultiplier;
             }
 
             function resetJoystick() {
@@ -738,7 +812,6 @@
                 velocityY = 0;
             }
 
-            // Движение игрока
             if(moveInterval) clearInterval(moveInterval);
             moveInterval = setInterval(() => {
                 if(!currentGameId || !active || isCaught) return;
@@ -753,12 +826,11 @@
                     let newX = player.x + velocityX * 2;
                     let newY = player.y + velocityY * 2;
                     
-                    // Проверка столкновений
                     if(checkCollision(newX, newY)) {
                         return;
                     }
                     
-                    // Baldi ловит учеников
+                    // Baldi ловит
                     if(playerRole === 'baldi') {
                         Object.entries(game.players).forEach(([id, p]) => {
                             if(p.role === 'student' && !p.caught && !p.escaped) {
@@ -766,7 +838,7 @@
                                     Math.pow(newX - p.x, 2) + 
                                     Math.pow(newY - p.y, 2)
                                 );
-                                if(dist < 35) { // Радиус ловли
+                                if(dist < 40) {
                                     database.ref('games/' + currentGameId + '/players/' + id).update({
                                         caught: true,
                                         caughtTime: Date.now()
@@ -783,7 +855,6 @@
                 });
             }, 30);
 
-            // Слушаем изменения игры
             if(gameListener) gameListener();
             gameListener = database.ref('games/' + currentGameId).on('value', (snapshot) => {
                 const game = snapshot.val();
@@ -798,7 +869,6 @@
                 }
             });
 
-            // Проверка книг для учеников
             if(playerRole === 'student') {
                 if(checkInterval) clearInterval(checkInterval);
                 checkInterval = setInterval(() => {
@@ -826,11 +896,25 @@
             const offsetX = player.x - 200;
             const offsetY = player.y - 200;
 
+            // Текущая комната игрока
+            const currentRoom = getCurrentRoom(player.x, player.y);
+            
+            // Обновляем название комнаты
+            if(currentRoom) {
+                currentRoomName = currentRoom.name;
+                document.getElementById('currentRoom').textContent = currentRoom.name;
+                document.getElementById('currentRoom').classList.add('visible');
+            } else {
+                currentRoomName = '🚪 КОРИДОР';
+                document.getElementById('currentRoom').textContent = '🚪 КОРИДОР';
+                document.getElementById('currentRoom').classList.add('visible');
+            }
+
             // Пол
             ctx.fillStyle = '#1a1a2e';
             ctx.fillRect(0, 0, 400, 400);
 
-            // Рисуем стены (темные линии)
+            // Рисуем стены (всегда видны как темные линии)
             ctx.fillStyle = '#4a4a8a';
             walls.forEach(wall => {
                 const screenX = wall.x - offsetX;
@@ -855,8 +939,16 @@
                 const screenX = room.x - offsetX;
                 const screenY = room.y - offsetY;
                 
-                if(screenX > -150 && screenX < 550 && screenY > -150 && screenY < 550) {
-                    // Пол комнаты (более светлый если есть книги)
+                // Видно только если игрок в этой комнате или рядом
+                const isCurrentRoom = currentRoom && currentRoom.name === room.name;
+                const distToRoom = Math.sqrt(
+                    Math.pow(room.x + room.w/2 - player.x, 2) + 
+                    Math.pow(room.y + room.h/2 - player.y, 2)
+                );
+                
+                // Показываем комнату только если игрок внутри или очень близко к двери
+                if(isCurrentRoom || distToRoom < 150) {
+                    // Пол комнаты
                     if(room.hasBooks) {
                         ctx.fillStyle = '#4a4a6a';
                     } else {
@@ -864,57 +956,66 @@
                     }
                     ctx.fillRect(screenX, screenY, room.w, room.h);
                     
-                    // Стены комнаты
+                    // Стены
                     ctx.fillStyle = '#6a6a9a';
-                    ctx.fillRect(screenX - 5, screenY - 5, room.w + 10, 5); // верх
-                    ctx.fillRect(screenX - 5, screenY + room.h, room.w + 10, 5); // низ
-                    ctx.fillRect(screenX - 5, screenY, 5, room.h); // лево
-                    ctx.fillRect(screenX + room.w, screenY, 5, room.h); // право
+                    ctx.fillRect(screenX - 4, screenY - 4, room.w + 8, 4);
+                    ctx.fillRect(screenX - 4, screenY + room.h, room.w + 8, 4);
+                    ctx.fillRect(screenX - 4, screenY, 4, room.h);
+                    ctx.fillRect(screenX + room.w, screenY, 4, room.h);
                     
                     // Дверь
                     const doorX = room.door.x - offsetX;
                     const doorY = room.door.y - offsetY;
-                    ctx.fillStyle = 'rgba(139, 69, 19, 0.4)';
-                    ctx.fillRect(doorX - 25, doorY - 15, 50, 30);
+                    ctx.fillStyle = 'rgba(139, 69, 19, 0.5)';
+                    ctx.fillRect(doorX - 20, doorY - 10, 40, 20);
                     
-                    // Название комнаты (только если близко)
-                    const distToPlayer = Math.sqrt(
-                        Math.pow(room.x + room.w/2 - player.x, 2) + 
-                        Math.pow(room.y + room.h/2 - player.y, 2)
-                    );
-                    if(distToPlayer < 300) {
+                    // Название (только если внутри или очень близко)
+                    if(isCurrentRoom || distToRoom < 100) {
                         ctx.fillStyle = '#ffd700';
-                        ctx.font = 'bold 8px "Press Start 2P"';
-                        ctx.fillText(room.name.substring(0, 2) + '..', screenX + 10, screenY + 20);
+                        ctx.font = 'bold 7px "Press Start 2P"';
+                        ctx.fillText(room.name, screenX + 10, screenY + 25);
                     }
+                } else {
+                    // Если далеко - рисуем только темный силуэт
+                    ctx.fillStyle = '#1a1a2e';
+                    ctx.fillRect(screenX, screenY, room.w, room.h);
+                    ctx.fillStyle = '#2a2a4a';
+                    ctx.fillRect(screenX - 4, screenY - 4, room.w + 8, 4);
+                    ctx.fillRect(screenX - 4, screenY + room.h, room.w + 8, 4);
+                    ctx.fillRect(screenX - 4, screenY, 4, room.h);
+                    ctx.fillRect(screenX + room.w, screenY, 4, room.h);
                 }
             });
 
-            // Рисуем книги (только в комнатах с книгами)
-            if(game.books) {
+            // Книги (видны только если игрок в той же комнате)
+            if(game.books && currentRoom) {
                 Object.entries(game.books).forEach(([id, book]) => {
                     if(!book.collected) {
-                        const bookX = book.x - offsetX;
-                        const bookY = book.y - offsetY;
-                        
-                        if(bookX > 0 && bookX < 400 && bookY > 0 && bookY < 400) {
-                            // Тетрадка с мерцанием
-                            const pulse = Math.sin(Date.now() / 200) * 3;
-                            ctx.fillStyle = '#ffd700';
-                            ctx.shadowColor = '#ffd700';
-                            ctx.shadowBlur = 15 + pulse;
-                            ctx.fillRect(bookX - 8, bookY - 6, 16, 12);
+                        // Проверяем, в текущей ли комнате книга
+                        const bookRoom = getCurrentRoom(book.x, book.y);
+                        if(bookRoom && bookRoom.name === currentRoom.name) {
+                            const bookX = book.x - offsetX;
+                            const bookY = book.y - offsetY;
                             
-                            ctx.shadowBlur = 0;
-                            ctx.fillStyle = '#000';
-                            ctx.font = 'bold 10px Arial';
-                            ctx.fillText('📘', bookX - 6, bookY);
+                            if(bookX > 0 && bookX < 400 && bookY > 0 && bookY < 400) {
+                                // Мерцающая тетрадка
+                                const pulse = Math.sin(Date.now() / 200) * 3;
+                                ctx.fillStyle = '#ffd700';
+                                ctx.shadowColor = '#ffd700';
+                                ctx.shadowBlur = 15 + pulse;
+                                ctx.fillRect(bookX - 8, bookY - 6, 16, 12);
+                                
+                                ctx.shadowBlur = 0;
+                                ctx.fillStyle = '#000';
+                                ctx.font = 'bold 10px Arial';
+                                ctx.fillText('📘', bookX - 6, bookY);
+                            }
                         }
                     }
                 });
             }
 
-            // Рисуем других игроков
+            // Другие игроки
             if(game.players) {
                 Object.entries(game.players).forEach(([id, p]) => {
                     if(id === playerId || p.escaped) return;
@@ -924,7 +1025,6 @@
                     
                     if(screenX > 0 && screenX < 400 && screenY > 0 && screenY < 400) {
                         if(p.role === 'baldi') {
-                            // Baldi с эффектом свечения
                             ctx.fillStyle = '#ff0000';
                             ctx.shadowColor = '#ff0000';
                             ctx.shadowBlur = 25;
@@ -937,7 +1037,6 @@
                             ctx.font = 'bold 16px Arial';
                             ctx.fillText('👨‍🏫', screenX-9, screenY+5);
                         } else if(!p.caught) {
-                            // Ученики
                             ctx.fillStyle = '#ffd700';
                             ctx.shadowColor = '#ffd700';
                             ctx.shadowBlur = 15;
@@ -949,19 +1048,12 @@
                             ctx.fillStyle = '#000';
                             ctx.font = 'bold 12px Arial';
                             ctx.fillText('🧑', screenX-7, screenY+3);
-                            
-                            // Количество книг над учеником
-                            if(p.books > 0) {
-                                ctx.fillStyle = '#fff';
-                                ctx.font = 'bold 8px Arial';
-                                ctx.fillText(p.books, screenX+5, screenY-10);
-                            }
                         }
                     }
                 });
             }
 
-            // Рисуем игрока в центре
+            // Игрок в центре
             ctx.shadowBlur = 30;
             if(playerRole === 'baldi') {
                 ctx.fillStyle = '#ff0000';
@@ -1000,30 +1092,28 @@
         function checkNearbyBooks(game, x, y) {
             if(!game.books) return;
 
+            const currentRoom = getCurrentRoom(x, y);
+            if(!currentRoom) return; // В коридоре книг нет
+
             Object.entries(game.books).forEach(([id, book]) => {
                 if(!book.collected) {
-                    const dist = Math.sqrt(
-                        Math.pow(book.x - x, 2) + 
-                        Math.pow(book.y - y, 2)
-                    );
+                    const bookRoom = getCurrentRoom(book.x, book.y);
                     
-                    if(dist < 40) {
-                        // Сохраняем вопрос и показываем попап
-                        currentQuestion = { ...book, id };
+                    // Книга видна только если в той же комнате
+                    if(bookRoom && bookRoom.name === currentRoom.name) {
+                        const dist = Math.sqrt(
+                            Math.pow(book.x - x, 2) + 
+                            Math.pow(book.y - y, 2)
+                        );
                         
-                        // Важно: сохраняем вопрос ДО показа попапа
-                        const questionText = document.getElementById('questionText');
-                        const answerInput = document.getElementById('answerInput');
-                        
-                        questionText.textContent = book.question;
-                        answerInput.value = '';
-                        
-                        // Показываем попап
-                        document.getElementById('questionPopup').style.display = 'block';
-                        document.getElementById('overlay').style.display = 'block';
-                        
-                        // Фокус на инпут
-                        setTimeout(() => answerInput.focus(), 100);
+                        if(dist < 50) {
+                            currentQuestion = { ...book, id };
+                            document.getElementById('questionText').textContent = book.question;
+                            document.getElementById('answerInput').value = '';
+                            document.getElementById('questionPopup').style.display = 'block';
+                            document.getElementById('overlay').style.display = 'block';
+                            setTimeout(() => document.getElementById('answerInput').focus(), 100);
+                        }
                     }
                 }
             });
@@ -1035,13 +1125,11 @@
             const answer = document.getElementById('answerInput').value.toLowerCase().trim();
             
             if(answer === currentQuestion.answer.toLowerCase()) {
-                // Помечаем книгу как собранную
                 database.ref('games/' + currentGameId + '/books/' + currentQuestion.id).update({
                     collected: true,
                     collectedBy: playerId
                 });
 
-                // Обновляем счет игрока
                 database.ref('games/' + currentGameId + '/players/' + playerId).once('value', (snapshot) => {
                     const player = snapshot.val();
                     const newCount = (player.books || 0) + 1;
@@ -1050,7 +1138,6 @@
                         books: newCount
                     });
 
-                    // Обновляем общий счет
                     database.ref('games/' + currentGameId).once('value', (snapshot) => {
                         const game = snapshot.val();
                         database.ref('games/' + currentGameId).update({
@@ -1066,14 +1153,12 @@
             }
         };
 
-        // Закрытие попапа с вопросом
         function closeQuestionPopup() {
             document.getElementById('questionPopup').style.display = 'none';
             document.getElementById('overlay').style.display = 'none';
             currentQuestion = null;
         }
 
-        // Закрытие по клику на оверлей
         document.getElementById('overlay').onclick = function() {
             if(document.getElementById('questionPopup').style.display === 'block') {
                 closeQuestionPopup();
@@ -1105,7 +1190,6 @@
             document.getElementById('caughtPopup').style.display = 'block';
             document.getElementById('overlay').style.display = 'block';
             
-            // Анимация таймера
             const timerBar = document.getElementById('caughtTimer');
             timerBar.style.width = '0%';
             
