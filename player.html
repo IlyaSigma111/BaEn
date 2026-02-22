@@ -15,10 +15,12 @@
             padding: 0;
             box-sizing: border-box;
             -webkit-tap-highlight-color: transparent;
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
         }
 
         body {
-            background: #1a1a2e;
+            background: #0a0a1a;
             font-family: 'Press Start 2P', cursive;
             color: white;
             min-height: 100vh;
@@ -30,42 +32,42 @@
 
         .container {
             width: 100%;
-            max-width: 400px;
+            max-width: 450px;
         }
 
         .join-screen {
             background: #16213e;
-            padding: 30px 20px;
+            padding: 40px 25px;
             border-radius: 30px;
-            border: 3px solid #ffd700;
+            border: 4px solid #ffd700;
             text-align: center;
+            box-shadow: 0 20px 0 #0a0a1a, 0 0 30px rgba(255,215,0,0.3);
         }
 
         .join-screen h1 {
             color: #ffd700;
-            font-size: 1.8rem;
+            font-size: 2rem;
             margin-bottom: 30px;
+            text-shadow: 0 0 20px #ffd700;
         }
 
         .join-screen input, .join-screen select {
             width: 100%;
-            padding: 15px;
+            padding: 18px;
             margin: 10px 0;
-            background: #0f3460;
-            border: 2px solid #ffd700;
-            border-radius: 15px;
+            background: #0f1a2f;
+            border: 3px solid #ffd700;
+            border-radius: 20px;
             font-family: 'Press Start 2P', cursive;
-            font-size: 0.8rem;
+            font-size: 0.9rem;
             color: white;
             outline: none;
+            box-shadow: inset 0 5px 0 #0a0a1a;
         }
 
-        .join-screen input::placeholder {
-            color: #666;
-        }
-
-        .join-screen select {
-            cursor: pointer;
+        .join-screen input:focus, .join-screen select:focus {
+            border-color: #44ff44;
+            box-shadow: 0 0 20px #44ff44;
         }
 
         .join-screen button {
@@ -74,24 +76,33 @@
             background: #ffd700;
             color: #16213e;
             border: none;
-            border-radius: 15px;
+            border-radius: 20px;
             font-family: 'Press Start 2P', cursive;
-            font-size: 1rem;
+            font-size: 1.2rem;
             cursor: pointer;
             margin-top: 20px;
             transition: all 0.2s;
+            border: 3px solid #44ff44;
+            box-shadow: 0 8px 0 #b8860b;
+            transform: translateY(0);
         }
 
         .join-screen button:hover {
-            transform: scale(1.02);
-            box-shadow: 0 0 20px #ffd700;
+            transform: translateY(-3px);
+            box-shadow: 0 11px 0 #b8860b, 0 0 30px #ffd700;
+        }
+
+        .join-screen button:active {
+            transform: translateY(5px);
+            box-shadow: 0 3px 0 #b8860b;
         }
 
         .error-message {
             color: #ff4444;
-            font-size: 0.6rem;
+            font-size: 0.7rem;
             margin-top: 10px;
             display: none;
+            text-shadow: 0 0 10px #ff4444;
         }
 
         .game-screen {
@@ -100,22 +111,27 @@
 
         .header {
             background: #16213e;
-            padding: 15px;
+            padding: 15px 20px;
             border-radius: 20px 20px 0 0;
-            border: 2px solid #ffd700;
+            border: 4px solid #ffd700;
+            border-bottom: none;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
         .role-indicator {
-            padding: 5px 10px;
-            border-radius: 10px;
-            font-size: 0.6rem;
+            padding: 8px 15px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            box-shadow: 0 4px 0 #0a0a1a;
         }
 
         .role-indicator.baldi {
-            background: #ff0000;
+            background: #ff4444;
+            color: white;
+            text-shadow: 0 0 10px #fff;
         }
 
         .role-indicator.student {
@@ -124,9 +140,9 @@
         }
 
         .canvas-container {
-            background: #16213e;
+            background: #0a0a1a;
             padding: 10px;
-            border: 2px solid #ffd700;
+            border: 4px solid #ffd700;
             border-top: none;
             border-bottom: none;
             position: relative;
@@ -136,55 +152,61 @@
             width: 100%;
             aspect-ratio: 1;
             background: #1a1a2e;
-            border-radius: 10px;
+            border-radius: 15px;
             display: block;
             image-rendering: pixelated;
-            image-rendering: crisp-edges;
+            box-shadow: 0 0 30px rgba(255,215,0,0.2);
         }
 
         .controls {
             background: #16213e;
-            padding: 20px;
-            border: 2px solid #ffd700;
+            padding: 25px 20px;
+            border: 4px solid #ffd700;
             border-top: none;
             border-radius: 0 0 20px 20px;
         }
 
         .joystick {
-            width: 180px;
-            height: 180px;
+            width: 200px;
+            height: 200px;
             margin: 0 auto;
             position: relative;
-            background: #0f3460;
+            background: #0f1a2f;
             border-radius: 50%;
-            border: 3px solid #ffd700;
+            border: 4px solid #ffd700;
             touch-action: none;
+            box-shadow: inset 0 -10px 0 #0a0a1a, 0 10px 0 #0a0a1a;
         }
 
         .joystick-handle {
-            width: 70px;
-            height: 70px;
+            width: 80px;
+            height: 80px;
             background: #ffd700;
             border-radius: 50%;
             position: absolute;
-            top: 55px;
-            left: 55px;
+            top: 60px;
+            left: 60px;
             transition: 0.02s;
-            box-shadow: 0 0 20px #ffd700;
+            box-shadow: 0 0 30px #ffd700, inset 0 -5px 0 #b8860b;
             pointer-events: none;
+            border: 2px solid white;
         }
 
         .status-bar {
             display: flex;
             justify-content: space-between;
-            margin: 15px 0 10px;
-            font-size: 0.6rem;
+            margin: 20px 0 15px;
+            font-size: 0.8rem;
+            background: #0f1a2f;
+            padding: 15px;
+            border-radius: 15px;
+            border: 2px solid #ffd700;
         }
 
         .info {
             text-align: center;
             color: #888;
-            font-size: 0.5rem;
+            font-size: 0.6rem;
             margin-top: 10px;
         }
 
@@ -196,69 +218,92 @@
             background: #16213e;
             padding: 30px;
             border-radius: 30px;
-            border: 4px solid #ffd700;
+            border: 5px solid #ffd700;
             width: 90%;
-            max-width: 350px;
+            max-width: 380px;
             display: none;
-            z-index: 1000;
+            z-index: 2000;
+            box-shadow: 0 20px 0 #0a0a1a, 0 0 50px #ffd700;
         }
 
         .popup-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
         }
 
         .popup-header h3 {
             color: #ffd700;
             font-size: 1rem;
             margin: 0;
+            line-height: 1.5;
         }
 
         .close-btn {
             background: none;
-            border: 2px solid #ffd700;
+            border: 3px solid #ffd700;
             color: #ffd700;
-            font-size: 1.5rem;
-            width: 40px;
-            height: 40px;
+            font-size: 2rem;
+            width: 50px;
+            height: 50px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
             font-family: 'Press Start 2P', cursive;
+            box-shadow: 0 5px 0 #b8860b;
+            transform: translateY(0);
         }
 
         .close-btn:hover {
-            background: #ffd700;
-            color: #16213e;
+            transform: translateY(-2px);
+            box-shadow: 0 7px 0 #b8860b;
+        }
+
+        .close-btn:active {
+            transform: translateY(3px);
+            box-shadow: 0 2px 0 #b8860b;
         }
 
         .question-popup input {
             width: 100%;
-            padding: 15px;
-            background: #0f3460;
-            border: 2px solid #ffd700;
-            border-radius: 15px;
+            padding: 18px;
+            background: #0f1a2f;
+            border: 3px solid #ffd700;
+            border-radius: 20px;
             font-family: 'Press Start 2P', cursive;
             font-size: 0.8rem;
             color: white;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
             outline: none;
+            box-shadow: inset 0 5px 0 #0a0a1a;
         }
 
         .question-popup button {
             width: 100%;
-            padding: 15px;
+            padding: 18px;
             background: #44ff44;
             color: #16213e;
             border: none;
-            border-radius: 15px;
+            border-radius: 20px;
             font-family: 'Press Start 2P', cursive;
-            font-size: 0.8rem;
+            font-size: 1rem;
             cursor: pointer;
+            border: 3px solid #ffd700;
+            box-shadow: 0 8px 0 #0a6b0a;
+            transform: translateY(0);
+        }
+
+        .question-popup button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 11px 0 #0a6b0a, 0 0 30px #44ff44;
+        }
+
+        .question-popup button:active {
+            transform: translateY(5px);
+            box-shadow: 0 3px 0 #0a6b0a;
         }
 
         .cooldown-overlay {
@@ -267,10 +312,10 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0,0,0,0.7);
+            background: rgba(0,0,0,0.8);
             display: none;
             z-index: 1500;
-            pointer-events: none;
+            backdrop-filter: blur(5px);
         }
 
         .cooldown-timer {
@@ -280,18 +325,19 @@
             transform: translate(-50%, -50%);
             background: #ffd700;
             color: #16213e;
-            padding: 20px;
+            padding: 25px;
             border-radius: 50%;
-            width: 100px;
-            height: 100px;
+            width: 120px;
+            height: 120px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 3rem;
+            font-size: 4rem;
             font-weight: bold;
             z-index: 1600;
-            border: 4px solid white;
-            box-shadow: 0 0 30px #ffd700;
+            border: 5px solid white;
+            box-shadow: 0 0 50px #ffd700;
+            font-family: 'Press Start 2P', cursive;
         }
 
         .caught-popup {
@@ -299,14 +345,15 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background: #ff0000;
+            background: #ff4444;
             padding: 40px;
             border-radius: 30px;
-            border: 4px solid white;
+            border: 5px solid white;
             text-align: center;
             display: none;
             z-index: 2000;
             animation: shake 0.5s;
+            box-shadow: 0 20px 0 #8b0000, 0 0 50px #ff4444;
         }
 
         @keyframes shake {
@@ -319,20 +366,24 @@
         .caught-popup h2 {
             font-size: 2rem;
             margin-bottom: 20px;
+            color: white;
+            text-shadow: 0 0 20px black;
         }
 
         .caught-popup p {
-            font-size: 0.8rem;
+            font-size: 0.9rem;
             margin: 10px 0;
+            color: white;
         }
 
         .timer-bar {
             width: 100%;
-            height: 10px;
+            height: 15px;
             background: #333;
-            border-radius: 5px;
+            border-radius: 10px;
             margin-top: 20px;
             overflow: hidden;
+            border: 2px solid white;
         }
 
         .timer-progress {
@@ -348,22 +399,24 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0,0,0,0.8);
+            background: rgba(0,0,0,0.7);
             display: none;
             z-index: 999;
+            backdrop-filter: blur(3px);
         }
 
         .compass {
             position: absolute;
-            top: 10px;
-            left: 10px;
-            background: rgba(0,0,0,0.7);
-            padding: 5px 8px;
-            border-radius: 10px;
-            font-size: 0.5rem;
+            top: 15px;
+            left: 15px;
+            background: rgba(0,0,0,0.8);
+            padding: 8px 12px;
+            border-radius: 15px;
+            font-size: 0.6rem;
             color: #ffd700;
             z-index: 10;
-            border: 1px solid #ffd700;
+            border: 2px solid #ffd700;
+            backdrop-filter: blur(5px);
         }
 
         .room-name {
@@ -371,19 +424,28 @@
             bottom: 20px;
             left: 50%;
             transform: translateX(-50%);
-            background: rgba(0,0,0,0.8);
-            padding: 8px 15px;
+            background: rgba(0,0,0,0.9);
+            padding: 10px 20px;
             border-radius: 20px;
-            font-size: 0.6rem;
+            font-size: 0.7rem;
             color: #ffd700;
-            border: 1px solid #ffd700;
+            border: 2px solid #ffd700;
             z-index: 10;
             white-space: nowrap;
             display: none;
+            backdrop-filter: blur(5px);
+            text-transform: uppercase;
         }
 
         .room-name.visible {
             display: block;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 10px #ffd700; }
+            50% { box-shadow: 0 0 20px #ffd700; }
+            100% { box-shadow: 0 0 10px #ffd700; }
         }
 
         .answer-feedback {
@@ -391,26 +453,48 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            font-size: 5rem;
+            font-size: 6rem;
             z-index: 3000;
             display: none;
             animation: pop 0.5s;
+            text-shadow: 0 0 50px currentColor;
         }
 
         @keyframes pop {
-            0% { transform: translate(-50%, -50%) scale(0); }
-            50% { transform: translate(-50%, -50%) scale(1.5); }
-            100% { transform: translate(-50%, -50%) scale(1); }
+            0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+            50% { transform: translate(-50%, -50%) scale(1.5); opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
         }
 
         .answer-feedback.correct {
             color: #44ff44;
-            text-shadow: 0 0 30px #44ff44;
         }
 
         .answer-feedback.wrong {
             color: #ff4444;
-            text-shadow: 0 0 30px #ff4444;
+        }
+
+        .book-notification {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #ffd700;
+            color: #16213e;
+            padding: 15px 25px;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            z-index: 2500;
+            border: 3px solid white;
+            box-shadow: 0 10px 0 #b8860b;
+            display: none;
+            animation: slideDown 0.3s;
+            white-space: nowrap;
+        }
+
+        @keyframes slideDown {
+            from { transform: translateX(-50%) translateY(-100px); opacity: 0; }
+            to { transform: translateX(-50%) translateY(0); opacity: 1; }
         }
     </style>
 </head>
@@ -419,12 +503,13 @@
     <div id="cooldownOverlay" class="cooldown-overlay"></div>
     <div id="cooldownTimer" class="cooldown-timer" style="display: none;">5</div>
     <div id="answerFeedback" class="answer-feedback"></div>
+    <div id="bookNotification" class="book-notification">📚 РЯДОМ ЕСТЬ ТЕТРАДЬ!</div>
 
     <div class="container">
         <div id="joinScreen" class="join-screen">
             <h1>📱 ТЕЛЕФОН</h1>
             
-            <input type="text" id="gameCode" placeholder="КОД ИГРЫ (6 ЦИФР)" maxlength="6" pattern="[0-9]{6}" inputmode="numeric">
+            <input type="text" id="gameCode" placeholder="КОД ИГРЫ" maxlength="6" inputmode="numeric">
             <input type="text" id="playerName" placeholder="ТВОЁ ИМЯ" maxlength="15">
             
             <select id="roleSelect">
@@ -434,13 +519,14 @@
 
             <div id="errorMessage" class="error-message"></div>
 
-            <button id="joinBtn">ВОЙТИ В ИГРУ</button>
+            <button id="joinBtn">ВОЙТИ</button>
         </div>
 
         <div id="gameScreen" class="game-screen">
             <div class="header">
                 <div id="roleDisplay" class="role-indicator">👨‍🏫</div>
-                <div id="progressDisplay">0/20</div>
+                <div id="progressDisplay">📚 0/20</div>
+                <div id="myBooksDisplay" style="color: #ffd700;">0</div>
             </div>
 
             <div class="canvas-container">
@@ -460,7 +546,7 @@
                     <span id="exitStatus">🚪 ЗАКРЫТ</span>
                 </div>
                 
-                <div class="info">👆 тяни джойстик чтобы двигаться</div>
+                <div class="info">👆 ТЯНИ ДЖОЙСТИК ЧТОБЫ ДВИГАТЬСЯ</div>
             </div>
         </div>
     </div>
@@ -470,7 +556,7 @@
             <h3 id="questionText">...</h3>
             <button class="close-btn" id="closeQuestionBtn">✗</button>
         </div>
-        <input type="text" id="answerInput" placeholder="ОТВЕТ">
+        <input type="text" id="answerInput" placeholder="ОТВЕТ" autocomplete="off">
         <button id="submitAnswer">ОТВЕТИТЬ</button>
     </div>
 
@@ -496,68 +582,67 @@
         let gameListener = null;
         let catchTimerInterval = null;
         let caughtStartTime = 0;
-        let baldiSpeedMultiplier = 1.4;
         let cooldownInterval = null;
+        let lastNotificationTime = 0;
+        let isMoving = false;
 
-        // ================== КАРТА ==================
-        const WALL_SIZE = 30;
+        // ================== УВЕЛИЧЕННАЯ КАРТА ==================
+        const WALL_SIZE = 40;
         
         const rooms = [
-            { name: "🧪 ЛАБОРАТОРИЯ", x: 150, y: 150, w: 250, h: 200, door: { x: 275, y: 350 }, hasBooks: true },
-            { name: "🔬 ХИМИЯ", x: 550, y: 150, w: 250, h: 200, door: { x: 675, y: 350 }, hasBooks: true },
-            { name: "📚 БИБЛИОТЕКА", x: 950, y: 150, w: 300, h: 220, door: { x: 1100, y: 370 }, hasBooks: true },
-            { name: "🎨 МАСТЕРСКАЯ", x: 1400, y: 150, w: 280, h: 200, door: { x: 1540, y: 350 }, hasBooks: true },
-            { name: "🎵 МУЗЫКА", x: 1350, y: 550, w: 250, h: 200, door: { x: 1475, y: 750 }, hasBooks: true },
-            { name: "📜 ИСТОРИЯ", x: 250, y: 1000, w: 280, h: 220, door: { x: 390, y: 1220 }, hasBooks: true },
-            { name: "🌍 ГЕОГРАФИЯ", x: 650, y: 1050, w: 260, h: 200, door: { x: 780, y: 1250 }, hasBooks: true },
-            { name: "⚙️ ПОДСОБКА", x: 200, y: 600, w: 220, h: 180, door: { x: 310, y: 780 }, hasBooks: false },
-            { name: "🏛️ ХОЛЛ", x: 800, y: 550, w: 400, h: 300, door: { x: 1000, y: 850 }, hasBooks: false },
-            { name: "🏫 АКТОВЫЙ ЗАЛ", x: 1050, y: 1000, w: 350, h: 250, door: { x: 1225, y: 1250 }, hasBooks: false },
-            { name: "🚪 ГАРДЕРОБ", x: 1550, y: 1100, w: 200, h: 150, door: { x: 1650, y: 1250 }, hasBooks: false }
+            { name: "🧪 ЛАБОРАТОРИЯ", x: 200, y: 200, w: 350, h: 250, door: { x: 375, y: 450 }, hasBooks: true },
+            { name: "🔬 ХИМИЯ", x: 700, y: 200, w: 350, h: 250, door: { x: 875, y: 450 }, hasBooks: true },
+            { name: "📚 БИБЛИОТЕКА", x: 1200, y: 200, w: 400, h: 280, door: { x: 1400, y: 480 }, hasBooks: true },
+            { name: "🎨 МАСТЕРСКАЯ", x: 1750, y: 200, w: 350, h: 250, door: { x: 1925, y: 450 }, hasBooks: true },
+            { name: "💻 ИНФОРМАТИКА", x: 2250, y: 200, w: 350, h: 250, door: { x: 2425, y: 450 }, hasBooks: true },
+            { name: "📐 МАТЕМАТИКА", x: 300, y: 700, w: 350, h: 250, door: { x: 475, y: 950 }, hasBooks: true },
+            { name: "📖 АНГЛИЙСКИЙ", x: 800, y: 700, w: 350, h: 250, door: { x: 975, y: 950 }, hasBooks: true },
+            { name: "🌍 ГЕОГРАФИЯ", x: 1300, y: 700, w: 350, h: 250, door: { x: 1475, y: 950 }, hasBooks: true },
+            { name: "📜 ИСТОРИЯ", x: 1800, y: 700, w: 350, h: 250, door: { x: 1975, y: 950 }, hasBooks: true },
+            { name: "🎵 МУЗЫКА", x: 2300, y: 700, w: 350, h: 250, door: { x: 2475, y: 950 }, hasBooks: true },
+            { name: "🏃 СПОРТЗАЛ", x: 500, y: 1200, w: 450, h: 300, door: { x: 725, y: 1500 }, hasBooks: true },
+            { name: "🎭 ТЕАТР", x: 1200, y: 1200, w: 400, h: 300, door: { x: 1400, y: 1500 }, hasBooks: true },
+            { name: "🔧 МАСТЕРСКАЯ", x: 2000, y: 1200, w: 400, h: 300, door: { x: 2200, y: 1500 }, hasBooks: true },
+            { name: "⚙️ ПОДСОБКА", x: 250, y: 1700, w: 300, h: 220, door: { x: 400, y: 1920 }, hasBooks: false },
+            { name: "🚪 ГАРДЕРОБ", x: 800, y: 1700, w: 300, h: 220, door: { x: 950, y: 1920 }, hasBooks: false },
+            { name: "🧹 КЛАДОВКА", x: 1350, y: 1700, w: 300, h: 220, door: { x: 1500, y: 1920 }, hasBooks: false },
+            { name: "🚻 ТУАЛЕТ", x: 1900, y: 1700, w: 300, h: 220, door: { x: 2050, y: 1920 }, hasBooks: false },
+            { name: "🏛️ ХОЛЛ", x: 2500, y: 1500, w: 500, h: 400, door: { x: 2750, y: 1900 }, hasBooks: false }
         ];
 
         const corridors = [
-            { x: 0, y: 400, w: 2000, h: 150 },
-            { x: 0, y: 900, w: 2000, h: 150 },
-            { x: 0, y: 1400, w: 2000, h: 150 },
-            { x: 400, y: 0, w: 150, h: 2000 },
-            { x: 900, y: 0, w: 150, h: 2000 },
-            { x: 1300, y: 0, w: 150, h: 2000 },
-            { x: 1700, y: 0, w: 150, h: 2000 }
+            { x: 0, y: 550, w: 4000, h: 150 },
+            { x: 0, y: 1050, w: 4000, h: 150 },
+            { x: 0, y: 1600, w: 4000, h: 150 },
+            { x: 0, y: 2100, w: 4000, h: 150 },
+            { x: 600, y: 0, w: 150, h: 4000 },
+            { x: 1150, y: 0, w: 150, h: 4000 },
+            { x: 1700, y: 0, w: 150, h: 4000 },
+            { x: 2250, y: 0, w: 150, h: 4000 },
+            { x: 2800, y: 0, w: 150, h: 4000 }
         ];
 
         const walls = [
-            { x: 0, y: 0, w: 2000, h: WALL_SIZE },
-            { x: 0, y: 2000 - WALL_SIZE, w: 2000, h: WALL_SIZE },
-            { x: 0, y: 0, w: WALL_SIZE, h: 2000 },
-            { x: 2000 - WALL_SIZE, y: 0, w: WALL_SIZE, h: 2000 }
+            { x: 0, y: 0, w: 4000, h: WALL_SIZE },
+            { x: 0, y: 4000 - WALL_SIZE, w: 4000, h: WALL_SIZE },
+            { x: 0, y: 0, w: WALL_SIZE, h: 4000 },
+            { x: 4000 - WALL_SIZE, y: 0, w: WALL_SIZE, h: 4000 }
         ];
-
-        document.getElementById('roleSelect').onchange = function() {
-            const role = this.value;
-        };
 
         document.getElementById('joinBtn').onclick = async function() {
             const gameCode = document.getElementById('gameCode').value.trim();
             const name = document.getElementById('playerName').value.trim();
             const role = document.getElementById('roleSelect').value;
 
-            if(!gameCode || gameCode.length !== 6 || !/^\d+$/.test(gameCode)) {
+            if(!gameCode || gameCode.length !== 6) {
                 showError('Код должен быть из 6 цифр!');
                 return;
             }
 
-            if(!name) {
-                showError('Введи имя!');
+            if(!name || name.length < 2) {
+                showError('Введи имя (минимум 2 символа)');
                 return;
             }
-
-            if(name.length < 2 || name.length > 15) {
-                showError('Имя от 2 до 15 символов');
-                return;
-            }
-
-            if(gameListener) gameListener();
 
             try {
                 const snapshot = await database.ref('games/' + gameCode).once('value');
@@ -568,14 +653,13 @@
                     return;
                 }
 
-                const players = game.players || {};
-                const nameExists = Object.values(players).some(p => p.name.toLowerCase() === name.toLowerCase());
-                
-                if(nameExists) {
-                    showError('Игрок с таким именем уже есть!');
+                if(game.status !== 'waiting') {
+                    showError('Игра уже началась!');
                     return;
                 }
 
+                const players = game.players || {};
+                
                 if(role === 'baldi') {
                     const hasBaldi = Object.values(players).some(p => p.role === 'baldi');
                     if(hasBaldi) {
@@ -584,21 +668,45 @@
                     }
                 }
 
+                // Проверка на уникальное имя
+                const nameExists = Object.values(players).some(p => p.name.toLowerCase() === name.toLowerCase());
+                if(nameExists) {
+                    showError('Игрок с таким именем уже есть!');
+                    return;
+                }
+
                 const playerRef = database.ref('games/' + gameCode + '/players').push();
                 playerId = playerRef.key;
                 currentGameId = gameCode;
                 playerName = name;
                 playerRole = role;
 
+                // Безопасный спавн (не в книгах)
                 let startX, startY;
+                let attempts = 0;
+                let validSpawn = false;
                 
-                if(role === 'student') {
-                    const room = rooms[Math.floor(Math.random() * rooms.length)];
-                    startX = room.x + 50 + Math.random() * (room.w - 100);
-                    startY = room.y + 50 + Math.random() * (room.h - 100);
-                } else {
-                    startX = 1000;
-                    startY = 1000;
+                while(!validSpawn && attempts < 100) {
+                    if(role === 'student') {
+                        const room = rooms[Math.floor(Math.random() * rooms.length)];
+                        startX = room.x + 100 + Math.random() * (room.w - 200);
+                        startY = room.y + 100 + Math.random() * (room.h - 200);
+                    } else {
+                        startX = 2000;
+                        startY = 2000;
+                    }
+                    
+                    // Проверка, что не спавнимся на книге
+                    validSpawn = true;
+                    if(game.books) {
+                        Object.values(game.books).forEach(book => {
+                            if(!book.collected) {
+                                const dist = Math.sqrt(Math.pow(book.x - startX, 2) + Math.pow(book.y - startY, 2));
+                                if(dist < 50) validSpawn = false;
+                            }
+                        });
+                    }
+                    attempts++;
                 }
 
                 await playerRef.set({
@@ -609,7 +717,8 @@
                     books: 0,
                     caught: false,
                     escaped: false,
-                    lastCaught: 0
+                    lastAnswer: null,
+                    lastAnswerTime: null
                 });
 
                 document.getElementById('joinScreen').style.display = 'none';
@@ -646,36 +755,34 @@
         }
 
         function checkCollision(x, y) {
-            if(x < WALL_SIZE + 10 || x > 2000 - WALL_SIZE - 10 || 
-               y < WALL_SIZE + 10 || y > 2000 - WALL_SIZE - 10) {
-                return true;
-            }
+            // Границы карты
+            if(x < 50 || x > 3950 || y < 50 || y > 3950) return true;
 
+            // Стены
             for(let wall of walls) {
                 if(x > wall.x && x < wall.x + wall.w && y > wall.y && y < wall.y + wall.h) {
                     return true;
                 }
             }
 
+            // Комнаты (можно входить только через двери)
             for(let room of rooms) {
-                if(x > room.x && x < room.x + room.w && y > room.y && y < room.y + room.h) {
-                    return false;
-                }
-                
                 if(x > room.x - 20 && x < room.x + room.w + 20 && 
                    y > room.y - 20 && y < room.y + room.h + 20) {
                     
+                    // Если внутри комнаты - ок
+                    if(x > room.x && x < room.x + room.w && y > room.y && y < room.y + room.h) {
+                        return false;
+                    }
+                    
+                    // Проверка на дверь
                     const distToDoor = Math.sqrt(
                         Math.pow(x - room.door.x, 2) + 
                         Math.pow(y - room.door.y, 2)
                     );
                     
-                    if(distToDoor > 70) {
-                        if(x < room.x - 5 || x > room.x + room.w + 5 || 
-                           y < room.y - 5 || y > room.y + room.h + 5) {
-                            return false;
-                        }
-                        return true;
+                    if(distToDoor > 60) {
+                        return true; // Стена
                     }
                 }
             }
@@ -727,8 +834,8 @@
         }
 
         function startGame() {
-            // Стартовый кулдаун 3 секунды при входе в игру
-            startCooldown(3);
+            // Короткий кулдаун при входе
+            startCooldown(2);
             
             const canvas = document.getElementById('gameCanvas');
             const ctx = canvas.getContext('2d');
@@ -743,17 +850,21 @@
                 e.preventDefault();
                 if(isCaught) return;
                 active = true;
+                isMoving = true;
                 updateJoystick(e.touches[0]);
             });
 
             joystick.addEventListener('touchmove', (e) => {
                 e.preventDefault();
-                if(active && !isCaught) updateJoystick(e.touches[0]);
+                if(active && !isCaught) {
+                    updateJoystick(e.touches[0]);
+                }
             });
 
             joystick.addEventListener('touchend', (e) => {
                 e.preventDefault();
                 active = false;
+                isMoving = false;
                 resetJoystick();
             });
 
@@ -766,7 +877,7 @@
                 let y = touch.clientY - centerY;
                 
                 const distance = Math.sqrt(x*x + y*y);
-                const maxDistance = 50;
+                const maxDistance = 60;
                 
                 if(distance > maxDistance) {
                     x = (x / distance) * maxDistance;
@@ -775,9 +886,8 @@
                 
                 handle.style.transform = `translate(${x}px, ${y}px)`;
                 
-                const speedMultiplier = playerRole === 'baldi' ? baldiSpeedMultiplier : 1;
-                velocityX = (x / maxDistance) * 3 * speedMultiplier;
-                velocityY = (y / maxDistance) * 3 * speedMultiplier;
+                velocityX = (x / maxDistance) * 4;
+                velocityY = (y / maxDistance) * 4;
             }
 
             function resetJoystick() {
@@ -800,27 +910,10 @@
                     const oldX = player.x;
                     const oldY = player.y;
                     
-                    let targetX = oldX + velocityX * 2;
-                    let targetY = oldY + velocityY * 2;
+                    let targetX = oldX + velocityX;
+                    let targetY = oldY + velocityY;
                     
                     const newPos = tryMove(oldX, oldY, targetX, targetY);
-                    
-                    if(playerRole === 'baldi') {
-                        Object.entries(game.players).forEach(([id, p]) => {
-                            if(p.role === 'student' && !p.caught && !p.escaped) {
-                                const dist = Math.sqrt(
-                                    Math.pow(newPos.x - p.x, 2) + 
-                                    Math.pow(newPos.y - p.y, 2)
-                                );
-                                if(dist < 45) {
-                                    database.ref('games/' + currentGameId + '/players/' + id).update({
-                                        caught: true,
-                                        caughtTime: Date.now()
-                                    });
-                                }
-                            }
-                        });
-                    }
                     
                     if(newPos.x !== oldX || newPos.y !== oldY) {
                         database.ref('games/' + currentGameId + '/players/' + playerId).update({
@@ -843,12 +936,29 @@
                 if(player && player.caught && !isCaught && playerRole === 'student') {
                     showCaughtPopup();
                 }
+                
+                // Проверка на победу
+                if(game.exit && game.exit.active && player && playerRole === 'student' && !player.escaped) {
+                    const distToExit = Math.sqrt(
+                        Math.pow(player.x - game.exit.x, 2) + 
+                        Math.pow(player.y - game.exit.y, 2)
+                    );
+                    if(distToExit < 50) {
+                        database.ref('games/' + currentGameId + '/players/' + playerId).update({
+                            escaped: true
+                        });
+                        database.ref('games/' + currentGameId).update({
+                            escapedCount: (game.escapedCount || 0) + 1
+                        });
+                        showNotification('🎉 ТЫ ВЫБРАЛСЯ!');
+                    }
+                }
             });
 
             if(playerRole === 'student') {
                 if(checkInterval) clearInterval(checkInterval);
                 checkInterval = setInterval(() => {
-                    if(!currentGameId || isCaught || isOnCooldown) return;
+                    if(!currentGameId || isCaught || isOnCooldown || currentQuestion) return;
 
                     database.ref('games/' + currentGameId).once('value', (snapshot) => {
                         const game = snapshot.val();
@@ -859,7 +969,7 @@
 
                         checkNearbyBooks(game, player.x, player.y);
                     });
-                }, 200);
+                }, 300);
             }
         }
 
@@ -872,6 +982,23 @@
             const offsetX = player.x - 200;
             const offsetY = player.y - 200;
 
+            // Пол с сеткой
+            ctx.fillStyle = '#1e1e36';
+            ctx.fillRect(0, 0, 400, 400);
+            
+            ctx.strokeStyle = '#2a2a4a';
+            ctx.lineWidth = 1;
+            for(let i = 0; i <= 400; i += 20) {
+                ctx.beginPath();
+                ctx.strokeStyle = '#2a2a4a';
+                ctx.moveTo(i, 0);
+                ctx.lineTo(i, 400);
+                ctx.stroke();
+                ctx.moveTo(0, i);
+                ctx.lineTo(400, i);
+                ctx.stroke();
+            }
+
             const currentRoom = getCurrentRoom(player.x, player.y);
             
             if(currentRoom) {
@@ -882,10 +1009,8 @@
                 document.getElementById('currentRoom').classList.add('visible');
             }
 
-            ctx.fillStyle = '#1a1a2e';
-            ctx.fillRect(0, 0, 400, 400);
-
-            ctx.fillStyle = '#2a2a4a';
+            // Коридоры
+            ctx.fillStyle = '#3a3a5a';
             corridors.forEach(cor => {
                 const screenX = cor.x - offsetX;
                 const screenY = cor.y - offsetY;
@@ -894,69 +1019,62 @@
                 }
             });
 
-            ctx.fillStyle = '#4a4a8a';
-            walls.forEach(wall => {
-                const screenX = wall.x - offsetX;
-                const screenY = wall.y - offsetY;
-                if(screenX > -100 && screenX < 500 && screenY > -100 && screenY < 500) {
-                    ctx.fillRect(screenX, screenY, wall.w, wall.h);
-                }
-            });
-
+            // Комнаты поблизости
             rooms.forEach(room => {
                 const screenX = room.x - offsetX;
                 const screenY = room.y - offsetY;
                 
-                const isCurrentRoom = currentRoom && currentRoom.name === room.name;
-                
-                ctx.fillStyle = '#6a6a9a';
-                ctx.fillRect(screenX - 4, screenY - 4, room.w + 8, 4);
-                ctx.fillRect(screenX - 4, screenY + room.h, room.w + 8, 4);
-                ctx.fillRect(screenX - 4, screenY - 4, 4, room.h + 8);
-                ctx.fillRect(screenX + room.w, screenY - 4, 4, room.h + 8);
-                
-                const doorX = room.door.x - offsetX;
-                const doorY = room.door.y - offsetY;
-                ctx.fillStyle = 'rgba(255, 215, 0, 0.9)';
-                ctx.fillRect(doorX - 30, doorY - 15, 60, 30);
-                
-                if(isCurrentRoom) {
-                    ctx.fillStyle = room.hasBooks ? '#4a4a6a' : '#3a3a5a';
-                    ctx.fillRect(screenX, screenY, room.w, room.h);
+                if(screenX > -100 && screenX < 500 && screenY > -100 && screenY < 500) {
+                    // Стены комнаты
+                    ctx.strokeStyle = '#8a8aaa';
+                    ctx.lineWidth = 3;
+                    ctx.strokeRect(screenX, screenY, room.w, room.h);
                     
-                    ctx.fillStyle = '#ffd700';
-                    ctx.font = 'bold 7px "Press Start 2P"';
-                    ctx.fillText(room.name, screenX + 10, screenY + 25);
+                    // Дверь
+                    const doorX = room.door.x - offsetX;
+                    const doorY = room.door.y - offsetY;
+                    ctx.fillStyle = '#8b4513';
+                    ctx.fillRect(doorX - 20, doorY - 15, 40, 30);
+                    
+                    // Название (если рядом)
+                    if(Math.abs(screenX) < 300 && Math.abs(screenY) < 300) {
+                        ctx.fillStyle = '#ffd700';
+                        ctx.font = 'bold 8px "Press Start 2P"';
+                        ctx.fillText(room.name.substring(0, 10), screenX + 10, screenY + 20);
+                    }
                 }
             });
 
-            if(game.books) {
-                if(currentRoom) {
-                    Object.entries(game.books).forEach(([id, book]) => {
-                        if(!book.collected) {
-                            const bookRoom = getCurrentRoom(book.x, book.y);
-                            if(bookRoom && bookRoom.name === currentRoom.name) {
-                                const bookX = book.x - offsetX;
-                                const bookY = book.y - offsetY;
+            // Книги (только в текущей комнате)
+            if(game.books && currentRoom) {
+                Object.entries(game.books).forEach(([id, book]) => {
+                    if(!book.collected) {
+                        const bookRoom = getCurrentRoom(book.x, book.y);
+                        if(bookRoom && bookRoom.name === currentRoom.name) {
+                            const bookX = book.x - offsetX;
+                            const bookY = book.y - offsetY;
+                            
+                            if(bookX > 0 && bookX < 400 && bookY > 0 && bookY < 400) {
+                                // Пульсация
+                                const pulse = Math.sin(Date.now() / 200) * 2;
                                 
-                                if(bookX > 0 && bookX < 400 && bookY > 0 && bookY < 400) {
-                                    const pulse = Math.sin(Date.now() / 200) * 3;
-                                    ctx.fillStyle = '#ffd700';
-                                    ctx.shadowColor = '#ffd700';
-                                    ctx.shadowBlur = 15 + pulse;
-                                    ctx.fillRect(bookX - 8, bookY - 6, 16, 12);
-                                    
-                                    ctx.shadowBlur = 0;
-                                    ctx.fillStyle = '#000';
-                                    ctx.font = 'bold 10px Arial';
-                                    ctx.fillText('📘', bookX - 6, bookY);
-                                }
+                                // Тетрадь
+                                ctx.fillStyle = '#ffd700';
+                                ctx.shadowColor = '#ffd700';
+                                ctx.shadowBlur = 10 + pulse;
+                                ctx.fillRect(bookX - 8, bookY - 6, 16, 12);
+                                
+                                ctx.shadowBlur = 0;
+                                ctx.fillStyle = '#000';
+                                ctx.font = 'bold 12px Arial';
+                                ctx.fillText('📘', bookX - 7, bookY);
                             }
                         }
-                    });
-                }
+                    }
+                });
             }
 
+            // Другие игроки
             if(game.players) {
                 Object.entries(game.players).forEach(([id, p]) => {
                     if(id === playerId || p.escaped) return;
@@ -966,77 +1084,64 @@
                     
                     if(screenX > 0 && screenX < 400 && screenY > 0 && screenY < 400) {
                         if(p.role === 'baldi') {
-                            ctx.fillStyle = '#ff0000';
+                            // Baldi
                             ctx.shadowColor = '#ff0000';
-                            ctx.shadowBlur = 25;
+                            ctx.shadowBlur = 20;
+                            ctx.fillStyle = '#ff0000';
                             ctx.beginPath();
-                            ctx.arc(screenX, screenY, 14, 0, Math.PI * 2);
+                            ctx.arc(screenX, screenY, 12, 0, Math.PI * 2);
                             ctx.fill();
                             
                             ctx.shadowBlur = 0;
                             ctx.fillStyle = 'white';
                             ctx.font = 'bold 16px Arial';
-                            ctx.fillText('👨‍🏫', screenX-9, screenY+5);
-                            
-                            ctx.fillStyle = 'white';
-                            ctx.font = 'bold 6px "Press Start 2P"';
-                            ctx.fillText(p.name, screenX-15, screenY-20);
+                            ctx.fillText('👨‍🏫', screenX-8, screenY+4);
                         } else if(!p.caught) {
-                            ctx.fillStyle = '#ffd700';
+                            // Ученик
                             ctx.shadowColor = '#ffd700';
                             ctx.shadowBlur = 15;
+                            ctx.fillStyle = '#ffd700';
                             ctx.beginPath();
-                            ctx.arc(screenX, screenY, 9, 0, Math.PI * 2);
+                            ctx.arc(screenX, screenY, 8, 0, Math.PI * 2);
                             ctx.fill();
                             
                             ctx.shadowBlur = 0;
                             ctx.fillStyle = '#000';
                             ctx.font = 'bold 12px Arial';
-                            ctx.fillText('🧑', screenX-7, screenY+3);
-                            
-                            ctx.fillStyle = 'white';
-                            ctx.font = 'bold 6px "Press Start 2P"';
-                            ctx.fillText(p.name, screenX-12, screenY-15);
+                            ctx.fillText('🧑', screenX-6, screenY+2);
                         }
                     }
                 });
             }
 
-            ctx.shadowBlur = 30;
-            if(playerRole === 'baldi') {
-                ctx.fillStyle = '#ff0000';
-                ctx.shadowColor = '#ff0000';
-            } else {
-                ctx.fillStyle = '#ffd700';
-                ctx.shadowColor = '#ffd700';
-            }
+            // Сам игрок
+            ctx.shadowColor = playerRole === 'baldi' ? '#ff0000' : '#ffd700';
+            ctx.shadowBlur = 25;
+            ctx.fillStyle = playerRole === 'baldi' ? '#ff0000' : '#ffd700';
             ctx.beginPath();
-            ctx.arc(200, 200, 16, 0, Math.PI * 2);
+            ctx.arc(200, 200, 14, 0, Math.PI * 2);
             ctx.fill();
             
             ctx.shadowBlur = 0;
             ctx.fillStyle = 'white';
             ctx.font = 'bold 20px Arial';
-            ctx.fillText(playerRole === 'baldi' ? '👨‍🏫' : '🧑', 186, 207);
-            
-            if(playerRole === 'student' && player.books > 0) {
-                ctx.fillStyle = 'white';
-                ctx.font = 'bold 14px "Press Start 2P"';
-                ctx.fillText(player.books, 215, 190);
-            }
+            ctx.fillText(playerRole === 'baldi' ? '👨‍🏫' : '🧑', 187, 205);
 
-            if(player.y < 500) document.getElementById('compass').innerHTML = '⬆️ СЕВЕР';
-            else if(player.y > 1500) document.getElementById('compass').innerHTML = '⬇️ ЮГ';
-            else if(player.x < 500) document.getElementById('compass').innerHTML = '⬅️ ЗАПАД';
-            else if(player.x > 1500) document.getElementById('compass').innerHTML = '➡️ ВОСТОК';
+            // Компас
+            if(player.y < 1000) document.getElementById('compass').innerHTML = '⬆️ СЕВЕР';
+            else if(player.y > 3000) document.getElementById('compass').innerHTML = '⬇️ ЮГ';
+            else if(player.x < 1000) document.getElementById('compass').innerHTML = '⬅️ ЗАПАД';
+            else if(player.x > 3000) document.getElementById('compass').innerHTML = '➡️ ВОСТОК';
             else document.getElementById('compass').innerHTML = '⏺️ ЦЕНТР';
         }
 
         function checkNearbyBooks(game, x, y) {
-            if(!game.books) return;
+            if(!game.books || isOnCooldown || currentQuestion) return;
 
             const currentRoom = getCurrentRoom(x, y);
-            if(!currentRoom) return;
+            if(!currentRoom || !currentRoom.hasBooks) return;
+
+            let found = false;
 
             Object.entries(game.books).forEach(([id, book]) => {
                 if(!book.collected) {
@@ -1048,25 +1153,38 @@
                             Math.pow(book.y - y, 2)
                         );
                         
-                        if(dist < 60 && !currentQuestion && !isOnCooldown) {
-                            currentQuestion = { ...book, id };
+                        if(dist < 100) {
+                            found = true;
                             
-                            const questionEl = document.getElementById('questionText');
-                            const answerEl = document.getElementById('answerInput');
-                            
-                            questionEl.textContent = book.question;
-                            answerEl.value = '';
-                            
-                            document.getElementById('questionPopup').style.display = 'block';
-                            document.getElementById('overlay').style.display = 'block';
-                            
-                            setTimeout(() => {
-                                answerEl.focus();
-                            }, 300);
+                            if(dist < 50 && !currentQuestion && !isOnCooldown) {
+                                currentQuestion = { ...book, id };
+                                
+                                document.getElementById('questionText').textContent = book.question;
+                                document.getElementById('answerInput').value = '';
+                                
+                                document.getElementById('questionPopup').style.display = 'block';
+                                document.getElementById('overlay').style.display = 'block';
+                            }
                         }
                     }
                 }
             });
+
+            // Показываем уведомление, если рядом есть книга
+            if(found && Date.now() - lastNotificationTime > 5000) {
+                showNotification('📚 РЯДОМ ТЕТРАДЬ!');
+                lastNotificationTime = Date.now();
+            }
+        }
+
+        function showNotification(text) {
+            const notif = document.getElementById('bookNotification');
+            notif.textContent = text;
+            notif.style.display = 'block';
+            
+            setTimeout(() => {
+                notif.style.display = 'none';
+            }, 2000);
         }
 
         function showAnswerFeedback(isCorrect) {
@@ -1091,7 +1209,11 @@
 
             const answer = document.getElementById('answerInput').value.trim().toLowerCase();
             const correctAnswer = currentQuestion.answer.toLowerCase();
-            const isCorrect = (answer === correctAnswer);
+            
+            // Простая проверка ответа
+            const isCorrect = answer === correctAnswer || 
+                             answer.includes(correctAnswer) || 
+                             correctAnswer.includes(answer);
             
             database.ref('games/' + currentGameId + '/players/' + playerId).update({
                 lastAnswer: isCorrect,
@@ -1099,9 +1221,11 @@
             });
             
             if(isCorrect) {
+                // Собираем книгу
                 database.ref('games/' + currentGameId + '/books/' + currentQuestion.id).update({
                     collected: true,
-                    collectedBy: playerId
+                    collectedBy: playerId,
+                    collectedAt: Date.now()
                 });
 
                 database.ref('games/' + currentGameId + '/players/' + playerId).once('value', (snapshot) => {
@@ -1119,11 +1243,15 @@
                         });
                     });
                 });
+                
+                showNotification('✅ ПРАВИЛЬНО! +1 книга');
+            } else {
+                showNotification('❌ НЕПРАВИЛЬНО!');
             }
             
             showAnswerFeedback(isCorrect);
             closeQuestionPopup();
-            startCooldown(5);
+            startCooldown(3); // Короткий кулдаун после ответа
         };
 
         document.getElementById('closeQuestionBtn').onclick = function() {
@@ -1137,11 +1265,12 @@
         };
 
         function updateUI(game) {
-            document.getElementById('progressDisplay').textContent = `${game.totalCollected || 0}/20`;
+            document.getElementById('progressDisplay').textContent = `📚 ${game.totalCollected || 0}/20`;
             
             const player = game.players[playerId];
             if(player) {
                 document.getElementById('myBooks').textContent = player.books || 0;
+                document.getElementById('myBooksDisplay').textContent = player.books || 0;
             }
 
             const activePlayers = Object.values(game.players || {}).filter(p => p.role === 'student' && !p.escaped && !p.caught).length;
@@ -1167,10 +1296,10 @@
             if(catchTimerInterval) clearInterval(catchTimerInterval);
             catchTimerInterval = setInterval(() => {
                 const elapsed = (Date.now() - caughtStartTime) / 1000;
-                const progress = (elapsed / 10) * 100;
+                const progress = (elapsed / 8) * 100; // 8 секунд вместо 10
                 timerBar.style.width = Math.min(progress, 100) + '%';
                 
-                if(elapsed >= 10) {
+                if(elapsed >= 8) {
                     clearInterval(catchTimerInterval);
                     isCaught = false;
                     document.getElementById('caughtPopup').style.display = 'none';
@@ -1188,6 +1317,11 @@
             if(checkInterval) clearInterval(checkInterval);
             if(catchTimerInterval) clearInterval(catchTimerInterval);
             if(cooldownInterval) clearInterval(cooldownInterval);
+            
+            // Удаляем игрока при выходе
+            if(currentGameId && playerId) {
+                database.ref('games/' + currentGameId + '/players/' + playerId).remove();
+            }
         });
     </script>
 </body>
