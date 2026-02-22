@@ -294,6 +294,7 @@
             { name: "🧹 КЛАД", x: 1350, y: 1350, w: 250, h: 200, door: { x: 1475, y: 1550 }, hasBooks: false }
         ];
 
+        // Коридоры (места где может бегать Baldi)
         const corridors = [
             { x: 0, y: 400, w: 2000, h: 100 },
             { x: 0, y: 800, w: 2000, h: 100 },
@@ -311,6 +312,16 @@
             { x: 0, y: 0, w: 40, h: 2000 },
             { x: 1960, y: 0, w: 40, h: 2000 }
         ];
+
+        // Функция проверки, находится ли точка в коридоре
+        function isInCorridor(x, y) {
+            for(let cor of corridors) {
+                if(x > cor.x && x < cor.x + cor.w && y > cor.y && y < cor.y + cor.h) {
+                    return true;
+                }
+            }
+            return false;
+        }
 
         function checkCollision(x, y) {
             if(x < 45 || x > 1955 || y < 45 || y > 1955) return true;
@@ -453,7 +464,7 @@
             });
         }
 
-        // ИСПРАВЛЕННЫЙ АВТО BALDI - теперь быстрый!
+        // ИСПРАВЛЕННЫЙ АВТО BALDI - бегает только по коридорам!
         function toggleBaldiAI(active) {
             baldiAIActive = active;
             const btn = document.getElementById('toggleBaldiAI');
@@ -476,33 +487,54 @@
                         
                         if(!baldi) return;
                         
-                        // Случайная точка на карте
-                        const targetX = 200 + Math.random() * 1600;
-                        const targetY = 200 + Math.random() * 1600;
+                        // Если Baldi в комнате - быстро выводим в коридор
+                        let inRoom = false;
+                        for(let room of rooms) {
+                            if(baldi.x > room.x && baldi.x < room.x + room.w && 
+                               baldi.y > room.y && baldi.y < room.y + room.h) {
+                                inRoom = true;
+                                break;
+                            }
+                        }
+                        
+                        if(inRoom) {
+                            // Телепортируем в ближайший коридор
+                            const nearestCorridor = corridors[0];
+                            database.ref('games/' + currentGameId + '/players/' + baldiId).update({
+                                x: nearestCorridor.x + 50,
+                                y: nearestCorridor.y + 50
+                            });
+                            return;
+                        }
+                        
+                        // Выбираем случайную точку в коридоре
+                        const targetCorridor = corridors[Math.floor(Math.random() * corridors.length)];
+                        const targetX = targetCorridor.x + 50 + Math.random() * (targetCorridor.w - 100);
+                        const targetY = targetCorridor.y + 50 + Math.random() * (targetCorridor.h - 100);
                         
                         const dx = targetX - baldi.x;
                         const dy = targetY - baldi.y;
                         const dist = Math.hypot(dx, dy);
                         
                         if(dist > 20) {
-                            // СКОРОСТЬ УВЕЛИЧЕНА до 6
-                            const speed = 6;
+                            // Baldi бегает БЫСТРО (скорость 8)
+                            const speed = 8;
                             const newX = baldi.x + (dx/dist) * speed;
                             const newY = baldi.y + (dy/dist) * speed;
                             
-                            // Упрощенная проверка
-                            if(newX > 50 && newX < 1950 && newY > 50 && newY < 1950) {
+                            // Проверяем, что новая позиция в коридоре
+                            if(isInCorridor(newX, newY)) {
                                 database.ref('games/' + currentGameId + '/players/' + baldiId).update({
                                     x: newX, y: newY
                                 });
                             }
                         }
                         
-                        // Ловля учеников
+                        // Ловля учеников (только если ученик в коридоре или рядом с дверью)
                         Object.entries(game.players).forEach(([id, p]) => {
                             if(p.role === 'student' && !p.caught && !p.escaped) {
                                 const dist = Math.hypot(baldi.x - p.x, baldi.y - p.y);
-                                if(dist < 45) {
+                                if(dist < 50) {
                                     database.ref('games/' + currentGameId + '/players/' + id).update({
                                         caught: true
                                     });
@@ -510,7 +542,7 @@
                             }
                         });
                     });
-                }, 100); // Частота обновления
+                }, 100);
             } else {
                 clearInterval(baldiAIInterval);
             }
@@ -639,31 +671,23 @@
                 ctx.stroke();
             }
 
-            // Коридоры
-            ctx.fillStyle = '#2a2a4a';
+            // Коридоры (выделяем цветом)
+            ctx.fillStyle = '#3a3a5a';
             corridors.forEach(c => ctx.fillRect(c.x, c.y, c.w, c.h));
 
             // Стены
             ctx.fillStyle = '#4a4a8a';
             walls.forEach(w => ctx.fillRect(w.x, w.y, w.w, w.h));
 
-            // Комнаты - ИСПРАВЛЕНО: теперь все стены видны!
+            // Комнаты
             rooms.forEach(r => {
-                // Заливка комнаты
                 ctx.fillStyle = r.hasBooks ? '#4a4a6a' : '#3a3a5a';
                 ctx.fillRect(r.x, r.y, r.w, r.h);
                 
-                // Контур комнаты (ВСЕ 4 СТЕНЫ)
                 ctx.strokeStyle = '#8a8aaa';
                 ctx.lineWidth = 4;
                 ctx.strokeRect(r.x, r.y, r.w, r.h);
                 
-                // Дополнительная обводка для надежности
-                ctx.strokeStyle = '#6a6a9a';
-                ctx.lineWidth = 2;
-                ctx.strokeRect(r.x+1, r.y+1, r.w-2, r.h-2);
-                
-                // Дверь
                 ctx.fillStyle = '#8b4513';
                 ctx.fillRect(r.door.x-20, r.door.y-10, 40, 20);
                 ctx.fillStyle = '#ffd700';
@@ -671,7 +695,6 @@
                 ctx.arc(r.door.x+10, r.door.y, 4, 0, 2*Math.PI);
                 ctx.fill();
                 
-                // Название
                 ctx.fillStyle = '#ffd700';
                 ctx.font = 'bold 10px "Press Start 2P"';
                 ctx.fillText(r.name, r.x+10, r.y+25);
@@ -719,7 +742,6 @@
                     ctx.font = p.role === 'baldi' ? '24px Arial' : '16px Arial';
                     ctx.fillText(p.role === 'baldi' ? '👨‍🏫' : '🧑', p.x-10, p.y+5);
                     
-                    // Имя
                     ctx.fillStyle = 'white';
                     ctx.font = '7px "Press Start 2P"';
                     ctx.fillText(p.name, p.x-15, p.y-20);
