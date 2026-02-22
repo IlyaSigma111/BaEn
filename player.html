@@ -15,10 +15,11 @@
             padding: 0;
             box-sizing: border-box;
             -webkit-tap-highlight-color: transparent;
+            image-rendering: pixelated;
         }
 
         body {
-            background: #1a1a2e;
+            background: #0a0a1a;
             font-family: 'Press Start 2P', cursive;
             color: white;
             min-height: 100vh;
@@ -34,38 +35,32 @@
         }
 
         .join-screen {
-            background: #16213e;
+            background: linear-gradient(145deg, #16213e, #0f1a2f);
             padding: 30px 20px;
             border-radius: 30px;
-            border: 3px solid #ffd700;
+            border: 4px solid #ffd700;
             text-align: center;
+            box-shadow: 0 10px 0 #8b6f00;
         }
 
         .join-screen h1 {
             color: #ffd700;
             font-size: 1.8rem;
-            margin-bottom: 30px;
+            text-shadow: 0 0 20px #ffd700, 2px 2px 0 #8b6f00;
         }
 
         .join-screen input, .join-screen select {
             width: 100%;
             padding: 15px;
             margin: 10px 0;
-            background: #0f3460;
-            border: 2px solid #ffd700;
+            background: #0f1a2f;
+            border: 3px solid #ffd700;
             border-radius: 15px;
             font-family: 'Press Start 2P', cursive;
             font-size: 0.8rem;
             color: white;
             outline: none;
-        }
-
-        .join-screen input::placeholder {
-            color: #666;
-        }
-
-        .join-screen select {
-            cursor: pointer;
+            box-shadow: inset 0 5px 0 #0a0a1a;
         }
 
         .join-screen button {
@@ -78,13 +73,14 @@
             font-family: 'Press Start 2P', cursive;
             font-size: 1rem;
             cursor: pointer;
-            margin-top: 20px;
-            transition: all 0.2s;
+            border: 3px solid #44ff44;
+            box-shadow: 0 8px 0 #8b6f00;
+            transition: all 0.1s;
         }
 
-        .join-screen button:hover {
-            transform: scale(1.02);
-            box-shadow: 0 0 20px #ffd700;
+        .join-screen button:active {
+            transform: translateY(5px);
+            box-shadow: 0 3px 0 #8b6f00;
         }
 
         .error-message {
@@ -92,6 +88,7 @@
             font-size: 0.6rem;
             margin-top: 10px;
             display: none;
+            text-shadow: 0 0 10px #ff4444;
         }
 
         .game-screen {
@@ -102,20 +99,23 @@
             background: #16213e;
             padding: 15px;
             border-radius: 20px 20px 0 0;
-            border: 2px solid #ffd700;
+            border: 4px solid #ffd700;
+            border-bottom: none;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
         .role-indicator {
-            padding: 5px 10px;
-            border-radius: 10px;
-            font-size: 0.6rem;
+            padding: 8px 15px;
+            border-radius: 15px;
+            font-size: 0.7rem;
+            box-shadow: 0 4px 0 #0a0a1a;
         }
 
         .role-indicator.baldi {
-            background: #ff0000;
+            background: #ff4444;
+            color: white;
         }
 
         .role-indicator.student {
@@ -124,9 +124,9 @@
         }
 
         .canvas-container {
-            background: #16213e;
+            background: #0a0a1a;
             padding: 10px;
-            border: 2px solid #ffd700;
+            border: 4px solid #ffd700;
             border-top: none;
             border-bottom: none;
             position: relative;
@@ -136,15 +136,16 @@
             width: 100%;
             aspect-ratio: 1;
             background: #1a1a2e;
-            border-radius: 10px;
+            border-radius: 15px;
             display: block;
             image-rendering: pixelated;
+            box-shadow: inset 0 0 20px black;
         }
 
         .controls {
             background: #16213e;
             padding: 20px;
-            border: 2px solid #ffd700;
+            border: 4px solid #ffd700;
             border-top: none;
             border-radius: 0 0 20px 20px;
         }
@@ -154,10 +155,11 @@
             height: 180px;
             margin: 0 auto;
             position: relative;
-            background: #0f3460;
+            background: #0f1a2f;
             border-radius: 50%;
-            border: 3px solid #ffd700;
+            border: 4px solid #ffd700;
             touch-action: none;
+            box-shadow: inset 0 -8px 0 #0a0a1a;
         }
 
         .joystick-handle {
@@ -169,22 +171,25 @@
             top: 55px;
             left: 55px;
             transition: 0.02s;
-            box-shadow: 0 0 20px #ffd700;
+            box-shadow: 0 0 20px #ffd700, inset 0 -5px 0 #8b6f00;
             pointer-events: none;
         }
 
         .status-bar {
             display: flex;
             justify-content: space-between;
-            margin: 15px 0 10px;
-            font-size: 0.6rem;
+            margin: 15px 0;
+            font-size: 0.7rem;
+            background: #0f1a2f;
+            padding: 15px;
+            border-radius: 15px;
+            border: 2px solid #ffd700;
         }
 
         .info {
             text-align: center;
             color: #888;
             font-size: 0.5rem;
-            margin-top: 10px;
         }
 
         .question-popup {
@@ -195,57 +200,54 @@
             background: #16213e;
             padding: 30px;
             border-radius: 30px;
-            border: 4px solid #ffd700;
+            border: 5px solid #ffd700;
             width: 90%;
             max-width: 350px;
             display: none;
-            z-index: 1000;
+            z-index: 2000;
+            box-shadow: 0 15px 0 #8b6f00, 0 0 50px #ffd700;
         }
 
         .popup-header {
             display: flex;
             justify-content: space-between;
-            align-items: center;
             margin-bottom: 20px;
         }
 
         .popup-header h3 {
             color: #ffd700;
             font-size: 1rem;
-            margin: 0;
+            line-height: 1.5;
         }
 
         .close-btn {
             background: none;
-            border: 2px solid #ffd700;
+            border: 3px solid #ffd700;
             color: #ffd700;
-            font-size: 1.5rem;
-            width: 40px;
-            height: 40px;
+            font-size: 2rem;
+            width: 45px;
+            height: 45px;
             border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
             cursor: pointer;
-            font-family: 'Press Start 2P', cursive;
+            box-shadow: 0 5px 0 #8b6f00;
         }
 
-        .close-btn:hover {
-            background: #ffd700;
-            color: #16213e;
+        .close-btn:active {
+            transform: translateY(5px);
+            box-shadow: none;
         }
 
         .question-popup input {
             width: 100%;
             padding: 15px;
-            background: #0f3460;
-            border: 2px solid #ffd700;
+            background: #0f1a2f;
+            border: 3px solid #ffd700;
             border-radius: 15px;
             font-family: 'Press Start 2P', cursive;
             font-size: 0.8rem;
             color: white;
             margin-bottom: 15px;
-            outline: none;
+            box-shadow: inset 0 5px 0 #0a0a1a;
         }
 
         .question-popup button {
@@ -256,8 +258,15 @@
             border: none;
             border-radius: 15px;
             font-family: 'Press Start 2P', cursive;
-            font-size: 0.8rem;
+            font-size: 1rem;
             cursor: pointer;
+            border: 3px solid #ffd700;
+            box-shadow: 0 8px 0 #0a6b0a;
+        }
+
+        .question-popup button:active {
+            transform: translateY(5px);
+            box-shadow: 0 3px 0 #0a6b0a;
         }
 
         .cooldown-overlay {
@@ -266,10 +275,10 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0,0,0,0.7);
+            background: rgba(0,0,0,0.8);
             display: none;
             z-index: 1500;
-            pointer-events: none;
+            backdrop-filter: blur(5px);
         }
 
         .cooldown-timer {
@@ -279,18 +288,18 @@
             transform: translate(-50%, -50%);
             background: #ffd700;
             color: #16213e;
-            padding: 20px;
+            padding: 25px;
             border-radius: 50%;
-            width: 100px;
-            height: 100px;
+            width: 120px;
+            height: 120px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 3rem;
+            font-size: 4rem;
             font-weight: bold;
             z-index: 1600;
-            border: 4px solid white;
-            box-shadow: 0 0 30px #ffd700;
+            border: 5px solid white;
+            box-shadow: 0 0 50px #ffd700;
         }
 
         .caught-popup {
@@ -298,40 +307,31 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background: #ff0000;
+            background: #ff4444;
             padding: 40px;
             border-radius: 30px;
-            border: 4px solid white;
+            border: 5px solid white;
             text-align: center;
             display: none;
             z-index: 2000;
             animation: shake 0.5s;
+            box-shadow: 0 15px 0 #8b0000;
         }
 
         @keyframes shake {
-            0%, 100% { transform: translate(-50%, -50%); }
-            25% { transform: translate(-45%, -55%); }
-            50% { transform: translate(-55%, -45%); }
-            75% { transform: translate(-45%, -50%); }
-        }
-
-        .caught-popup h2 {
-            font-size: 2rem;
-            margin-bottom: 20px;
-        }
-
-        .caught-popup p {
-            font-size: 0.8rem;
-            margin: 10px 0;
+            0%,100%{ transform: translate(-50%, -50%); }
+            25%{ transform: translate(-45%, -55%); }
+            50%{ transform: translate(-55%, -45%); }
+            75%{ transform: translate(-45%, -50%); }
         }
 
         .timer-bar {
             width: 100%;
-            height: 10px;
+            height: 15px;
             background: #333;
-            border-radius: 5px;
+            border-radius: 10px;
             margin-top: 20px;
-            overflow: hidden;
+            border: 2px solid white;
         }
 
         .timer-progress {
@@ -347,22 +347,22 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0,0,0,0.8);
+            background: rgba(0,0,0,0.7);
             display: none;
             z-index: 999;
+            backdrop-filter: blur(3px);
         }
 
         .compass {
             position: absolute;
             top: 10px;
             left: 10px;
-            background: rgba(0,0,0,0.7);
-            padding: 5px 8px;
-            border-radius: 10px;
-            font-size: 0.5rem;
+            background: rgba(0,0,0,0.8);
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.6rem;
             color: #ffd700;
-            z-index: 10;
-            border: 1px solid #ffd700;
+            border: 2px solid #ffd700;
         }
 
         .room-name {
@@ -370,19 +370,25 @@
             bottom: 20px;
             left: 50%;
             transform: translateX(-50%);
-            background: rgba(0,0,0,0.8);
+            background: rgba(0,0,0,0.9);
             padding: 8px 15px;
             border-radius: 20px;
-            font-size: 0.6rem;
+            font-size: 0.7rem;
             color: #ffd700;
-            border: 1px solid #ffd700;
-            z-index: 10;
-            white-space: nowrap;
+            border: 2px solid #ffd700;
             display: none;
+            white-space: nowrap;
         }
 
         .room-name.visible {
             display: block;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 10px #ffd700; }
+            50% { box-shadow: 0 0 20px #ffd700; }
+            100% { box-shadow: 0 0 10px #ffd700; }
         }
 
         .answer-feedback {
@@ -390,26 +396,26 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            font-size: 5rem;
+            font-size: 6rem;
             z-index: 3000;
             display: none;
             animation: pop 0.5s;
         }
 
         @keyframes pop {
-            0% { transform: translate(-50%, -50%) scale(0); }
+            0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
             50% { transform: translate(-50%, -50%) scale(1.5); }
             100% { transform: translate(-50%, -50%) scale(1); }
         }
 
         .answer-feedback.correct {
             color: #44ff44;
-            text-shadow: 0 0 30px #44ff44;
+            text-shadow: 0 0 50px #44ff44;
         }
 
         .answer-feedback.wrong {
             color: #ff4444;
-            text-shadow: 0 0 30px #ff4444;
+            text-shadow: 0 0 50px #ff4444;
         }
 
         .book-notification {
@@ -419,13 +425,20 @@
             transform: translateX(-50%);
             background: #ffd700;
             color: #16213e;
-            padding: 10px 20px;
-            border-radius: 20px;
-            font-size: 0.7rem;
+            padding: 15px 25px;
+            border-radius: 30px;
+            font-size: 0.8rem;
             z-index: 2500;
-            border: 2px solid white;
-            box-shadow: 0 0 20px #ffd700;
+            border: 3px solid white;
+            box-shadow: 0 8px 0 #8b6f00;
             display: none;
+            animation: slideDown 0.3s;
+            white-space: nowrap;
+        }
+
+        @keyframes slideDown {
+            from { transform: translateX(-50%) translateY(-100px); opacity: 0; }
+            to { transform: translateX(-50%) translateY(0); opacity: 1; }
         }
     </style>
 </head>
@@ -440,24 +453,23 @@
         <div id="joinScreen" class="join-screen">
             <h1>📱 ТЕЛЕФОН</h1>
             
-            <input type="text" id="gameCode" placeholder="КОД ИГРЫ (6 ЦИФР)" maxlength="6" pattern="[0-9]{6}" inputmode="numeric">
-            <input type="text" id="playerName" placeholder="ТВОЁ ИМЯ" maxlength="15">
+            <input type="text" id="gameCode" placeholder="КОД" maxlength="6" inputmode="numeric">
+            <input type="text" id="playerName" placeholder="ИМЯ" maxlength="15">
             
             <select id="roleSelect">
-                <option value="student">🧑‍🎓 Я УЧЕНИК</option>
-                <option value="baldi">👨‍🏫 Я BALDI</option>
+                <option value="student">🧑‍🎓 УЧЕНИК</option>
+                <option value="baldi">👨‍🏫 BALDI</option>
             </select>
 
             <div id="errorMessage" class="error-message"></div>
-
-            <button id="joinBtn">ВОЙТИ В ИГРУ</button>
+            <button id="joinBtn">ВОЙТИ</button>
         </div>
 
         <div id="gameScreen" class="game-screen">
             <div class="header">
                 <div id="roleDisplay" class="role-indicator">👨‍🏫</div>
                 <div id="progressDisplay">0/20</div>
-                <div id="myBooksDisplay" style="color: #ffd700;">0</div>
+                <div id="myBooksDisplay" style="color:#ffd700;">0</div>
             </div>
 
             <div class="canvas-container">
@@ -477,7 +489,7 @@
                     <span id="exitStatus">🚪 ЗАКРЫТ</span>
                 </div>
                 
-                <div class="info">👆 тяни джойстик чтобы двигаться</div>
+                <div class="info">👆 ТЯНИ ЧТОБЫ ДВИГАТЬСЯ</div>
             </div>
         </div>
     </div>
@@ -487,17 +499,15 @@
             <h3 id="questionText">...</h3>
             <button class="close-btn" id="closeQuestionBtn">✗</button>
         </div>
-        <input type="text" id="answerInput" placeholder="ОТВЕТ">
+        <input type="text" id="answerInput" placeholder="ОТВЕТ" autocomplete="off">
         <button id="submitAnswer">ОТВЕТИТЬ</button>
     </div>
 
     <div id="caughtPopup" class="caught-popup">
         <h2>😱 ПОЙМАН!</h2>
         <p>BALDI СХВАТИЛ ТЕБЯ</p>
-        <p style="font-size: 0.6rem;">8 СЕКУНД ОТДЫХА</p>
-        <div class="timer-bar">
-            <div id="caughtTimer" class="timer-progress"></div>
-        </div>
+        <p style="font-size:0.6rem;">8 СЕКУНД ОТДЫХА</p>
+        <div class="timer-bar"><div id="caughtTimer" class="timer-progress"></div></div>
     </div>
 
     <script>
@@ -516,73 +526,23 @@
         let cooldownInterval = null;
         let lastNotificationTime = 0;
 
-        // ================== КАРТА (синхронизирована с board.html) ==================
-        const WALL_SIZE = 30;
-        
-        // Те же комнаты, что и в board.html
-        const rooms = [
-            // ВЕРХНИЙ РЯД (y = 150)
-            { name: "🧪 ЛАБОРАТОРИЯ", x: 150, y: 150, w: 250, h: 200, door: { x: 275, y: 350 }, hasBooks: true },
-            { name: "🔬 ХИМИЯ", x: 550, y: 150, w: 250, h: 200, door: { x: 675, y: 350 }, hasBooks: true },
-            { name: "📚 БИБЛИОТЕКА", x: 950, y: 150, w: 250, h: 200, door: { x: 1075, y: 350 }, hasBooks: true },
-            { name: "🎨 МАСТЕРСКАЯ", x: 1350, y: 150, w: 250, h: 200, door: { x: 1475, y: 350 }, hasBooks: true },
-            
-            // ВТОРОЙ РЯД (y = 550)
-            { name: "📐 МАТЕМАТИКА", x: 150, y: 550, w: 250, h: 200, door: { x: 275, y: 750 }, hasBooks: true },
-            { name: "📖 АНГЛИЙСКИЙ", x: 550, y: 550, w: 250, h: 200, door: { x: 675, y: 750 }, hasBooks: true },
-            { name: "🌍 ГЕОГРАФИЯ", x: 950, y: 550, w: 250, h: 200, door: { x: 1075, y: 750 }, hasBooks: true },
-            { name: "📜 ИСТОРИЯ", x: 1350, y: 550, w: 250, h: 200, door: { x: 1475, y: 750 }, hasBooks: true },
-            
-            // ТРЕТИЙ РЯД (y = 950)
-            { name: "🎵 МУЗЫКА", x: 150, y: 950, w: 250, h: 200, door: { x: 275, y: 1150 }, hasBooks: true },
-            { name: "🏃 СПОРТЗАЛ", x: 550, y: 950, w: 250, h: 200, door: { x: 675, y: 1150 }, hasBooks: true },
-            { name: "🎭 ТЕАТР", x: 950, y: 950, w: 250, h: 200, door: { x: 1075, y: 1150 }, hasBooks: true },
-            { name: "🔧 МАСТЕРСКАЯ", x: 1350, y: 950, w: 250, h: 200, door: { x: 1475, y: 1150 }, hasBooks: true },
-            
-            // НИЖНИЙ РЯД (y = 1350) - без книг
-            { name: "💻 ИНФОРМАТИКА", x: 150, y: 1350, w: 250, h: 200, door: { x: 275, y: 1550 }, hasBooks: false },
-            { name: "⚙️ ПОДСОБКА", x: 550, y: 1350, w: 250, h: 200, door: { x: 675, y: 1550 }, hasBooks: false },
-            { name: "🚪 ГАРДЕРОБ", x: 950, y: 1350, w: 250, h: 200, door: { x: 1075, y: 1550 }, hasBooks: false },
-            { name: "🧹 КЛАДОВКА", x: 1350, y: 1350, w: 250, h: 200, door: { x: 1475, y: 1550 }, hasBooks: false }
-        ];
-
-        // Коридоры между комнатами
-        const corridors = [
-            { x: 0, y: 400, w: 2000, h: 100 },
-            { x: 0, y: 800, w: 2000, h: 100 },
-            { x: 0, y: 1200, w: 2000, h: 100 },
-            { x: 0, y: 1600, w: 2000, h: 100 },
-            { x: 400, y: 0, w: 100, h: 2000 },
-            { x: 800, y: 0, w: 100, h: 2000 },
-            { x: 1200, y: 0, w: 100, h: 2000 },
-            { x: 1600, y: 0, w: 100, h: 2000 }
-        ];
-
-        // Стены
-        const walls = [
-            { x: 0, y: 0, w: 2000, h: WALL_SIZE },
-            { x: 0, y: 2000 - WALL_SIZE, w: 2000, h: WALL_SIZE },
-            { x: 0, y: 0, w: WALL_SIZE, h: 2000 },
-            { x: 2000 - WALL_SIZE, y: 0, w: WALL_SIZE, h: 2000 }
-        ];
+        // ========== КАРТА БУДЕТ ЗАГРУЖЕНА ИЗ ИГРЫ ==========
+        let rooms = [];
+        let corridors = [];
+        let walls = [];
 
         document.getElementById('joinBtn').onclick = async function() {
             const gameCode = document.getElementById('gameCode').value.trim();
             const name = document.getElementById('playerName').value.trim();
             const role = document.getElementById('roleSelect').value;
 
-            if(!gameCode || gameCode.length !== 6 || !/^\d+$/.test(gameCode)) {
+            if(!gameCode || gameCode.length !== 6) {
                 showError('Код должен быть из 6 цифр!');
                 return;
             }
 
-            if(!name) {
-                showError('Введи имя!');
-                return;
-            }
-
-            if(name.length < 2 || name.length > 15) {
-                showError('Имя от 2 до 15 символов');
+            if(!name || name.length < 2) {
+                showError('Введи имя (минимум 2 символа)');
                 return;
             }
 
@@ -600,6 +560,18 @@
                     return;
                 }
 
+                // Загружаем карту из игры
+                if(game.rooms) {
+                    rooms = game.rooms;
+                    corridors = game.corridors || [];
+                    walls = game.walls || [
+                        { x: 0, y: 0, w: 2000, h: 40 },
+                        { x: 0, y: 1960, w: 2000, h: 40 },
+                        { x: 0, y: 0, w: 40, h: 2000 },
+                        { x: 1960, y: 0, w: 40, h: 2000 }
+                    ];
+                }
+
                 const players = game.players || {};
                 
                 if(role === 'baldi') {
@@ -610,7 +582,6 @@
                     }
                 }
 
-                // Проверка уникальности имени
                 const nameExists = Object.values(players).some(p => p.name.toLowerCase() === name.toLowerCase());
                 if(nameExists) {
                     showError('Игрок с таким именем уже есть!');
@@ -629,10 +600,10 @@
                 let validSpawn = false;
                 
                 while(!validSpawn && attempts < 100) {
-                    if(role === 'student') {
+                    if(role === 'student' && rooms.length > 0) {
                         const room = rooms[Math.floor(Math.random() * rooms.length)];
-                        startX = room.x + 80 + Math.random() * (room.w - 160);
-                        startY = room.y + 80 + Math.random() * (room.h - 160);
+                        startX = room.x + 50 + Math.random() * (room.w - 100);
+                        startY = room.y + 50 + Math.random() * (room.h - 100);
                     } else {
                         startX = 1000;
                         startY = 1000;
@@ -642,7 +613,7 @@
                     if(game.books) {
                         for(let book of Object.values(game.books)) {
                             if(!book.collected) {
-                                const dist = Math.sqrt(Math.pow(book.x - startX, 2) + Math.pow(book.y - startY, 2));
+                                const dist = Math.hypot(book.x - startX, book.y - startY);
                                 if(dist < 60) {
                                     validSpawn = false;
                                     break;
@@ -698,69 +669,45 @@
         }
 
         function checkCollision(x, y) {
-            // Границы карты
             if(x < 40 || x > 1960 || y < 40 || y > 1960) return true;
 
-            // Стены
             for(let wall of walls) {
                 if(x > wall.x && x < wall.x + wall.w && y > wall.y && y < wall.y + wall.h) {
                     return true;
                 }
             }
 
-            // Проверка стен комнат
             for(let room of rooms) {
-                // Если внутри комнаты - можно ходить
                 if(x > room.x && x < room.x + room.w && y > room.y && y < room.y + room.h) {
                     return false;
                 }
                 
-                // Проверка, не пытаемся ли пройти сквозь стену
-                const nearWallX = x > room.x - 20 && x < room.x + room.w + 20;
-                const nearWallY = y > room.y - 20 && y < room.y + room.h + 20;
+                const nearWall = x > room.x - 20 && x < room.x + room.w + 20 && 
+                                 y > room.y - 20 && y < room.y + room.h + 20;
                 
-                if(nearWallX && nearWallY) {
-                    // Проверяем, не у двери ли мы
-                    const distToDoor = Math.sqrt(
-                        Math.pow(x - room.door.x, 2) + 
-                        Math.pow(y - room.door.y, 2)
-                    );
+                if(nearWall) {
+                    const distToDoor = Math.hypot(x - room.door.x, y - room.door.y);
+                    if(distToDoor < 50) return false;
                     
-                    if(distToDoor < 50) {
-                        return false;
-                    }
-                    
-                    // Проверяем, в коридоре ли мы
                     for(let cor of corridors) {
                         if(x > cor.x && x < cor.x + cor.w && y > cor.y && y < cor.y + cor.h) {
                             return false;
                         }
                     }
-                    
                     return true;
                 }
             }
-            
             return false;
         }
 
         function tryMove(oldX, oldY, targetX, targetY) {
-            if(!checkCollision(targetX, targetY)) {
-                return { x: targetX, y: targetY };
-            }
-            
-            if(!checkCollision(targetX, oldY)) {
-                return { x: targetX, y: oldY };
-            }
-            
-            if(!checkCollision(oldX, targetY)) {
-                return { x: oldX, y: targetY };
-            }
-            
+            if(!checkCollision(targetX, targetY)) return { x: targetX, y: targetY };
+            if(!checkCollision(targetX, oldY)) return { x: targetX, y: oldY };
+            if(!checkCollision(oldX, targetY)) return { x: oldX, y: targetY };
             return { x: oldX, y: oldY };
         }
 
-        function startCooldown(seconds = 2) {
+        function startCooldown(seconds = 3) {
             if(isOnCooldown) return;
             
             isOnCooldown = true;
@@ -777,7 +724,6 @@
             cooldownInterval = setInterval(() => {
                 timeLeft--;
                 cooldownTimer.textContent = timeLeft;
-                
                 if(timeLeft <= 0) {
                     clearInterval(cooldownInterval);
                     cooldownOverlay.style.display = 'none';
@@ -834,7 +780,7 @@
                 let x = touch.clientX - centerX;
                 let y = touch.clientY - centerY;
                 
-                const distance = Math.sqrt(x*x + y*y);
+                const distance = Math.hypot(x, y);
                 const maxDistance = 50;
                 
                 if(distance > maxDistance) {
@@ -843,15 +789,13 @@
                 }
                 
                 handle.style.transform = `translate(${x}px, ${y}px)`;
-                
                 velocityX = (x / maxDistance) * 4;
                 velocityY = (y / maxDistance) * 4;
             }
 
             function resetJoystick() {
                 handle.style.transform = 'translate(0px, 0px)';
-                velocityX = 0;
-                velocityY = 0;
+                velocityX = velocityY = 0;
             }
 
             if(moveInterval) clearInterval(moveInterval);
@@ -868,19 +812,12 @@
                     const oldX = player.x;
                     const oldY = player.y;
                     
-                    let targetX = oldX + velocityX;
-                    let targetY = oldY + velocityY;
+                    const newPos = tryMove(oldX, oldY, oldX + velocityX, oldY + velocityY);
                     
-                    const newPos = tryMove(oldX, oldY, targetX, targetY);
-                    
-                    // Для Baldi - проверка на поимку
                     if(playerRole === 'baldi') {
                         Object.entries(game.players).forEach(([id, p]) => {
                             if(p.role === 'student' && !p.caught && !p.escaped) {
-                                const dist = Math.sqrt(
-                                    Math.pow(newPos.x - p.x, 2) + 
-                                    Math.pow(newPos.y - p.y, 2)
-                                );
+                                const dist = Math.hypot(newPos.x - p.x, newPos.y - p.y);
                                 if(dist < 45) {
                                     database.ref('games/' + currentGameId + '/players/' + id).update({
                                         caught: true,
@@ -893,8 +830,7 @@
                     
                     if(newPos.x !== oldX || newPos.y !== oldY) {
                         database.ref('games/' + currentGameId + '/players/' + playerId).update({
-                            x: newPos.x,
-                            y: newPos.y
+                            x: newPos.x, y: newPos.y
                         });
                     }
                 });
@@ -913,18 +849,12 @@
                     showCaughtPopup();
                 }
                 
-                // Проверка на выход
-                if(game.exit && game.exit.active && player && playerRole === 'student' && !player.escaped) {
-                    const distToExit = Math.sqrt(
-                        Math.pow(player.x - game.exit.x, 2) + 
-                        Math.pow(player.y - game.exit.y, 2)
-                    );
-                    if(distToExit < 50) {
-                        database.ref('games/' + currentGameId + '/players/' + playerId).update({
-                            escaped: true
-                        });
-                        database.ref('games/' + currentGameId).update({
-                            escapedCount: (game.escapedCount || 0) + 1
+                if(game.exit?.active && player && playerRole === 'student' && !player.escaped) {
+                    const dist = Math.hypot(player.x - game.exit.x, player.y - game.exit.y);
+                    if(dist < 50) {
+                        database.ref('games/' + currentGameId + '/players/' + playerId).update({ escaped: true });
+                        database.ref('games/' + currentGameId).update({ 
+                            escapedCount: (game.escapedCount || 0) + 1 
                         });
                         showNotification('🎉 ТЫ ВЫБРАЛСЯ!');
                     }
@@ -962,20 +892,15 @@
                     const bookRoom = getCurrentRoom(book.x, book.y);
                     
                     if(bookRoom && bookRoom.name === currentRoom.name) {
-                        const dist = Math.sqrt(
-                            Math.pow(book.x - x, 2) + 
-                            Math.pow(book.y - y, 2)
-                        );
+                        const dist = Math.hypot(book.x - x, book.y - y);
                         
-                        if(dist < 100) {
+                        if(dist < 120) {
                             found = true;
                             
-                            if(dist < 45 && !currentQuestion && !isOnCooldown) {
+                            if(dist < 50 && !currentQuestion && !isOnCooldown) {
                                 currentQuestion = { ...book, id };
-                                
                                 document.getElementById('questionText').textContent = book.question;
                                 document.getElementById('answerInput').value = '';
-                                
                                 document.getElementById('questionPopup').style.display = 'block';
                                 document.getElementById('overlay').style.display = 'block';
                             }
@@ -995,7 +920,6 @@
             feedback.textContent = isCorrect ? '✓' : '✗';
             feedback.className = `answer-feedback ${isCorrect ? 'correct' : 'wrong'}`;
             feedback.style.display = 'block';
-            
             setTimeout(() => {
                 feedback.style.display = 'none';
             }, 1000);
@@ -1013,13 +937,12 @@
             const answer = document.getElementById('answerInput').value.trim().toLowerCase();
             const correctAnswer = currentQuestion.answer.toLowerCase();
             
-            // Умная проверка ответов
             const isCorrect = 
                 answer === correctAnswer || 
                 correctAnswer.includes(answer) || 
                 answer.includes(correctAnswer) ||
                 (correctAnswer === 'acrophobia' && answer === 'heights') ||
-                (correctAnswer === 'claustrophobia' && (answer === 'closed spaces' || answer === 'enclosed')) ||
+                (correctAnswer === 'claustrophobia' && (answer === 'closed' || answer === 'enclosed')) ||
                 (correctAnswer === 'arachnophobia' && answer === 'spiders') ||
                 (correctAnswer === 'agoraphobia' && (answer === 'crowds' || answer === 'public')) ||
                 (correctAnswer === 'aerophobia' && answer === 'flying');
@@ -1035,19 +958,17 @@
                     collectedBy: playerId
                 });
 
-                database.ref('games/' + currentGameId + '/players/' + playerId).once('value', (snapshot) => {
-                    const player = snapshot.val();
-                    const newCount = (player.books || 0) + 1;
-                    
+                database.ref('games/' + currentGameId + '/players/' + playerId).once('value', (s) => {
+                    const player = s.val();
                     database.ref('games/' + currentGameId + '/players/' + playerId).update({
-                        books: newCount
+                        books: (player.books || 0) + 1
                     });
+                });
 
-                    database.ref('games/' + currentGameId).once('value', (snapshot) => {
-                        const game = snapshot.val();
-                        database.ref('games/' + currentGameId).update({
-                            totalCollected: (game.totalCollected || 0) + 1
-                        });
+                database.ref('games/' + currentGameId).once('value', (s) => {
+                    const game = s.val();
+                    database.ref('games/' + currentGameId).update({
+                        totalCollected: (game.totalCollected || 0) + 1
                     });
                 });
                 
@@ -1062,15 +983,8 @@
             startCooldown(2);
         };
 
-        document.getElementById('closeQuestionBtn').onclick = function() {
-            closeQuestionPopup();
-        };
-
-        document.getElementById('overlay').onclick = function() {
-            if(document.getElementById('questionPopup').style.display === 'block') {
-                closeQuestionPopup();
-            }
-        };
+        document.getElementById('closeQuestionBtn').onclick = closeQuestionPopup;
+        document.getElementById('overlay').onclick = closeQuestionPopup;
 
         function drawGame(ctx, game) {
             ctx.clearRect(0, 0, 400, 400);
@@ -1091,135 +1005,102 @@
                 document.getElementById('currentRoom').classList.add('visible');
             }
 
-            // Пол
-            ctx.fillStyle = '#1a1a2e';
-            ctx.fillRect(0, 0, 400, 400);
-
-            // Сетка
-            ctx.strokeStyle = '#2a2a4a';
-            ctx.lineWidth = 1;
-            for(let i = 0; i <= 400; i += 20) {
-                ctx.beginPath();
-                ctx.strokeStyle = '#2a2a4a';
-                ctx.moveTo(i, 0);
-                ctx.lineTo(i, 400);
-                ctx.stroke();
-                ctx.moveTo(0, i);
-                ctx.lineTo(400, i);
-                ctx.stroke();
+            // Пол с текстурой
+            for(let i = 0; i < 400; i += 20) {
+                for(let j = 0; j < 400; j += 20) {
+                    ctx.fillStyle = (i + j) % 40 === 0 ? '#2a2a4a' : '#1e1e36';
+                    ctx.fillRect(i, j, 20, 20);
+                }
             }
 
             // Коридоры
-            ctx.fillStyle = '#2a2a4a';
-            corridors.forEach(cor => {
-                const screenX = cor.x - offsetX;
-                const screenY = cor.y - offsetY;
-                if(screenX > -200 && screenX < 600 && screenY > -200 && screenY < 600) {
-                    ctx.fillRect(screenX, screenY, cor.w, cor.h);
+            ctx.fillStyle = '#3a3a5a';
+            corridors.forEach(c => {
+                const sx = c.x - offsetX, sy = c.y - offsetY;
+                if(sx > -100 && sx < 500 && sy > -100 && sy < 500) {
+                    ctx.fillRect(sx, sy, c.w, c.h);
                 }
             });
 
-            // Комнаты
-            rooms.forEach(room => {
-                const screenX = room.x - offsetX;
-                const screenY = room.y - offsetY;
-                
-                if(screenX > -100 && screenX < 500 && screenY > -100 && screenY < 500) {
-                    // Стены
-                    ctx.strokeStyle = '#6a6a9a';
-                    ctx.lineWidth = 2;
-                    ctx.strokeRect(screenX, screenY, room.w, room.h);
+            // Комнаты поблизости
+            rooms.forEach(r => {
+                const sx = r.x - offsetX, sy = r.y - offsetY;
+                if(sx > -100 && sx < 500 && sy > -100 && sy < 500) {
+                    ctx.strokeStyle = '#8a8aaa';
+                    ctx.lineWidth = 3;
+                    ctx.strokeRect(sx, sy, r.w, r.h);
                     
                     // Дверь
-                    const doorX = room.door.x - offsetX;
-                    const doorY = room.door.y - offsetY;
+                    const dx = r.door.x - offsetX, dy = r.door.y - offsetY;
                     ctx.fillStyle = '#8b4513';
-                    ctx.fillRect(doorX - 20, doorY - 10, 40, 20);
+                    ctx.fillRect(dx-15, dy-8, 30, 16);
                     
-                    // Название (сокращенное)
-                    ctx.fillStyle = '#ffd700';
-                    ctx.font = 'bold 6px "Press Start 2P"';
-                    let shortName = room.name.substring(0, 6);
-                    ctx.fillText(shortName, screenX + 10, screenY + 20);
+                    if(Math.hypot(sx, sy) < 200) {
+                        ctx.fillStyle = '#ffd700';
+                        ctx.font = 'bold 7px "Press Start 2P"';
+                        ctx.fillText(r.name.slice(0, 6), sx+5, sy+20);
+                    }
                 }
             });
 
             // Книги
             if(game.books && currentRoom) {
-                Object.entries(game.books).forEach(([id, book]) => {
-                    if(!book.collected) {
-                        const bookRoom = getCurrentRoom(book.x, book.y);
-                        if(bookRoom && bookRoom.name === currentRoom.name) {
-                            const bookX = book.x - offsetX;
-                            const bookY = book.y - offsetY;
-                            
-                            if(bookX > 0 && bookX < 400 && bookY > 0 && bookY < 400) {
-                                const pulse = Math.sin(Date.now() / 200) * 2;
-                                
-                                ctx.fillStyle = '#ffd700';
-                                ctx.shadowColor = '#ffd700';
-                                ctx.shadowBlur = 8 + pulse;
-                                ctx.fillRect(bookX - 5, bookY - 4, 10, 8);
-                                
-                                ctx.shadowBlur = 0;
-                                ctx.fillStyle = '#000';
-                                ctx.font = 'bold 10px Arial';
-                                ctx.fillText('📘', bookX - 4, bookY);
-                            }
+                Object.values(game.books).forEach(b => {
+                    if(!b.collected && getCurrentRoom(b.x, b.y)?.name === currentRoom.name) {
+                        const bx = b.x - offsetX, by = b.y - offsetY;
+                        if(bx > 0 && bx < 400 && by > 0 && by < 400) {
+                            const pulse = Math.sin(Date.now()/200) * 2;
+                            ctx.shadowColor = '#ffd700';
+                            ctx.shadowBlur = 10 + pulse;
+                            ctx.fillStyle = '#ffd700';
+                            ctx.fillRect(bx-5, by-4, 10, 8);
+                            ctx.shadowBlur = 0;
+                            ctx.fillStyle = '#000';
+                            ctx.font = 'bold 10px Arial';
+                            ctx.fillText('📘', bx-4, by);
                         }
                     }
                 });
             }
 
             // Другие игроки
-            if(game.players) {
-                Object.entries(game.players).forEach(([id, p]) => {
-                    if(id === playerId || p.escaped) return;
-                    
-                    const screenX = p.x - offsetX;
-                    const screenY = p.y - offsetY;
-                    
-                    if(screenX > 0 && screenX < 400 && screenY > 0 && screenY < 400) {
-                        if(p.role === 'baldi') {
-                            ctx.fillStyle = '#ff0000';
-                            ctx.shadowColor = '#ff0000';
-                            ctx.shadowBlur = 15;
-                            ctx.beginPath();
-                            ctx.arc(screenX, screenY, 10, 0, Math.PI * 2);
-                            ctx.fill();
-                            
-                            ctx.shadowBlur = 0;
-                            ctx.fillStyle = 'white';
-                            ctx.font = 'bold 14px Arial';
-                            ctx.fillText('👨‍🏫', screenX-7, screenY+4);
-                        } else if(!p.caught) {
-                            ctx.fillStyle = '#ffd700';
-                            ctx.shadowColor = '#ffd700';
-                            ctx.shadowBlur = 10;
-                            ctx.beginPath();
-                            ctx.arc(screenX, screenY, 7, 0, Math.PI * 2);
-                            ctx.fill();
-                            
-                            ctx.shadowBlur = 0;
-                            ctx.fillStyle = '#000';
-                            ctx.font = 'bold 10px Arial';
-                            ctx.fillText('🧑', screenX-5, screenY+2);
-                        }
+            Object.entries(game.players || {}).forEach(([id, p]) => {
+                if(id === playerId || p.escaped) return;
+                
+                const px = p.x - offsetX, py = p.y - offsetY;
+                if(px > 0 && px < 400 && py > 0 && py < 400) {
+                    if(p.role === 'baldi') {
+                        ctx.fillStyle = '#ff0000';
+                        ctx.shadowColor = '#ff0000';
+                        ctx.beginPath();
+                        ctx.arc(px, py, 10, 0, 2*Math.PI);
+                        ctx.fill();
+                        ctx.fillStyle = 'white';
+                        ctx.font = '14px Arial';
+                        ctx.fillText('👨‍🏫', px-7, py+4);
+                    } else if(!p.caught) {
+                        ctx.fillStyle = '#ffd700';
+                        ctx.shadowColor = '#ffd700';
+                        ctx.beginPath();
+                        ctx.arc(px, py, 7, 0, 2*Math.PI);
+                        ctx.fill();
+                        ctx.fillStyle = '#000';
+                        ctx.font = '10px Arial';
+                        ctx.fillText('🧑', px-5, py+2);
                     }
-                });
-            }
+                }
+            });
 
             // Сам игрок
             ctx.shadowColor = playerRole === 'baldi' ? '#ff0000' : '#ffd700';
             ctx.shadowBlur = 20;
             ctx.fillStyle = playerRole === 'baldi' ? '#ff0000' : '#ffd700';
             ctx.beginPath();
-            ctx.arc(200, 200, 10, 0, Math.PI * 2);
+            ctx.arc(200, 200, 10, 0, 2*Math.PI);
             ctx.fill();
-            
             ctx.shadowBlur = 0;
             ctx.fillStyle = 'white';
-            ctx.font = 'bold 16px Arial';
+            ctx.font = '16px Arial';
             ctx.fillText(playerRole === 'baldi' ? '👨‍🏫' : '🧑', 190, 204);
 
             // Компас
@@ -1239,9 +1120,8 @@
                 document.getElementById('myBooksDisplay').textContent = player.books || 0;
             }
 
-            const activePlayers = Object.values(game.players || {}).filter(p => p.role === 'student' && !p.escaped && !p.caught).length;
-            document.getElementById('playersOnline').textContent = activePlayers;
-
+            const active = Object.values(game.players || {}).filter(p => p.role === 'student' && !p.escaped && !p.caught).length;
+            document.getElementById('playersOnline').textContent = active;
             document.getElementById('exitStatus').innerHTML = game.exit?.active ? '🚪 ОТКРЫТ' : '🚪 ЗАКРЫТ';
         }
 
@@ -1258,18 +1138,14 @@
             if(catchTimerInterval) clearInterval(catchTimerInterval);
             catchTimerInterval = setInterval(() => {
                 const elapsed = (Date.now() - caughtStartTime) / 1000;
-                const progress = (elapsed / 8) * 100;
-                timerBar.style.width = Math.min(progress, 100) + '%';
+                timerBar.style.width = Math.min((elapsed/8)*100, 100) + '%';
                 
                 if(elapsed >= 8) {
                     clearInterval(catchTimerInterval);
                     isCaught = false;
                     document.getElementById('caughtPopup').style.display = 'none';
                     document.getElementById('overlay').style.display = 'none';
-                    
-                    database.ref('games/' + currentGameId + '/players/' + playerId).update({
-                        caught: false
-                    });
+                    database.ref('games/' + currentGameId + '/players/' + playerId).update({ caught: false });
                 }
             }, 100);
         }
