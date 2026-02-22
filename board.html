@@ -130,7 +130,6 @@
             padding: 20px;
             border-radius: 20px 20px 0 0;
             border: 2px solid #44ff44;
-            border-bottom: none;
         }
 
         .canvas-container {
@@ -270,82 +269,42 @@
         let baldiAIInterval = null;
         let baldiAIActive = false;
 
-        // ========== РАНДОМНАЯ КАРТА (комнаты не по сетке) ==========
+        // ========== ПРОСТАЯ КАРТА ==========
         const WALL_SIZE = 30;
         
-        function generateRandomRooms() {
-            const roomNames = [
-                "🧪 ЛАБОРАТОРИЯ", "🔬 ХИМИЯ", "📚 БИБЛИОТЕКА", "🎨 МАСТЕРСКАЯ",
-                "📐 МАТЕМАТИКА", "📖 АНГЛИЙСКИЙ", "🌍 ГЕОГРАФИЯ", "📜 ИСТОРИЯ",
-                "🎵 МУЗЫКА", "🏃 СПОРТЗАЛ", "🎭 ТЕАТР", "🔧 ТЕХНИЧКА",
-                "💻 ИНФОРМАТИКА", "⚙️ ПОДСОБКА", "🚪 ГАРДЕРОБ", "🧹 КЛАДОВКА"
-            ];
+        const rooms = [
+            { name: "🧪 ЛАБ", x: 150, y: 150, w: 250, h: 200, door: { x: 275, y: 350 }, hasBooks: true },
+            { name: "🔬 ХИМИЯ", x: 550, y: 150, w: 250, h: 200, door: { x: 675, y: 350 }, hasBooks: true },
+            { name: "📚 БИБЛ", x: 950, y: 150, w: 250, h: 200, door: { x: 1075, y: 350 }, hasBooks: true },
+            { name: "🎨 МАСТ", x: 1350, y: 150, w: 250, h: 200, door: { x: 1475, y: 350 }, hasBooks: true },
             
-            const rooms = [];
+            { name: "📐 МАТЕМ", x: 150, y: 550, w: 250, h: 200, door: { x: 275, y: 750 }, hasBooks: true },
+            { name: "📖 АНГЛ", x: 550, y: 550, w: 250, h: 200, door: { x: 675, y: 750 }, hasBooks: true },
+            { name: "🌍 ГЕО", x: 950, y: 550, w: 250, h: 200, door: { x: 1075, y: 750 }, hasBooks: true },
+            { name: "📜 ИСТ", x: 1350, y: 550, w: 250, h: 200, door: { x: 1475, y: 750 }, hasBooks: true },
             
-            function overlaps(r1, r2) {
-                return !(r1.x + r1.w + 50 < r2.x || 
-                        r2.x + r2.w + 50 < r1.x || 
-                        r1.y + r1.h + 50 < r2.y || 
-                        r2.y + r2.h + 50 < r1.y);
-            }
+            { name: "🎵 МУЗ", x: 150, y: 950, w: 250, h: 200, door: { x: 275, y: 1150 }, hasBooks: true },
+            { name: "🏃 СПОРТ", x: 550, y: 950, w: 250, h: 200, door: { x: 675, y: 1150 }, hasBooks: true },
+            { name: "🎭 ТЕАТР", x: 950, y: 950, w: 250, h: 200, door: { x: 1075, y: 1150 }, hasBooks: true },
+            { name: "🔧 ТЕХ", x: 1350, y: 950, w: 250, h: 200, door: { x: 1475, y: 1150 }, hasBooks: true },
             
-            for(let i = 0; i < 16; i++) {
-                let attempts = 0;
-                let placed = false;
-                
-                while(!placed && attempts < 100) {
-                    const w = 200 + Math.floor(Math.random() * 150);
-                    const h = 150 + Math.floor(Math.random() * 100);
-                    const x = 100 + Math.floor(Math.random() * (1700 - w));
-                    const y = 100 + Math.floor(Math.random() * (1700 - h));
-                    
-                    const newRoom = {
-                        name: roomNames[i % roomNames.length],
-                        x: x,
-                        y: y,
-                        w: w,
-                        h: h,
-                        door: {
-                            x: x + Math.floor(w/2) + (Math.random() > 0.5 ? 30 : -30),
-                            y: y + h
-                        },
-                        hasBooks: i < 12
-                    };
-                    
-                    let overlap = false;
-                    for(let room of rooms) {
-                        if(overlaps(room, newRoom)) {
-                            overlap = true;
-                            break;
-                        }
-                    }
-                    
-                    if(!overlap) {
-                        rooms.push(newRoom);
-                        placed = true;
-                    }
-                    attempts++;
-                }
-            }
-            
-            return rooms;
-        }
+            { name: "💻 ИНФ", x: 150, y: 1350, w: 250, h: 200, door: { x: 275, y: 1550 }, hasBooks: false },
+            { name: "⚙️ ПОД", x: 550, y: 1350, w: 250, h: 200, door: { x: 675, y: 1550 }, hasBooks: false },
+            { name: "🚪 ГАРД", x: 950, y: 1350, w: 250, h: 200, door: { x: 1075, y: 1550 }, hasBooks: false },
+            { name: "🧹 КЛАД", x: 1350, y: 1350, w: 250, h: 200, door: { x: 1475, y: 1550 }, hasBooks: false }
+        ];
 
-        let rooms = generateRandomRooms();
+        const corridors = [
+            { x: 0, y: 400, w: 2000, h: 100 },
+            { x: 0, y: 800, w: 2000, h: 100 },
+            { x: 0, y: 1200, w: 2000, h: 100 },
+            { x: 0, y: 1600, w: 2000, h: 100 },
+            { x: 400, y: 0, w: 100, h: 2000 },
+            { x: 800, y: 0, w: 100, h: 2000 },
+            { x: 1200, y: 0, w: 100, h: 2000 },
+            { x: 1600, y: 0, w: 100, h: 2000 }
+        ];
 
-        // Коридоры (соединяют комнаты)
-        const corridors = [];
-        for(let i = 0; i < 8; i++) {
-            corridors.push({
-                x: 100 + Math.random() * 1500,
-                y: 100 + Math.random() * 1500,
-                w: 200 + Math.random() * 500,
-                h: 80
-            });
-        }
-
-        // Стены
         const walls = [
             { x: 0, y: 0, w: 2000, h: 40 },
             { x: 0, y: 1960, w: 2000, h: 40 },
@@ -385,30 +344,6 @@
             return false;
         }
 
-        // Функция для телепортации книги
-        function teleportBook(bookId, gameId) {
-            database.ref('games/' + gameId + '/books').once('value', (snapshot) => {
-                const books = snapshot.val();
-                if(!books || !books[bookId]) return;
-                
-                const book = books[bookId];
-                const roomsWithBooks = rooms.filter(r => r.hasBooks);
-                
-                if(roomsWithBooks.length === 0) return;
-                
-                const newRoom = roomsWithBooks[Math.floor(Math.random() * roomsWithBooks.length)];
-                const newX = newRoom.x + 60 + Math.random() * (newRoom.w - 120);
-                const newY = newRoom.y + 60 + Math.random() * (newRoom.h - 120);
-                
-                database.ref('games/' + gameId + '/books/' + bookId).update({
-                    x: newX,
-                    y: newY,
-                    roomName: newRoom.name,
-                    collected: false
-                });
-            });
-        }
-
         function generateBooks() {
             const books = {};
             const questions = [
@@ -444,8 +379,8 @@
                     
                     books[`book${bookIndex}`] = {
                         id: `book${bookIndex}`,
-                        x: bookX,
-                        y: bookY,
+                        x: Math.floor(bookX),
+                        y: Math.floor(bookY),
                         roomName: room.name,
                         collected: false,
                         question: questions[bookIndex][0],
@@ -459,7 +394,6 @@
         }
 
         document.getElementById('createGameBtn').onclick = function() {
-            rooms = generateRandomRooms();
             const gameId = Math.floor(100000 + Math.random() * 900000).toString();
             
             database.ref('games/' + gameId).set({
@@ -519,7 +453,6 @@
             });
         }
 
-        // УЛУЧШЕННЫЙ АВТОМАТИЧЕСКИЙ BALDI
         function toggleBaldiAI(active) {
             baldiAIActive = active;
             const btn = document.getElementById('toggleBaldiAI');
@@ -542,43 +475,21 @@
                         
                         if(!baldi) return;
                         
-                        // Найти ближайшего ученика
-                        let nearestStudent = null;
-                        let minDist = Infinity;
-                        
-                        Object.entries(game.players).forEach(([id, p]) => {
-                            if(p.role === 'student' && !p.caught && !p.escaped) {
-                                const dist = Math.hypot(baldi.x - p.x, baldi.y - p.y);
-                                if(dist < minDist) {
-                                    minDist = dist;
-                                    nearestStudent = p;
-                                }
-                            }
-                        });
-                        
-                        let targetX, targetY;
-                        
-                        if(nearestStudent && minDist < 600) {
-                            // Идем к ближайшему ученику
-                            targetX = nearestStudent.x;
-                            targetY = nearestStudent.y;
-                        } else {
-                            // Идем в случайную комнату
-                            const targetRoom = rooms[Math.floor(Math.random() * rooms.length)];
-                            targetX = targetRoom.x + targetRoom.w/2;
-                            targetY = targetRoom.y + targetRoom.h/2;
-                        }
+                        // Простое движение к случайной точке в коридоре
+                        const targetX = 500 + Math.random() * 1000;
+                        const targetY = 500 + Math.random() * 1000;
                         
                         const dx = targetX - baldi.x;
                         const dy = targetY - baldi.y;
                         const dist = Math.hypot(dx, dy);
                         
-                        if(dist > 15) {
-                            const speed = 2.5;
+                        if(dist > 20) {
+                            const speed = 2;
                             const newX = baldi.x + (dx/dist) * speed;
                             const newY = baldi.y + (dy/dist) * speed;
                             
-                            if(!checkCollision(newX, newY)) {
+                            // Простая проверка
+                            if(newX > 100 && newX < 1900 && newY > 100 && newY < 1900) {
                                 database.ref('games/' + currentGameId + '/players/' + baldiId).update({
                                     x: newX, y: newY
                                 });
@@ -591,14 +502,13 @@
                                 const dist = Math.hypot(baldi.x - p.x, baldi.y - p.y);
                                 if(dist < 45) {
                                     database.ref('games/' + currentGameId + '/players/' + id).update({
-                                        caught: true,
-                                        caughtTime: Date.now()
+                                        caught: true
                                     });
                                 }
                             }
                         });
                     });
-                }, 200);
+                }, 500);
             } else {
                 clearInterval(baldiAIInterval);
             }
@@ -625,7 +535,8 @@
             
             document.getElementById('resetViewBtn').onclick = () => {
                 canvasScale = 0.5;
-                canvasOffsetX = canvasOffsetY = 0;
+                canvasOffsetX = 0;
+                canvasOffsetY = 0;
                 applyTransform();
             };
             
@@ -681,7 +592,7 @@
             function showZoom() {
                 zoomIndicator.style.display = 'block';
                 zoomIndicator.innerHTML = `🔍 x${canvasScale.toFixed(1)}`;
-                setTimeout(() => { zoomIndicator.style.display = 'none'; }, 2000);
+                setTimeout(() => zoomIndicator.style.display = 'none', 2000);
             }
             
             applyTransform();
@@ -690,6 +601,7 @@
         function applyTransform() {
             const canvas = document.getElementById('gameCanvas');
             canvas.style.transform = `scale(${canvasScale}) translate(${canvasOffsetX/canvasScale}px, ${canvasOffsetY/canvasScale}px)`;
+            canvas.style.transformOrigin = '0 0';
         }
 
         function startGame() {
@@ -708,16 +620,25 @@
         function drawMap(ctx, game) {
             ctx.clearRect(0, 0, 2000, 2000);
 
-            // Пол с текстурой
-            for(let i = 0; i < 2000; i += 40) {
-                for(let j = 0; j < 2000; j += 40) {
-                    ctx.fillStyle = (i + j) % 80 === 0 ? '#2a2a4a' : '#1e1e36';
-                    ctx.fillRect(i, j, 40, 40);
-                }
+            // Пол
+            ctx.fillStyle = '#1a1a2e';
+            ctx.fillRect(0, 0, 2000, 2000);
+
+            // Сетка
+            ctx.strokeStyle = '#2a2a4a';
+            ctx.lineWidth = 1;
+            for(let i = 0; i <= 2000; i += 50) {
+                ctx.beginPath();
+                ctx.moveTo(i, 0);
+                ctx.lineTo(i, 2000);
+                ctx.stroke();
+                ctx.moveTo(0, i);
+                ctx.lineTo(2000, i);
+                ctx.stroke();
             }
 
             // Коридоры
-            ctx.fillStyle = '#3a3a5a';
+            ctx.fillStyle = '#2a2a4a';
             corridors.forEach(c => ctx.fillRect(c.x, c.y, c.w, c.h));
 
             // Стены
@@ -726,44 +647,29 @@
 
             // Комнаты
             rooms.forEach(r => {
-                // Основной цвет
                 ctx.fillStyle = r.hasBooks ? '#4a4a6a' : '#3a3a5a';
                 ctx.fillRect(r.x, r.y, r.w, r.h);
                 
-                // Контур (ВЕСЬ, включая правую стену!)
                 ctx.strokeStyle = '#8a8aaa';
-                ctx.lineWidth = 4;
+                ctx.lineWidth = 3;
                 ctx.strokeRect(r.x, r.y, r.w, r.h);
                 
-                // Дверь
                 ctx.fillStyle = '#8b4513';
                 ctx.fillRect(r.door.x-20, r.door.y-10, 40, 20);
-                ctx.fillStyle = '#ffd700';
-                ctx.beginPath();
-                ctx.arc(r.door.x+10, r.door.y, 4, 0, 2*Math.PI);
-                ctx.fill();
                 
-                // Название
                 ctx.fillStyle = '#ffd700';
                 ctx.font = 'bold 10px "Press Start 2P"';
-                ctx.fillText(r.name.slice(0, 8), r.x+10, r.y+25);
-                
-                if(r.hasBooks) {
-                    ctx.fillStyle = '#44ff44';
-                    ctx.font = '16px Arial';
-                    ctx.fillText('📚', r.x + r.w - 30, r.y + 30);
-                }
+                ctx.fillText(r.name, r.x+10, r.y+25);
             });
 
             // Книги
             if(game.books) {
                 Object.values(game.books).forEach(b => {
                     if(!b.collected) {
-                        const pulse = Math.sin(Date.now()/200) * 3;
                         ctx.shadowColor = '#ffd700';
-                        ctx.shadowBlur = 15 + pulse;
+                        ctx.shadowBlur = 15;
                         ctx.fillStyle = '#ffd700';
-                        ctx.fillRect(b.x-7, b.y-6, 14, 12);
+                        ctx.fillRect(b.x-6, b.y-5, 12, 10);
                         ctx.shadowBlur = 0;
                     }
                 });
@@ -819,9 +725,6 @@
             document.getElementById('escapedCount').textContent = game.escapedCount || 0;
             document.getElementById('exitStatus').innerHTML = game.exit?.active ? '🚪 ОТКРЫТ' : '🚪 ЗАКРЫТ';
         }
-
-        // Экспортируем функцию для player.html
-        window.teleportBook = teleportBook;
     </script>
 </body>
 </html>
