@@ -269,7 +269,7 @@
         let baldiAIInterval = null;
         let baldiAIActive = false;
 
-        // ========== ПРОСТАЯ КАРТА ==========
+        // ========== КАРТА ==========
         const WALL_SIZE = 30;
         
         const rooms = [
@@ -453,6 +453,7 @@
             });
         }
 
+        // ИСПРАВЛЕННЫЙ АВТО BALDI - теперь быстрый!
         function toggleBaldiAI(active) {
             baldiAIActive = active;
             const btn = document.getElementById('toggleBaldiAI');
@@ -475,21 +476,22 @@
                         
                         if(!baldi) return;
                         
-                        // Простое движение к случайной точке в коридоре
-                        const targetX = 500 + Math.random() * 1000;
-                        const targetY = 500 + Math.random() * 1000;
+                        // Случайная точка на карте
+                        const targetX = 200 + Math.random() * 1600;
+                        const targetY = 200 + Math.random() * 1600;
                         
                         const dx = targetX - baldi.x;
                         const dy = targetY - baldi.y;
                         const dist = Math.hypot(dx, dy);
                         
                         if(dist > 20) {
-                            const speed = 2;
+                            // СКОРОСТЬ УВЕЛИЧЕНА до 6
+                            const speed = 6;
                             const newX = baldi.x + (dx/dist) * speed;
                             const newY = baldi.y + (dy/dist) * speed;
                             
-                            // Простая проверка
-                            if(newX > 100 && newX < 1900 && newY > 100 && newY < 1900) {
+                            // Упрощенная проверка
+                            if(newX > 50 && newX < 1950 && newY > 50 && newY < 1950) {
                                 database.ref('games/' + currentGameId + '/players/' + baldiId).update({
                                     x: newX, y: newY
                                 });
@@ -508,7 +510,7 @@
                             }
                         });
                     });
-                }, 500);
+                }, 100); // Частота обновления
             } else {
                 clearInterval(baldiAIInterval);
             }
@@ -645,21 +647,40 @@
             ctx.fillStyle = '#4a4a8a';
             walls.forEach(w => ctx.fillRect(w.x, w.y, w.w, w.h));
 
-            // Комнаты
+            // Комнаты - ИСПРАВЛЕНО: теперь все стены видны!
             rooms.forEach(r => {
+                // Заливка комнаты
                 ctx.fillStyle = r.hasBooks ? '#4a4a6a' : '#3a3a5a';
                 ctx.fillRect(r.x, r.y, r.w, r.h);
                 
+                // Контур комнаты (ВСЕ 4 СТЕНЫ)
                 ctx.strokeStyle = '#8a8aaa';
-                ctx.lineWidth = 3;
+                ctx.lineWidth = 4;
                 ctx.strokeRect(r.x, r.y, r.w, r.h);
                 
+                // Дополнительная обводка для надежности
+                ctx.strokeStyle = '#6a6a9a';
+                ctx.lineWidth = 2;
+                ctx.strokeRect(r.x+1, r.y+1, r.w-2, r.h-2);
+                
+                // Дверь
                 ctx.fillStyle = '#8b4513';
                 ctx.fillRect(r.door.x-20, r.door.y-10, 40, 20);
+                ctx.fillStyle = '#ffd700';
+                ctx.beginPath();
+                ctx.arc(r.door.x+10, r.door.y, 4, 0, 2*Math.PI);
+                ctx.fill();
                 
+                // Название
                 ctx.fillStyle = '#ffd700';
                 ctx.font = 'bold 10px "Press Start 2P"';
                 ctx.fillText(r.name, r.x+10, r.y+25);
+                
+                if(r.hasBooks) {
+                    ctx.fillStyle = '#44ff44';
+                    ctx.font = '16px Arial';
+                    ctx.fillText('📚', r.x + r.w - 30, r.y + 30);
+                }
             });
 
             // Книги
@@ -697,6 +718,11 @@
                     ctx.fillStyle = 'white';
                     ctx.font = p.role === 'baldi' ? '24px Arial' : '16px Arial';
                     ctx.fillText(p.role === 'baldi' ? '👨‍🏫' : '🧑', p.x-10, p.y+5);
+                    
+                    // Имя
+                    ctx.fillStyle = 'white';
+                    ctx.font = '7px "Press Start 2P"';
+                    ctx.fillText(p.name, p.x-15, p.y-20);
                 });
             }
 
