@@ -279,7 +279,7 @@
         let isDragging = false;
         let dragStartX, dragStartY;
         
-        // ===== ИСПРАВЛЕННЫЙ АВТОБАЛДИ =====
+        // ===== АВТОБАЛДИ =====
         let baldiAIInterval = null;
         let baldiAIActive = false;
         let baldiTargetX = 1000;
@@ -287,76 +287,76 @@
         let baldiState = 'patrol';
         let lastPatrolTime = 0;
 
-        // ========== КАРТА ==========
-        const WALL_SIZE = 30;
-        
+        // ========== НОВАЯ ПЛАНИРОВКА - комнаты не накладываются ==========
         const rooms = [
-            { name: "🧪 ЛАБ", x: 150, y: 150, w: 250, h: 200, door: { x: 275, y: 350 }, hasBooks: true },
-            { name: "🔬 ХИМИЯ", x: 550, y: 150, w: 250, h: 200, door: { x: 675, y: 350 }, hasBooks: true },
-            { name: "📚 БИБЛ", x: 950, y: 150, w: 250, h: 200, door: { x: 1075, y: 350 }, hasBooks: true },
-            { name: "🎨 МАСТ", x: 1350, y: 150, w: 250, h: 200, door: { x: 1475, y: 350 }, hasBooks: true },
-            { name: "📐 МАТЕМ", x: 150, y: 550, w: 250, h: 200, door: { x: 275, y: 750 }, hasBooks: true },
-            { name: "📖 АНГЛ", x: 550, y: 550, w: 250, h: 200, door: { x: 675, y: 750 }, hasBooks: true },
-            { name: "🌍 ГЕО", x: 950, y: 550, w: 250, h: 200, door: { x: 1075, y: 750 }, hasBooks: true },
-            { name: "📜 ИСТ", x: 1350, y: 550, w: 250, h: 200, door: { x: 1475, y: 750 }, hasBooks: true },
-            { name: "🎵 МУЗ", x: 150, y: 950, w: 250, h: 200, door: { x: 275, y: 1150 }, hasBooks: true },
-            { name: "🏃 СПОРТ", x: 550, y: 950, w: 250, h: 200, door: { x: 675, y: 1150 }, hasBooks: true },
-            { name: "🎭 ТЕАТР", x: 950, y: 950, w: 250, h: 200, door: { x: 1075, y: 1150 }, hasBooks: true },
-            { name: "🔧 ТЕХ", x: 1350, y: 950, w: 250, h: 200, door: { x: 1475, y: 1150 }, hasBooks: true },
-            { name: "💻 ИНФ", x: 150, y: 1350, w: 250, h: 200, door: { x: 275, y: 1550 }, hasBooks: false },
-            { name: "⚙️ ПОД", x: 550, y: 1350, w: 250, h: 200, door: { x: 675, y: 1550 }, hasBooks: false },
-            { name: "🚪 ГАРД", x: 950, y: 1350, w: 250, h: 200, door: { x: 1075, y: 1550 }, hasBooks: false },
-            { name: "🧹 КЛАД", x: 1350, y: 1350, w: 250, h: 200, door: { x: 1475, y: 1550 }, hasBooks: false }
+            // Первый ряд
+            { name: "🧪 ЛАБ", x: 100, y: 100, w: 250, h: 200, door: { x: 225, y: 300 }, hasBooks: true },
+            { name: "🔬 ХИМИЯ", x: 450, y: 100, w: 250, h: 200, door: { x: 575, y: 300 }, hasBooks: true },
+            { name: "📚 БИБЛ", x: 800, y: 100, w: 250, h: 200, door: { x: 925, y: 300 }, hasBooks: true },
+            { name: "🎨 МАСТ", x: 1150, y: 100, w: 250, h: 200, door: { x: 1275, y: 300 }, hasBooks: true },
+            { name: "📐 МАТЕМ", x: 1500, y: 100, w: 250, h: 200, door: { x: 1625, y: 300 }, hasBooks: true },
+            
+            // Второй ряд
+            { name: "📖 АНГЛ", x: 100, y: 450, w: 250, h: 200, door: { x: 225, y: 650 }, hasBooks: true },
+            { name: "🌍 ГЕО", x: 450, y: 450, w: 250, h: 200, door: { x: 575, y: 650 }, hasBooks: true },
+            { name: "📜 ИСТ", x: 800, y: 450, w: 250, h: 200, door: { x: 925, y: 650 }, hasBooks: true },
+            { name: "🎵 МУЗ", x: 1150, y: 450, w: 250, h: 200, door: { x: 1275, y: 650 }, hasBooks: true },
+            { name: "🏃 СПОРТ", x: 1500, y: 450, w: 250, h: 200, door: { x: 1625, y: 650 }, hasBooks: true },
+            
+            // Третий ряд
+            { name: "🎭 ТЕАТР", x: 100, y: 800, w: 250, h: 200, door: { x: 225, y: 1000 }, hasBooks: true },
+            { name: "🔧 ТЕХ", x: 450, y: 800, w: 250, h: 200, door: { x: 575, y: 1000 }, hasBooks: true },
+            { name: "💻 ИНФ", x: 800, y: 800, w: 250, h: 200, door: { x: 925, y: 1000 }, hasBooks: true },
+            { name: "⚙️ ПОД", x: 1150, y: 800, w: 250, h: 200, door: { x: 1275, y: 1000 }, hasBooks: true },
+            { name: "🚪 ГАРД", x: 1500, y: 800, w: 250, h: 200, door: { x: 1625, y: 1000 }, hasBooks: false },
+            
+            // Четвертый ряд
+            { name: "🧹 КЛАД", x: 100, y: 1150, w: 250, h: 200, door: { x: 225, y: 1350 }, hasBooks: false },
+            { name: "🔋 ЭНЕР", x: 450, y: 1150, w: 250, h: 200, door: { x: 575, y: 1350 }, hasBooks: false },
+            { name: "📦 СКЛАД", x: 800, y: 1150, w: 250, h: 200, door: { x: 925, y: 1350 }, hasBooks: false },
+            { name: "🧪 НАУКА", x: 1150, y: 1150, w: 250, h: 200, door: { x: 1275, y: 1350 }, hasBooks: true },
+            { name: "🔭 АСТРО", x: 1500, y: 1150, w: 250, h: 200, door: { x: 1625, y: 1350 }, hasBooks: true }
         ];
 
+        // Коридоры (горизонтальные и вертикальные)
         const corridors = [
-            { x: 0, y: 400, w: 2000, h: 100 },
-            { x: 0, y: 800, w: 2000, h: 100 },
-            { x: 0, y: 1200, w: 2000, h: 100 },
-            { x: 0, y: 1600, w: 2000, h: 100 },
-            { x: 400, y: 0, w: 100, h: 2000 },
-            { x: 800, y: 0, w: 100, h: 2000 },
-            { x: 1200, y: 0, w: 100, h: 2000 },
-            { x: 1600, y: 0, w: 100, h: 2000 }
+            // Горизонтальные коридоры
+            { x: 0, y: 350, w: 2000, h: 50 },  // между 1 и 2 рядом
+            { x: 0, y: 700, w: 2000, h: 50 },  // между 2 и 3 рядом
+            { x: 0, y: 1050, w: 2000, h: 50 }, // между 3 и 4 рядом
+            { x: 0, y: 1400, w: 2000, h: 50 }, // после 4 ряда
+            
+            // Вертикальные коридоры
+            { x: 350, y: 0, w: 50, h: 2000 },  // между 1 и 2 колонкой
+            { x: 700, y: 0, w: 50, h: 2000 },  // между 2 и 3 колонкой
+            { x: 1050, y: 0, w: 50, h: 2000 }, // между 3 и 4 колонкой
+            { x: 1400, y: 0, w: 50, h: 2000 }, // между 4 и 5 колонкой
+            { x: 1750, y: 0, w: 50, h: 2000 }  // после 5 колонки
         ];
 
-        // ИСПРАВЛЕННЫЕ СТЕНЫ - теперь полностью закрывают периметр
+        // Стены (только внешние и между коридорами)
         const walls = [
             // Внешние стены
-            { x: 0, y: 0, w: 2000, h: 40 },
-            { x: 0, y: 1960, w: 2000, h: 40 },
-            { x: 0, y: 0, w: 40, h: 2000 },
-            { x: 1960, y: 0, w: 40, h: 2000 },
-            
-            // Дополнительные стены между комнатами (чтобы нельзя было пройти сквозь правые стены)
-            { x: 400, y: 0, w: 40, h: 400 },
-            { x: 800, y: 0, w: 40, h: 400 },
-            { x: 1200, y: 0, w: 40, h: 400 },
-            { x: 1600, y: 0, w: 40, h: 400 },
-            { x: 400, y: 600, w: 40, h: 400 },
-            { x: 800, y: 600, w: 40, h: 400 },
-            { x: 1200, y: 600, w: 40, h: 400 },
-            { x: 1600, y: 600, w: 40, h: 400 },
-            { x: 400, y: 1200, w: 40, h: 400 },
-            { x: 800, y: 1200, w: 40, h: 400 },
-            { x: 1200, y: 1200, w: 40, h: 400 },
-            { x: 1600, y: 1200, w: 40, h: 400 }
+            { x: 0, y: 0, w: 2000, h: 30 },
+            { x: 0, y: 1970, w: 2000, h: 30 },
+            { x: 0, y: 0, w: 30, h: 2000 },
+            { x: 1970, y: 0, w: 30, h: 2000 }
         ];
 
         // Функция проверки, находится ли точка в коридоре
         function isInCorridor(x, y) {
             for(let cor of corridors) {
-                if(x >= cor.x && x <= cor.x + cor.w && y >= cor.y && y <= cor.y + cor.h) {
+                if(x > cor.x && x < cor.x + cor.w && y > cor.y && y < cor.y + cor.h) {
                     return true;
                 }
             }
             return false;
         }
 
-        // ИСПРАВЛЕННАЯ проверка коллизий - теперь стены работают
+        // Функция проверки коллизий
         function checkCollision(x, y) {
             // Границы карты
-            if(x < 45 || x > 1955 || y < 45 || y > 1955) return true;
+            if(x < 35 || x > 1965 || y < 35 || y > 1965) return true;
 
             // Проверка стен
             for(let wall of walls) {
@@ -372,14 +372,14 @@
                     return false;
                 }
                 
-                // Проверка, не пытаемся ли войти сквозь стену
-                const nearRoom = x > room.x - 20 && x < room.x + room.w + 20 && 
-                                 y > room.y - 20 && y < room.y + room.h + 20;
+                // Проверка, не пытаемся ли войти сквозь стену комнаты
+                const nearRoom = x > room.x - 15 && x < room.x + room.w + 15 && 
+                                 y > room.y - 15 && y < room.y + room.h + 15;
                 
                 if(nearRoom) {
                     // Если рядом с дверью - можно
                     const distToDoor = Math.hypot(x - room.door.x, y - room.door.y);
-                    if(distToDoor < 50) return false;
+                    if(distToDoor < 40) return false;
                     
                     // Если в коридоре - можно
                     if(isInCorridor(x, y)) return false;
@@ -388,9 +388,6 @@
                     return true;
                 }
             }
-            
-            // В коридоре всегда можно
-            if(isInCorridor(x, y)) return false;
             
             return false;
         }
@@ -504,7 +501,7 @@
             });
         }
 
-        // ===== ИСПРАВЛЕННЫЙ АВТОБАЛДИ (теперь работает нормально) =====
+        // ===== ИСПРАВЛЕННЫЙ АВТОБАЛДИ =====
         function toggleBaldiAI(active) {
             baldiAIActive = active;
             const btn = document.getElementById('toggleBaldiAI');
@@ -520,7 +517,7 @@
                         const game = snapshot.val();
                         if(!game || game.status !== 'playing') return;
                         
-                        // Находим Балди и учеников
+                        // Находим Балди
                         let baldiId = null;
                         let baldi = null;
                         let students = [];
@@ -551,31 +548,38 @@
                         // Логика движения
                         let targetX = baldi.x;
                         let targetY = baldi.y;
-                        let speed = 3;
+                        let speed = 2.5;
                         
-                        if(nearestStudent && minDist < 500) {
-                            // Режим преследования
+                        if(nearestStudent && minDist < 400) {
+                            // Режим преследования - бежит прямо на ученика
                             targetX = nearestStudent.x;
                             targetY = nearestStudent.y;
-                            speed = 4;
+                            speed = 3.5;
                             baldiState = 'chase';
                         } else {
-                            // Режим патруля
+                            // Режим патруля - ходит по коридорам
                             baldiState = 'patrol';
                             
-                            // Меняем цель каждые 3 секунды или если дошли
+                            // Меняем цель каждые 5 секунд или если дошли
                             const now = Date.now();
-                            if(now - lastPatrolTime > 3000 || Math.hypot(baldi.x - baldiTargetX, baldi.y - baldiTargetY) < 50) {
-                                // Выбираем случайную точку в коридоре
-                                const randomCorridor = corridors[Math.floor(Math.random() * corridors.length)];
-                                baldiTargetX = randomCorridor.x + 50 + Math.random() * (randomCorridor.w - 100);
-                                baldiTargetY = randomCorridor.y + 50 + Math.random() * (randomCorridor.h - 100);
+                            const distToTarget = Math.hypot(baldi.x - baldiTargetX, baldi.y - baldiTargetY);
+                            
+                            if(now - lastPatrolTime > 5000 || distToTarget < 30) {
+                                // Выбираем точку на перекрестке коридоров
+                                const patrolPoints = [
+                                    {x: 200, y: 375}, {x: 525, y: 375}, {x: 850, y: 375}, {x: 1175, y: 375}, {x: 1500, y: 375},
+                                    {x: 200, y: 725}, {x: 525, y: 725}, {x: 850, y: 725}, {x: 1175, y: 725}, {x: 1500, y: 725},
+                                    {x: 200, y: 1075}, {x: 525, y: 1075}, {x: 850, y: 1075}, {x: 1175, y: 1075}, {x: 1500, y: 1075},
+                                    {x: 200, y: 1425}, {x: 525, y: 1425}, {x: 850, y: 1425}, {x: 1175, y: 1425}, {x: 1500, y: 1425}
+                                ];
+                                const point = patrolPoints[Math.floor(Math.random() * patrolPoints.length)];
+                                baldiTargetX = point.x;
+                                baldiTargetY = point.y;
                                 lastPatrolTime = now;
                             }
                             
                             targetX = baldiTargetX;
                             targetY = baldiTargetY;
-                            speed = 2.5;
                         }
                         
                         // Двигаемся к цели
@@ -583,35 +587,47 @@
                         const dy = targetY - baldi.y;
                         const dist = Math.hypot(dx, dy);
                         
-                        if(dist > 5) {
+                        if(dist > 3) {
                             const moveX = (dx / dist) * speed;
                             const moveY = (dy / dist) * speed;
                             
-                            const newX = baldi.x + moveX;
-                            const newY = baldi.y + moveY;
+                            // Пробуем двигаться
+                            let newX = baldi.x + moveX;
+                            let newY = baldi.y + moveY;
                             
-                            // Проверяем коллизии (но разрешаем заходить в комнаты)
-                            if(!checkCollision(newX, newY) || isInCorridor(newX, newY)) {
+                            // Проверяем коллизии
+                            if(!checkCollision(newX, newY)) {
                                 database.ref('games/' + currentGameId + '/players/' + baldiId).update({
                                     x: newX, y: newY
                                 });
                             } else {
-                                // Если уперлись в стену, меняем цель
-                                lastPatrolTime = 0;
+                                // Если уперлись, пробуем по одной оси
+                                if(!checkCollision(newX, baldi.y)) {
+                                    database.ref('games/' + currentGameId + '/players/' + baldiId).update({
+                                        x: newX, y: baldi.y
+                                    });
+                                } else if(!checkCollision(baldi.x, newY)) {
+                                    database.ref('games/' + currentGameId + '/players/' + baldiId).update({
+                                        x: baldi.x, y: newY
+                                    });
+                                } else {
+                                    // Совсем уперлись - меняем цель
+                                    lastPatrolTime = 0;
+                                }
                             }
                         }
                         
                         // Ловля учеников
                         students.forEach(student => {
                             const distToStudent = Math.hypot(baldi.x - student.x, baldi.y - student.y);
-                            if(distToStudent < 45) {
+                            if(distToStudent < 40) {
                                 database.ref('games/' + currentGameId + '/players/' + student.id).update({
                                     caught: true
                                 });
                             }
                         });
                     });
-                }, 100); // Обновляем 10 раз в секунду
+                }, 50); // 20 раз в секунду для плавности
             } else {
                 clearInterval(baldiAIInterval);
             }
@@ -657,7 +673,8 @@
             
             document.getElementById('findBaldiBtn').onclick = () => {
                 database.ref('games/' + currentGameId + '/players').once('value', (s) => {
-                    const baldi = Object.values(s.val() || {}).find(p => p.role === 'baldi');
+                    const players = s.val() || {};
+                    const baldi = Object.values(players).find(p => p.role === 'baldi');
                     if(baldi) {
                         canvasOffsetX = -baldi.x * canvasScale + container.clientWidth/2;
                         canvasOffsetY = -baldi.y * canvasScale + container.clientHeight/2;
@@ -728,52 +745,31 @@
             ctx.fillStyle = '#1a1a2e';
             ctx.fillRect(0, 0, 2000, 2000);
 
-            // Сетка
-            ctx.strokeStyle = '#2a2a4a';
-            ctx.lineWidth = 1;
-            for(let i = 0; i <= 2000; i += 50) {
-                ctx.beginPath();
-                ctx.moveTo(i, 0);
-                ctx.lineTo(i, 2000);
-                ctx.stroke();
-                ctx.moveTo(0, i);
-                ctx.lineTo(2000, i);
-                ctx.stroke();
-            }
-
-            // Коридоры
-            ctx.fillStyle = '#3a3a5a';
+            // Рисуем коридоры
+            ctx.fillStyle = '#2a2a4a';
             corridors.forEach(c => ctx.fillRect(c.x, c.y, c.w, c.h));
 
-            // Стены
+            // Рисуем стены
             ctx.fillStyle = '#4a4a8a';
             walls.forEach(w => ctx.fillRect(w.x, w.y, w.w, w.h));
 
-            // Комнаты
+            // Рисуем комнаты
             rooms.forEach(r => {
-                ctx.fillStyle = r.hasBooks ? '#4a4a6a' : '#3a3a5a';
+                ctx.fillStyle = r.hasBooks ? '#3a3a6a' : '#2a2a4a';
                 ctx.fillRect(r.x, r.y, r.w, r.h);
                 
                 ctx.strokeStyle = '#8a8aaa';
-                ctx.lineWidth = 4;
+                ctx.lineWidth = 3;
                 ctx.strokeRect(r.x, r.y, r.w, r.h);
                 
+                // Дверь
                 ctx.fillStyle = '#8b4513';
-                ctx.fillRect(r.door.x-20, r.door.y-10, 40, 20);
-                ctx.fillStyle = '#ffd700';
-                ctx.beginPath();
-                ctx.arc(r.door.x+10, r.door.y, 4, 0, 2*Math.PI);
-                ctx.fill();
+                ctx.fillRect(r.door.x-15, r.door.y-8, 30, 16);
                 
+                // Название комнаты
                 ctx.fillStyle = '#ffd700';
                 ctx.font = 'bold 10px "Press Start 2P"';
                 ctx.fillText(r.name, r.x+10, r.y+25);
-                
-                if(r.hasBooks) {
-                    ctx.fillStyle = '#44ff44';
-                    ctx.font = '16px Arial';
-                    ctx.fillText('📚', r.x + r.w - 30, r.y + 30);
-                }
             });
 
             // Книги
@@ -797,21 +793,30 @@
                     if(p.role === 'baldi') {
                         ctx.fillStyle = '#ff0000';
                         ctx.shadowColor = '#ff0000';
+                        ctx.shadowBlur = 20;
+                        ctx.beginPath();
+                        ctx.arc(p.x, p.y, 18, 0, 2*Math.PI);
+                        ctx.fill();
+                        
+                        ctx.shadowBlur = 0;
+                        ctx.fillStyle = 'white';
+                        ctx.font = '24px Arial';
+                        ctx.fillText('👨‍🏫', p.x-10, p.y+5);
                     } else {
                         ctx.fillStyle = p.caught ? '#666' : '#ffd700';
                         ctx.shadowColor = '#ffd700';
+                        ctx.shadowBlur = 15;
+                        ctx.beginPath();
+                        ctx.arc(p.x, p.y, 12, 0, 2*Math.PI);
+                        ctx.fill();
+                        
+                        ctx.shadowBlur = 0;
+                        ctx.fillStyle = 'white';
+                        ctx.font = '16px Arial';
+                        ctx.fillText('🧑', p.x-7, p.y+4);
                     }
                     
-                    ctx.shadowBlur = 20;
-                    ctx.beginPath();
-                    ctx.arc(p.x, p.y, p.role === 'baldi' ? 18 : 12, 0, 2*Math.PI);
-                    ctx.fill();
-                    
-                    ctx.shadowBlur = 0;
-                    ctx.fillStyle = 'white';
-                    ctx.font = p.role === 'baldi' ? '24px Arial' : '16px Arial';
-                    ctx.fillText(p.role === 'baldi' ? '👨‍🏫' : '🧑', p.x-10, p.y+5);
-                    
+                    // Имя игрока
                     ctx.fillStyle = 'white';
                     ctx.font = '7px "Press Start 2P"';
                     ctx.fillText(p.name, p.x-15, p.y-20);
