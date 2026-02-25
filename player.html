@@ -403,7 +403,6 @@
             display: none;
         }
 
-        /* Границы карты для мобилок */
         .map-boundary {
             position: absolute;
             top: 0;
@@ -530,43 +529,44 @@
         let caughtStartTime = 0;
         let cooldownInterval = null;
         let lastNotificationTime = 0;
+        let playerName = '';
 
-        // ===== КАРТА - все комнаты по всей карте =====
+        // ===== КАРТА - 5 РЯДОВ (точно как в board.html) =====
         const rooms = [
-            // Верхний ряд (y=80)
+            // Ряд 1 (y=80)
             { name: "🧪LAB", x: 80, y: 80, w: 240, h: 180, door: { x: 200, y: 260 }, hasBooks: true },
             { name: "🔬CHEM", x: 400, y: 80, w: 240, h: 180, door: { x: 520, y: 260 }, hasBooks: true },
             { name: "📚LIB", x: 720, y: 80, w: 240, h: 180, door: { x: 840, y: 260 }, hasBooks: true },
             { name: "🎨ART", x: 1040, y: 80, w: 240, h: 180, door: { x: 1160, y: 260 }, hasBooks: true },
             { name: "📐MATH", x: 1360, y: 80, w: 240, h: 180, door: { x: 1480, y: 260 }, hasBooks: true },
             
-            // Второй ряд (y=360)
+            // Ряд 2 (y=360)
             { name: "📖ENG", x: 80, y: 360, w: 240, h: 180, door: { x: 200, y: 540 }, hasBooks: true },
             { name: "🌍GEO", x: 400, y: 360, w: 240, h: 180, door: { x: 520, y: 540 }, hasBooks: true },
             { name: "📜HIS", x: 720, y: 360, w: 240, h: 180, door: { x: 840, y: 540 }, hasBooks: true },
             { name: "🎵MUS", x: 1040, y: 360, w: 240, h: 180, door: { x: 1160, y: 540 }, hasBooks: true },
             { name: "🏃GYM", x: 1360, y: 360, w: 240, h: 180, door: { x: 1480, y: 540 }, hasBooks: true },
             
-            // Третий ряд (y=640)
+            // Ряд 3 (y=640)
             { name: "🎭THEA", x: 80, y: 640, w: 240, h: 180, door: { x: 200, y: 820 }, hasBooks: true },
             { name: "🔧TECH", x: 400, y: 640, w: 240, h: 180, door: { x: 520, y: 820 }, hasBooks: true },
             { name: "💻CS", x: 720, y: 640, w: 240, h: 180, door: { x: 840, y: 820 }, hasBooks: true },
             { name: "⚙️SHOP", x: 1040, y: 640, w: 240, h: 180, door: { x: 1160, y: 820 }, hasBooks: true },
-            { name: "🚪LOCK", x: 1360, y: 640, w: 240, h: 180, door: { x: 1480, y: 820 }, hasBooks: false },
+            { name: "🚪LOCK", x: 1360, y: 640, w: 240, h: 180, door: { x: 1480, y: 820 }, hasBooks: true },
             
-            // Четвертый ряд (y=920) - ЗДЕСЬ ТОЖЕ ЕСТЬ КНИГИ!
+            // Ряд 4 (y=920)
             { name: "🧹CLN", x: 80, y: 920, w: 240, h: 180, door: { x: 200, y: 1100 }, hasBooks: false },
             { name: "🔋PWR", x: 400, y: 920, w: 240, h: 180, door: { x: 520, y: 1100 }, hasBooks: false },
             { name: "📦STOR", x: 720, y: 920, w: 240, h: 180, door: { x: 840, y: 1100 }, hasBooks: false },
-            { name: "🧪SCI", x: 1040, y: 920, w: 240, h: 180, door: { x: 1160, y: 1100 }, hasBooks: true }, // КНИГИ ЕСТЬ
-            { name: "🔭ASTR", x: 1360, y: 920, w: 240, h: 180, door: { x: 1480, y: 1100 }, hasBooks: true }, // КНИГИ ЕСТЬ
+            { name: "🧪SCI", x: 1040, y: 920, w: 240, h: 180, door: { x: 1160, y: 1100 }, hasBooks: true },
+            { name: "🔭ASTR", x: 1360, y: 920, w: 240, h: 180, door: { x: 1480, y: 1100 }, hasBooks: true },
             
-            // Пятый ряд (y=1200) - ЕЩЁ КОМНАТЫ С КНИГАМИ!
+            // Ряд 5 (y=1200)
             { name: "🔬BIO", x: 80, y: 1200, w: 240, h: 180, door: { x: 200, y: 1380 }, hasBooks: true },
             { name: "🧪PHY", x: 400, y: 1200, w: 240, h: 180, door: { x: 520, y: 1380 }, hasBooks: true },
             { name: "📊STAT", x: 720, y: 1200, w: 240, h: 180, door: { x: 840, y: 1380 }, hasBooks: true },
             { name: "🎯ARCH", x: 1040, y: 1200, w: 240, h: 180, door: { x: 1160, y: 1380 }, hasBooks: true },
-            { name: "🏛️HALL", x: 1360, y: 1200, w: 240, h: 180, door: { x: 1480, y: 1380 }, hasBooks: false }
+            { name: "🏛️HALL", x: 1360, y: 1200, w: 240, h: 180, door: { x: 1480, y: 1380 }, hasBooks: true }
         ];
 
         const corridors = [
@@ -629,6 +629,27 @@
             return { x: oldX, y: oldY };
         }
 
+        function normalizeAnswer(str) {
+            return str.toLowerCase().trim().replace(/\s+/g, ' ');
+        }
+
+        // ===== ФУНКЦИЯ ДЛЯ ОТПРАВКИ УВЕДОМЛЕНИЯ НА ДОСКУ =====
+        function sendNotificationToBoard(isCorrect, question) {
+            // Создаем запись в Firebase, которую доска прочитает
+            const notificationRef = database.ref('games/' + currentGameId + '/notifications').push();
+            notificationRef.set({
+                playerName: playerName,
+                isCorrect: isCorrect,
+                question: question,
+                timestamp: Date.now()
+            }).then(() => {
+                // Автоматически удаляем через 10 секунд
+                setTimeout(() => {
+                    notificationRef.remove();
+                }, 10000);
+            });
+        }
+
         document.getElementById('joinBtn').onclick = async function() {
             const gameCode = document.getElementById('gameCode').value.trim();
             const name = document.getElementById('playerName').value.trim();
@@ -642,6 +663,8 @@
                 showError('Введи имя');
                 return;
             }
+
+            playerName = name;
 
             try {
                 const snapshot = await database.ref('games/' + gameCode).once('value');
@@ -876,10 +899,6 @@
             });
         }
 
-        function normalizeAnswer(str) {
-            return str.toLowerCase().trim().replace(/\s+/g, ' ');
-        }
-
         function showAnswerFeedback(isCorrect) {
             const feedback = document.getElementById('answerFeedback');
             feedback.textContent = isCorrect ? '✓' : '✗';
@@ -938,6 +957,9 @@
                 (correctAnswer === 'melt away' && (answer === 'disappear' || answer === 'go away' || answer === 'face them')) ||
                 (correctAnswer === 'glossophobia' && (answer === 'public speaking' || answer === 'speaking' || answer === 'speech')) ||
                 (correctAnswer === 'aquaphobia' && (answer === 'water' || answer === 'fear of water'));
+            
+            // ОТПРАВЛЯЕМ УВЕДОМЛЕНИЕ НА ДОСКУ
+            sendNotificationToBoard(isCorrect, currentQuestion.question);
             
             if(isCorrect) {
                 database.ref('games/' + currentGameId + '/books/' + currentQuestion.id).update({ collected: true });
