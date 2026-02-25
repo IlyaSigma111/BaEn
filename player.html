@@ -27,6 +27,7 @@
             justify-content: center;
             align-items: center;
             padding: 10px;
+            image-rendering: pixelated;
         }
 
         .container {
@@ -38,7 +39,7 @@
             background: #1a1a3a;
             padding: 30px 20px;
             border: 4px solid #ffffaa;
-            box-shadow: 8px 8px 0px #000000;
+            box-shadow: 8px 8px 0px #000000, 12px 12px 0px #aa44aa;
             text-align: center;
         }
 
@@ -46,7 +47,7 @@
             color: #ffffaa;
             font-size: 1.5rem;
             margin-bottom: 30px;
-            text-shadow: 3px 3px 0px #aa44aa;
+            text-shadow: 4px 4px 0px #aa44aa, 6px 6px 0px #000000;
         }
 
         .join-screen input, .join-screen select {
@@ -73,12 +74,13 @@
             font-size: 1rem;
             cursor: pointer;
             margin-top: 20px;
-            box-shadow: 6px 6px 0px #000000;
+            box-shadow: 6px 6px 0px #000000, 8px 8px 0px #aa44aa;
+            text-shadow: 2px 2px 0px #88ff88;
         }
 
         .join-screen button:hover {
             transform: translate(-2px, -2px);
-            box-shadow: 8px 8px 0px #000000;
+            box-shadow: 8px 8px 0px #000000, 10px 10px 0px #aa44aa;
         }
 
         .error-message {
@@ -101,7 +103,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 6px 6px 0px #000000;
+            box-shadow: 6px 6px 0px #000000, 8px 0px 0px #aa44aa;
         }
 
         .role-indicator {
@@ -109,6 +111,7 @@
             font-size: 0.6rem;
             border: 2px solid #ffffaa;
             box-shadow: 3px 3px 0px #000000;
+            text-shadow: 1px 1px 0px #000000;
         }
 
         .role-indicator.baldi {
@@ -146,7 +149,7 @@
             padding: 20px;
             border: 4px solid #ffffaa;
             border-top: none;
-            box-shadow: 6px 6px 0px #000000;
+            box-shadow: 6px 6px 0px #000000, 0px 8px 0px #aa44aa;
         }
 
         .joystick {
@@ -177,6 +180,7 @@
             justify-content: space-between;
             margin: 15px 0 10px;
             font-size: 0.6rem;
+            text-shadow: 2px 2px 0px #000000;
         }
 
         .info {
@@ -184,6 +188,7 @@
             color: #8888ff;
             font-size: 0.5rem;
             margin-top: 10px;
+            text-shadow: 1px 1px 0px #000000;
         }
 
         .question-popup {
@@ -194,7 +199,7 @@
             background: #1a1a3a;
             padding: 30px;
             border: 4px solid #ffffaa;
-            box-shadow: 8px 8px 0px #000000;
+            box-shadow: 8px 8px 0px #000000, 12px 12px 0px #aa44aa;
             width: 90%;
             max-width: 350px;
             display: none;
@@ -247,6 +252,7 @@
             font-size: 0.8rem;
             cursor: pointer;
             box-shadow: 5px 5px 0px #000000;
+            text-shadow: 1px 1px 0px #88ff88;
         }
 
         .cooldown-overlay {
@@ -429,6 +435,28 @@
             font-size: 0.4rem;
             border: 2px solid #ffffff;
         }
+
+        .cheat-active-indicator {
+            position: fixed;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #ffaa00;
+            color: #000000;
+            padding: 8px 16px;
+            border: 4px solid #ffffff;
+            box-shadow: 6px 6px 0px #000000;
+            font-size: 0.8rem;
+            z-index: 3000;
+            display: none;
+            animation: pulse 0.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; transform: translateX(-50%) scale(1); }
+            50% { opacity: 0.8; transform: translateX(-50%) scale(1.05); }
+            100% { opacity: 1; transform: translateX(-50%) scale(1); }
+        }
     </style>
 </head>
 <body>
@@ -437,6 +465,7 @@
     <div id="cooldownTimer" class="cooldown-timer" style="display: none;">5</div>
     <div id="answerFeedback" class="answer-feedback"></div>
     <div id="bookNotification" class="book-notification">📚 РЯДОМ ТЕТРАДЬ!</div>
+    <div id="cheatActiveIndicator" class="cheat-active-indicator">⚡ ЧИТ АКТИВЕН ⚡</div>
 
     <div class="container">
         <div id="joinScreen" class="join-screen">
@@ -530,38 +559,30 @@
         let cooldownInterval = null;
         let lastNotificationTime = 0;
         let playerName = '';
+        let cheatModeActive = false;
 
         // ===== КАРТА - 5 РЯДОВ (точно как в board.html) =====
         const rooms = [
-            // Ряд 1 (y=80)
             { name: "🧪LAB", x: 80, y: 80, w: 240, h: 180, door: { x: 200, y: 260 }, hasBooks: true },
             { name: "🔬CHEM", x: 400, y: 80, w: 240, h: 180, door: { x: 520, y: 260 }, hasBooks: true },
             { name: "📚LIB", x: 720, y: 80, w: 240, h: 180, door: { x: 840, y: 260 }, hasBooks: true },
             { name: "🎨ART", x: 1040, y: 80, w: 240, h: 180, door: { x: 1160, y: 260 }, hasBooks: true },
             { name: "📐MATH", x: 1360, y: 80, w: 240, h: 180, door: { x: 1480, y: 260 }, hasBooks: true },
-            
-            // Ряд 2 (y=360)
             { name: "📖ENG", x: 80, y: 360, w: 240, h: 180, door: { x: 200, y: 540 }, hasBooks: true },
             { name: "🌍GEO", x: 400, y: 360, w: 240, h: 180, door: { x: 520, y: 540 }, hasBooks: true },
             { name: "📜HIS", x: 720, y: 360, w: 240, h: 180, door: { x: 840, y: 540 }, hasBooks: true },
             { name: "🎵MUS", x: 1040, y: 360, w: 240, h: 180, door: { x: 1160, y: 540 }, hasBooks: true },
             { name: "🏃GYM", x: 1360, y: 360, w: 240, h: 180, door: { x: 1480, y: 540 }, hasBooks: true },
-            
-            // Ряд 3 (y=640)
             { name: "🎭THEA", x: 80, y: 640, w: 240, h: 180, door: { x: 200, y: 820 }, hasBooks: true },
             { name: "🔧TECH", x: 400, y: 640, w: 240, h: 180, door: { x: 520, y: 820 }, hasBooks: true },
             { name: "💻CS", x: 720, y: 640, w: 240, h: 180, door: { x: 840, y: 820 }, hasBooks: true },
             { name: "⚙️SHOP", x: 1040, y: 640, w: 240, h: 180, door: { x: 1160, y: 820 }, hasBooks: true },
             { name: "🚪LOCK", x: 1360, y: 640, w: 240, h: 180, door: { x: 1480, y: 820 }, hasBooks: true },
-            
-            // Ряд 4 (y=920)
             { name: "🧹CLN", x: 80, y: 920, w: 240, h: 180, door: { x: 200, y: 1100 }, hasBooks: false },
             { name: "🔋PWR", x: 400, y: 920, w: 240, h: 180, door: { x: 520, y: 1100 }, hasBooks: false },
             { name: "📦STOR", x: 720, y: 920, w: 240, h: 180, door: { x: 840, y: 1100 }, hasBooks: false },
             { name: "🧪SCI", x: 1040, y: 920, w: 240, h: 180, door: { x: 1160, y: 1100 }, hasBooks: true },
             { name: "🔭ASTR", x: 1360, y: 920, w: 240, h: 180, door: { x: 1480, y: 1100 }, hasBooks: true },
-            
-            // Ряд 5 (y=1200)
             { name: "🔬BIO", x: 80, y: 1200, w: 240, h: 180, door: { x: 200, y: 1380 }, hasBooks: true },
             { name: "🧪PHY", x: 400, y: 1200, w: 240, h: 180, door: { x: 520, y: 1380 }, hasBooks: true },
             { name: "📊STAT", x: 720, y: 1200, w: 240, h: 180, door: { x: 840, y: 1380 }, hasBooks: true },
@@ -633,9 +654,10 @@
             return str.toLowerCase().trim().replace(/\s+/g, ' ');
         }
 
-        // ===== ФУНКЦИЯ ДЛЯ ОТПРАВКИ УВЕДОМЛЕНИЯ НА ДОСКУ =====
+        // ===== ФУНКЦИЯ ДЛЯ ОТПРАВКИ УВЕДОМЛЕНИЯ =====
         function sendNotificationToBoard(isCorrect, question) {
-            // Создаем запись в Firebase, которую доска прочитает
+            if(!currentGameId) return;
+            
             const notificationRef = database.ref('games/' + currentGameId + '/notifications').push();
             notificationRef.set({
                 playerName: playerName,
@@ -643,7 +665,6 @@
                 question: question,
                 timestamp: Date.now()
             }).then(() => {
-                // Автоматически удаляем через 10 секунд
                 setTimeout(() => {
                     notificationRef.remove();
                 }, 10000);
@@ -661,6 +682,10 @@
             }
             if(!name) {
                 showError('Введи имя');
+                return;
+            }
+            if(name.length > 15) {
+                showError('Имя слишком длинное');
                 return;
             }
 
@@ -768,6 +793,25 @@
             const canvas = document.getElementById('gameCanvas');
             const ctx = canvas.getContext('2d');
             const boundaryEl = document.getElementById('mapBoundary');
+            const cheatIndicator = document.getElementById('cheatActiveIndicator');
+
+            // Слушаем чит-режим
+            database.ref('games/' + currentGameId + '/cheatMode').on('value', (snapshot) => {
+                const cheat = snapshot.val();
+                if(cheat && cheat.active) {
+                    cheatModeActive = true;
+                    cheatIndicator.style.display = 'block';
+                    
+                    // Автоматически отключаем через 30 секунд
+                    setTimeout(() => {
+                        cheatModeActive = false;
+                        cheatIndicator.style.display = 'none';
+                    }, 30000);
+                } else {
+                    cheatModeActive = false;
+                    cheatIndicator.style.display = 'none';
+                }
+            });
 
             const joystick = document.getElementById('joystick');
             const handle = document.getElementById('joystickHandle');
@@ -824,7 +868,6 @@
                     if(!player || player.caught || player.escaped) return;
                     const newPos = tryMove(player.x, player.y, player.x + velocityX, player.y + velocityY);
                     
-                    // Показываем границу если близко к краю
                     if(newPos.x < 100 || newPos.x > 1900 || newPos.y < 100 || newPos.y > 1900) {
                         boundaryEl.classList.add('visible');
                     } else {
@@ -931,34 +974,43 @@
             const answer = normalizeAnswer(document.getElementById('answerInput').value);
             const correctAnswer = normalizeAnswer(currentQuestion.answer);
             
-            // ВСЕ ВАРИАНТЫ ПРАВИЛЬНЫХ ОТВЕТОВ
-            const isCorrect = 
-                answer === correctAnswer ||
-                correctAnswer.includes(answer) ||
-                answer.includes(correctAnswer) ||
-                // Специальные случаи
-                (correctAnswer === 'acrophobia' && (answer === 'heights' || answer === 'fear of heights')) ||
-                (correctAnswer === 'claustrophobia' && (answer === 'enclosed' || answer === 'small spaces')) ||
-                (correctAnswer === 'arachnophobia' && (answer === 'spiders' || answer === 'fear of spiders')) ||
-                (correctAnswer === 'agoraphobia' && (answer === 'crowds' || answer === 'open spaces')) ||
-                (correctAnswer === 'aerophobia' && (answer === 'flying' || answer === 'fear of flying')) ||
-                (correctAnswer === 'fight or flight' && (answer === 'fight' || answer === 'flight' || answer === 'response')) ||
-                (correctAnswer === 'fear' && (answer === 'fear helps' || answer === 'survival')) ||
-                (correctAnswer === 'albutophobia' && (answer === 'washing' || answer === 'fear of washing')) ||
-                (correctAnswer === '5 to 10%' && (answer === '5%' || answer === '10%' || answer === 'five percent')) ||
-                (correctAnswer === 'avoiding' && (answer === 'avoid' || answer === 'stop avoiding')) ||
-                (correctAnswer === 'fears' && (answer === 'list of fears' || answer === 'my fears')) ||
-                (correctAnswer === 'beats faster' && (answer === 'faster' || answer === 'heart beats')) ||
-                (correctAnswer === 'seeing a dog' && (answer === 'dog' || answer === 'see a dog' || answer === 'the dog')) ||
-                (correctAnswer === 'phobia' && (answer === 'phobia of bees' || answer === 'bee phobia')) ||
-                (correctAnswer === 'seconds' && (answer === 'a few seconds' || answer === 'quick')) ||
-                (correctAnswer === 'thinking' && (answer === 'thoughts' || answer === 'overthinking')) ||
-                (correctAnswer === 'being teased' && (answer === 'teased' || answer === 'teasing' || answer === 'embarrassed')) ||
-                (correctAnswer === 'melt away' && (answer === 'disappear' || answer === 'go away' || answer === 'face them')) ||
-                (correctAnswer === 'glossophobia' && (answer === 'public speaking' || answer === 'speaking' || answer === 'speech')) ||
-                (correctAnswer === 'aquaphobia' && (answer === 'water' || answer === 'fear of water'));
+            // Если ответ пустой - НЕ ЗАСЧИТЫВАЕМ
+            if(answer === '') {
+                showNotification('❌ ВВЕДИ ОТВЕТ!');
+                return;
+            }
             
-            // ОТПРАВЛЯЕМ УВЕДОМЛЕНИЕ НА ДОСКУ
+            // Проверяем чит-режим
+            let isCorrect;
+            if(cheatModeActive) {
+                isCorrect = true; // В чите все ответы правильные
+            } else {
+                isCorrect = 
+                    answer === correctAnswer ||
+                    correctAnswer.includes(answer) ||
+                    answer.includes(correctAnswer) ||
+                    (correctAnswer === 'acrophobia' && (answer === 'heights' || answer === 'fear of heights')) ||
+                    (correctAnswer === 'claustrophobia' && (answer === 'enclosed' || answer === 'small spaces')) ||
+                    (correctAnswer === 'arachnophobia' && (answer === 'spiders' || answer === 'fear of spiders')) ||
+                    (correctAnswer === 'agoraphobia' && (answer === 'crowds' || answer === 'open spaces')) ||
+                    (correctAnswer === 'aerophobia' && (answer === 'flying' || answer === 'fear of flying')) ||
+                    (correctAnswer === 'fight or flight' && (answer === 'fight' || answer === 'flight' || answer === 'response')) ||
+                    (correctAnswer === 'fear' && (answer === 'fear helps' || answer === 'survival')) ||
+                    (correctAnswer === 'albutophobia' && (answer === 'washing' || answer === 'fear of washing')) ||
+                    (correctAnswer === '5 to 10%' && (answer === '5%' || answer === '10%' || answer === 'five percent')) ||
+                    (correctAnswer === 'avoiding' && (answer === 'avoid' || answer === 'stop avoiding')) ||
+                    (correctAnswer === 'fears' && (answer === 'list of fears' || answer === 'my fears')) ||
+                    (correctAnswer === 'beats faster' && (answer === 'faster' || answer === 'heart beats')) ||
+                    (correctAnswer === 'seeing a dog' && (answer === 'dog' || answer === 'see a dog' || answer === 'the dog')) ||
+                    (correctAnswer === 'phobia' && (answer === 'phobia of bees' || answer === 'bee phobia')) ||
+                    (correctAnswer === 'seconds' && (answer === 'a few seconds' || answer === 'quick')) ||
+                    (correctAnswer === 'thinking' && (answer === 'thoughts' || answer === 'overthinking')) ||
+                    (correctAnswer === 'being teased' && (answer === 'teased' || answer === 'teasing' || answer === 'embarrassed')) ||
+                    (correctAnswer === 'melt away' && (answer === 'disappear' || answer === 'go away' || answer === 'face them')) ||
+                    (correctAnswer === 'glossophobia' && (answer === 'public speaking' || answer === 'speaking' || answer === 'speech')) ||
+                    (correctAnswer === 'aquaphobia' && (answer === 'water' || answer === 'fear of water'));
+            }
+            
             sendNotificationToBoard(isCorrect, currentQuestion.question);
             
             if(isCorrect) {
@@ -1006,25 +1058,21 @@
                 document.getElementById('currentRoom').classList.add('visible');
             }
 
-            // Пол
             ctx.fillStyle = '#1a1a2a';
             ctx.fillRect(0, 0, 400, 400);
             
-            // Коридоры
             ctx.fillStyle = '#3a3a5a';
             corridors.forEach(c => {
                 const sx = c.x - offsetX, sy = c.y - offsetY;
                 if(sx > -100 && sx < 500 && sy > -100 && sy < 500) ctx.fillRect(sx, sy, c.w, c.h);
             });
             
-            // Стены
             ctx.fillStyle = '#4a4a7a';
             walls.forEach(w => {
                 const sx = w.x - offsetX, sy = w.y - offsetY;
                 if(sx > -100 && sx < 500 && sy > -100 && sy < 500) ctx.fillRect(sx, sy, w.w, w.h);
             });
             
-            // Комнаты
             rooms.forEach(r => {
                 const sx = r.x - offsetX, sy = r.y - offsetY;
                 if(sx > -100 && sx < 500 && sy > -100 && sy < 500) {
@@ -1046,7 +1094,6 @@
                 }
             });
             
-            // Книги
             if(game.books && currentRoom) {
                 Object.values(game.books).forEach(b => {
                     if(!b.collected && getCurrentRoom(b.x, b.y)?.name === currentRoom.name) {
@@ -1065,7 +1112,6 @@
                 });
             }
             
-            // Выход
             if(game.exit && game.exit.active) {
                 const ex = game.exit.x - offsetX, ey = game.exit.y - offsetY;
                 if(ex > 0 && ex < 400 && ey > 0 && ey < 400) {
@@ -1077,7 +1123,6 @@
                 }
             }
             
-            // Другие игроки
             Object.entries(game.players || {}).forEach(([id, p]) => {
                 if(id === playerId || p.escaped) return;
                 const px = p.x - offsetX, py = p.y - offsetY;
@@ -1115,7 +1160,6 @@
                 }
             });
             
-            // Сам игрок
             ctx.shadowColor = playerRole === 'baldi' ? '#ff5555' : '#ffaa00';
             ctx.shadowBlur = 15;
             ctx.fillStyle = playerRole === 'baldi' ? '#ff5555' : '#ffaa00';
@@ -1127,7 +1171,6 @@
             ctx.font = '14px "Press Start 2P"';
             ctx.fillText(playerRole === 'baldi' ? '👨‍🏫' : '🧑', 190, 203);
             
-            // Компас
             if(player.y < 300) document.getElementById('compass').innerHTML = '⬆️ СЕВЕР';
             else if(player.y > 1600) document.getElementById('compass').innerHTML = '⬇️ ЮГ';
             else if(player.x < 300) document.getElementById('compass').innerHTML = '⬅️ ЗАПАД';
