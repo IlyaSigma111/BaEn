@@ -277,6 +277,7 @@
             cursor: pointer;
             box-shadow: 3px 3px 0px #000000;
             text-shadow: 1px 1px 0px #000000;
+            transition: all 0.1s ease;
         }
 
         .canvas-btn:hover {
@@ -287,7 +288,7 @@
         /* СЕКРЕТНАЯ КНОПКА (чуть правее автобалди) */
         .secret-cheat-btn {
             position: absolute;
-            left: 220px;  /* Чуть правее кнопки автобалди */
+            left: 220px;
             top: 20px;
             width: 30px;
             height: 30px;
@@ -299,50 +300,6 @@
 
         .secret-cheat-btn:hover {
             background: rgba(255,255,170,0.1);
-        }
-
-        .cheat-timer {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: #ffaa00;
-            color: #000000;
-            padding: 30px;
-            border: 6px solid #ffffff;
-            box-shadow: 10px 10px 0px #000000;
-            font-size: 3rem;
-            z-index: 2000;
-            display: none;
-            animation: pulse 1s infinite;
-        }
-
-        @keyframes pulse {
-            0% { transform: translate(-50%, -50%) scale(1); }
-            50% { transform: translate(-50%, -50%) scale(1.1); }
-            100% { transform: translate(-50%, -50%) scale(1); }
-        }
-
-        .cheat-active {
-            position: fixed;
-            top: 10px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #ffaa00;
-            color: #000000;
-            padding: 10px 20px;
-            border: 4px solid #ffffff;
-            box-shadow: 6px 6px 0px #000000;
-            font-size: 1rem;
-            z-index: 1500;
-            display: none;
-            animation: blink 0.5s infinite;
-        }
-
-        @keyframes blink {
-            0% { opacity: 1; }
-            50% { opacity: 0.5; }
-            100% { opacity: 1; }
         }
 
         .stats {
@@ -443,8 +400,6 @@
         </div>
     </div>
 
-    <div id="cheatTimer" class="cheat-timer">30</div>
-    <div id="cheatActive" class="cheat-active">⚡ ЧИТ 30 СЕК ⚡</div>
     <div id="zoomIndicator" class="zoom-indicator">x0.5</div>
 
     <script>
@@ -474,42 +429,41 @@
         let baldiTargetY = 1000;
         let lastPatrolTime = 0;
 
-        // ===== Чит режим =====
+        // ===== Чит режим (секретный) =====
         let cheatModeActive = false;
         let cheatTimerInterval = null;
-        let cheatTimeLeft = 0;
 
-        // ===== КАРТА - 5 РЯДОВ С РАЗНЫМИ ЦВЕТАМИ (16-бит) =====
+        // ===== КАРТА - 5 РЯДОВ С РАЗНЫМИ ЦВЕТАМИ =====
         const rooms = [
-            // Ряд 1 (y=80) - фиолетовые тона
+            // Ряд 1 (y=80)
             { name: "🧪LAB", x: 80, y: 80, w: 240, h: 180, door: { x: 200, y: 260 }, hasBooks: true, color: "#8b4f8f" },
             { name: "🔬CHEM", x: 400, y: 80, w: 240, h: 180, door: { x: 520, y: 260 }, hasBooks: true, color: "#6f4f8f" },
             { name: "📚LIB", x: 720, y: 80, w: 240, h: 180, door: { x: 840, y: 260 }, hasBooks: true, color: "#8f4f6f" },
             { name: "🎨ART", x: 1040, y: 80, w: 240, h: 180, door: { x: 1160, y: 260 }, hasBooks: true, color: "#8f6f4f" },
             { name: "📐MATH", x: 1360, y: 80, w: 240, h: 180, door: { x: 1480, y: 260 }, hasBooks: true, color: "#4f8f8f" },
             
-            // Ряд 2 (y=360) - зеленые тона
+            // Ряд 2 (y=360)
             { name: "📖ENG", x: 80, y: 360, w: 240, h: 180, door: { x: 200, y: 540 }, hasBooks: true, color: "#4f8f6b" },
             { name: "🌍GEO", x: 400, y: 360, w: 240, h: 180, door: { x: 520, y: 540 }, hasBooks: true, color: "#6b8f4f" },
             { name: "📜HIS", x: 720, y: 360, w: 240, h: 180, door: { x: 840, y: 540 }, hasBooks: true, color: "#8f8f4f" },
             { name: "🎵MUS", x: 1040, y: 360, w: 240, h: 180, door: { x: 1160, y: 540 }, hasBooks: true, color: "#8f4f4f" },
             { name: "🏃GYM", x: 1360, y: 360, w: 240, h: 180, door: { x: 1480, y: 540 }, hasBooks: true, color: "#4f4f8f" },
             
-            // Ряд 3 (y=640) - синие тона
+            // Ряд 3 (y=640)
             { name: "🎭THEA", x: 80, y: 640, w: 240, h: 180, door: { x: 200, y: 820 }, hasBooks: true, color: "#4f6b8f" },
             { name: "🔧TECH", x: 400, y: 640, w: 240, h: 180, door: { x: 520, y: 820 }, hasBooks: true, color: "#6b8f8f" },
             { name: "💻CS", x: 720, y: 640, w: 240, h: 180, door: { x: 840, y: 820 }, hasBooks: true, color: "#8f8f6b" },
             { name: "⚙️SHOP", x: 1040, y: 640, w: 240, h: 180, door: { x: 1160, y: 820 }, hasBooks: true, color: "#8f6b8f" },
             { name: "🚪LOCK", x: 1360, y: 640, w: 240, h: 180, door: { x: 1480, y: 820 }, hasBooks: true, color: "#6b6b8f" },
             
-            // Ряд 4 (y=920) - красные тона
+            // Ряд 4 (y=920)
             { name: "🧹CLN", x: 80, y: 920, w: 240, h: 180, door: { x: 200, y: 1100 }, hasBooks: false, color: "#5a5a5a" },
             { name: "🔋PWR", x: 400, y: 920, w: 240, h: 180, door: { x: 520, y: 1100 }, hasBooks: false, color: "#5a5a5a" },
             { name: "📦STOR", x: 720, y: 920, w: 240, h: 180, door: { x: 840, y: 1100 }, hasBooks: false, color: "#5a5a5a" },
             { name: "🧪SCI", x: 1040, y: 920, w: 240, h: 180, door: { x: 1160, y: 1100 }, hasBooks: true, color: "#8f4f5a" },
             { name: "🔭ASTR", x: 1360, y: 920, w: 240, h: 180, door: { x: 1480, y: 1100 }, hasBooks: true, color: "#5a8f4f" },
             
-            // Ряд 5 (y=1200) - желтые тона
+            // Ряд 5 (y=1200)
             { name: "🔬BIO", x: 80, y: 1200, w: 240, h: 180, door: { x: 200, y: 1380 }, hasBooks: true, color: "#8f8f4f" },
             { name: "🧪PHY", x: 400, y: 1200, w: 240, h: 180, door: { x: 520, y: 1380 }, hasBooks: true, color: "#8f4f8f" },
             { name: "📊STAT", x: 720, y: 1200, w: 240, h: 180, door: { x: 840, y: 1380 }, hasBooks: true, color: "#4f8f8f" },
@@ -591,7 +545,6 @@
             let bookIndex = 0;
             const roomsWithBooks = rooms.filter(r => r.hasBooks);
             
-            // Перемешиваем комнаты
             const shuffledRooms = [...roomsWithBooks].sort(() => Math.random() - 0.5);
             
             for(let i = 0; i < 20; i++) {
@@ -613,41 +566,51 @@
             return books;
         }
 
-        // ===== СЕКРЕТНЫЙ ЧИТ =====
+        // ===== ЭФФЕКТ ВСПЫШКИ ДЛЯ КНОПОК =====
+        function flashButtons() {
+            const buttons = document.querySelectorAll('.canvas-btn');
+            buttons.forEach(btn => {
+                btn.style.transition = 'all 0.1s ease';
+                btn.style.transform = 'scale(1.1)';
+                btn.style.boxShadow = '0 0 20px #ffffaa, 0 0 40px #ffaa00';
+                btn.style.backgroundColor = '#ffffaa';
+                btn.style.color = '#000000';
+                
+                setTimeout(() => {
+                    btn.style.transform = 'scale(1)';
+                    btn.style.boxShadow = '3px 3px 0px #000000';
+                    btn.style.backgroundColor = '#2a2a4a';
+                    btn.style.color = '#ffffaa';
+                }, 200);
+            });
+        }
+
+        // ===== СЕКРЕТНЫЙ ЧИТ (только вспышка, без индикаторов) =====
         function activateCheatMode() {
-            if(cheatModeActive) return;
+            if(cheatModeActive) {
+                // Если уже активен, просто продлеваем
+                if(cheatTimerInterval) clearInterval(cheatTimerInterval);
+            } else {
+                cheatModeActive = true;
+            }
             
-            cheatModeActive = true;
-            cheatTimeLeft = 30;
+            // Вспышка кнопок
+            flashButtons();
             
-            // Показываем таймер
-            const timerEl = document.getElementById('cheatTimer');
-            const activeEl = document.getElementById('cheatActive');
-            timerEl.style.display = 'block';
-            activeEl.style.display = 'block';
-            
-            // Записываем в Firebase что чит активен
+            // Активируем на 30 секунд
             database.ref('games/' + currentGameId + '/cheatMode').set({
                 active: true,
                 expiresAt: Date.now() + 30000
             });
             
-            // Таймер обратного отсчета
+            // Таймер автоматического отключения через 30 секунд
             if(cheatTimerInterval) clearInterval(cheatTimerInterval);
-            cheatTimerInterval = setInterval(() => {
-                cheatTimeLeft--;
-                timerEl.textContent = cheatTimeLeft;
-                
-                if(cheatTimeLeft <= 0) {
-                    clearInterval(cheatTimerInterval);
-                    cheatModeActive = false;
-                    timerEl.style.display = 'none';
-                    activeEl.style.display = 'none';
-                    database.ref('games/' + currentGameId + '/cheatMode').set({
-                        active: false
-                    });
-                }
-            }, 1000);
+            cheatTimerInterval = setTimeout(() => {
+                cheatModeActive = false;
+                database.ref('games/' + currentGameId + '/cheatMode').set({
+                    active: false
+                });
+            }, 30000);
         }
 
         document.getElementById('secretCheatBtn').onclick = function() {
@@ -950,7 +913,6 @@
             const canvas = document.getElementById('gameCanvas');
             const ctx = canvas.getContext('2d');
             
-            // Слушаем уведомления из Firebase
             database.ref('games/' + currentGameId + '/notifications').on('child_added', (snapshot) => {
                 const notif = snapshot.val();
                 if(notif) {
@@ -970,11 +932,9 @@
         function drawMap(ctx, game) {
             ctx.clearRect(0, 0, 2000, 2000);
             
-            // Пол с пиксельной текстурой
             ctx.fillStyle = '#1a1a2a';
             ctx.fillRect(0, 0, 2000, 2000);
             
-            // Пиксельная сетка
             ctx.strokeStyle = '#2a2a3a';
             ctx.lineWidth = 1;
             for(let i = 0; i <= 2000; i += 40) {
@@ -988,59 +948,31 @@
                 ctx.stroke();
             }
             
-            // Коридоры с текстурой
             ctx.fillStyle = '#3a3a5a';
             corridors.forEach(c => {
                 ctx.fillRect(c.x, c.y, c.w, c.h);
-                // Добавляем пиксельный узор
-                ctx.fillStyle = '#4a4a6a';
-                for(let i = 0; i < c.w; i += 20) {
-                    for(let j = 0; j < c.h; j += 20) {
-                        if((i + j) % 40 === 0) {
-                            ctx.fillRect(c.x + i, c.y + j, 10, 10);
-                        }
-                    }
-                }
-                ctx.fillStyle = '#3a3a5a';
             });
             
-            // Стены
             ctx.fillStyle = '#4a4a7a';
             walls.forEach(w => ctx.fillRect(w.x, w.y, w.w, w.h));
             
-            // Комнаты с разными цветами
             rooms.forEach(r => {
-                // Основной цвет комнаты
                 ctx.fillStyle = r.color || '#4a4a6a';
                 ctx.fillRect(r.x, r.y, r.w, r.h);
                 
-                // Пиксельная текстура комнаты
-                ctx.fillStyle = r.color ? lightenColor(r.color, 20) : '#5a5a7a';
-                for(let i = 0; i < r.w; i += 20) {
-                    for(let j = 0; j < r.h; j += 20) {
-                        if((i + j) % 40 === 0) {
-                            ctx.fillRect(r.x + i, r.y + j, 8, 8);
-                        }
-                    }
-                }
-                
-                // Рамка комнаты
                 ctx.strokeStyle = '#ffffaa';
                 ctx.lineWidth = 3;
                 ctx.strokeRect(r.x, r.y, r.w, r.h);
                 
-                // Дверь
                 ctx.fillStyle = '#8b5a2b';
                 ctx.fillRect(r.door.x-15, r.door.y-8, 30, 16);
                 ctx.fillStyle = '#ffaa00';
                 ctx.fillRect(r.door.x-5, r.door.y-3, 10, 6);
                 
-                // Название комнаты
                 ctx.fillStyle = '#ffffaa';
                 ctx.font = 'bold 10px "Press Start 2P"';
                 ctx.fillText(r.name, r.x+15, r.y+30);
                 
-                // Иконка книги если есть
                 if(r.hasBooks) {
                     ctx.fillStyle = '#ffaa00';
                     ctx.font = '16px "Press Start 2P"';
@@ -1048,7 +980,6 @@
                 }
             });
             
-            // Книги
             if(game.books) {
                 Object.values(game.books).forEach(b => {
                     if(!b.collected) {
@@ -1064,7 +995,6 @@
                 });
             }
             
-            // Игроки
             if(game.players) {
                 Object.values(game.players).forEach(p => {
                     if(p.escaped) return;
@@ -1098,7 +1028,6 @@
                 });
             }
             
-            // Выход
             if(game.exit) {
                 ctx.fillStyle = game.exit.active ? '#44ff44' : '#666666';
                 ctx.shadowColor = game.exit.active ? '#44ff44' : '#666666';
@@ -1111,11 +1040,6 @@
             }
             
             ctx.shadowBlur = 0;
-        }
-
-        function lightenColor(color, percent) {
-            // Упрощенная функция осветления цвета
-            return color; // Для простоты оставляем тот же цвет
         }
 
         function updateStats(game) {
@@ -1133,7 +1057,7 @@
                 database.ref('games/' + currentGameId).remove();
             }
             if(baldiAIInterval) clearInterval(baldiAIInterval);
-            if(cheatTimerInterval) clearInterval(cheatTimerInterval);
+            if(cheatTimerInterval) clearTimeout(cheatTimerInterval);
         });
     </script>
 </body>
