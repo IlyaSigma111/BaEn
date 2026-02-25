@@ -484,55 +484,110 @@
         let cooldownInterval = null;
         let lastNotificationTime = 0;
 
-        // ========== КАРТА (та же что в board.html) ==========
+        // ========== КАРТА (ТОЧНО ТАКАЯ ЖЕ КАК В board.html) ==========
         const rooms = [
-            { name: "🧪 ЛАБ", x: 150, y: 150, w: 250, h: 200, door: { x: 275, y: 350 }, hasBooks: true },
-            { name: "🔬 ХИМИЯ", x: 550, y: 150, w: 250, h: 200, door: { x: 675, y: 350 }, hasBooks: true },
-            { name: "📚 БИБЛ", x: 950, y: 150, w: 250, h: 200, door: { x: 1075, y: 350 }, hasBooks: true },
-            { name: "🎨 МАСТ", x: 1350, y: 150, w: 250, h: 200, door: { x: 1475, y: 350 }, hasBooks: true },
-            { name: "📐 МАТЕМ", x: 150, y: 550, w: 250, h: 200, door: { x: 275, y: 750 }, hasBooks: true },
-            { name: "📖 АНГЛ", x: 550, y: 550, w: 250, h: 200, door: { x: 675, y: 750 }, hasBooks: true },
-            { name: "🌍 ГЕО", x: 950, y: 550, w: 250, h: 200, door: { x: 1075, y: 750 }, hasBooks: true },
-            { name: "📜 ИСТ", x: 1350, y: 550, w: 250, h: 200, door: { x: 1475, y: 750 }, hasBooks: true },
-            { name: "🎵 МУЗ", x: 150, y: 950, w: 250, h: 200, door: { x: 275, y: 1150 }, hasBooks: true },
-            { name: "🏃 СПОРТ", x: 550, y: 950, w: 250, h: 200, door: { x: 675, y: 1150 }, hasBooks: true },
-            { name: "🎭 ТЕАТР", x: 950, y: 950, w: 250, h: 200, door: { x: 1075, y: 1150 }, hasBooks: true },
-            { name: "🔧 ТЕХ", x: 1350, y: 950, w: 250, h: 200, door: { x: 1475, y: 1150 }, hasBooks: true },
-            { name: "💻 ИНФ", x: 150, y: 1350, w: 250, h: 200, door: { x: 275, y: 1550 }, hasBooks: false },
-            { name: "⚙️ ПОД", x: 550, y: 1350, w: 250, h: 200, door: { x: 675, y: 1550 }, hasBooks: false },
-            { name: "🚪 ГАРД", x: 950, y: 1350, w: 250, h: 200, door: { x: 1075, y: 1550 }, hasBooks: false },
-            { name: "🧹 КЛАД", x: 1350, y: 1350, w: 250, h: 200, door: { x: 1475, y: 1550 }, hasBooks: false }
+            // Первый ряд
+            { name: "🧪 ЛАБ", x: 100, y: 100, w: 250, h: 200, door: { x: 225, y: 300 }, hasBooks: true },
+            { name: "🔬 ХИМИЯ", x: 450, y: 100, w: 250, h: 200, door: { x: 575, y: 300 }, hasBooks: true },
+            { name: "📚 БИБЛ", x: 800, y: 100, w: 250, h: 200, door: { x: 925, y: 300 }, hasBooks: true },
+            { name: "🎨 МАСТ", x: 1150, y: 100, w: 250, h: 200, door: { x: 1275, y: 300 }, hasBooks: true },
+            { name: "📐 МАТЕМ", x: 1500, y: 100, w: 250, h: 200, door: { x: 1625, y: 300 }, hasBooks: true },
+            
+            // Второй ряд
+            { name: "📖 АНГЛ", x: 100, y: 450, w: 250, h: 200, door: { x: 225, y: 650 }, hasBooks: true },
+            { name: "🌍 ГЕО", x: 450, y: 450, w: 250, h: 200, door: { x: 575, y: 650 }, hasBooks: true },
+            { name: "📜 ИСТ", x: 800, y: 450, w: 250, h: 200, door: { x: 925, y: 650 }, hasBooks: true },
+            { name: "🎵 МУЗ", x: 1150, y: 450, w: 250, h: 200, door: { x: 1275, y: 650 }, hasBooks: true },
+            { name: "🏃 СПОРТ", x: 1500, y: 450, w: 250, h: 200, door: { x: 1625, y: 650 }, hasBooks: true },
+            
+            // Третий ряд
+            { name: "🎭 ТЕАТР", x: 100, y: 800, w: 250, h: 200, door: { x: 225, y: 1000 }, hasBooks: true },
+            { name: "🔧 ТЕХ", x: 450, y: 800, w: 250, h: 200, door: { x: 575, y: 1000 }, hasBooks: true },
+            { name: "💻 ИНФ", x: 800, y: 800, w: 250, h: 200, door: { x: 925, y: 1000 }, hasBooks: true },
+            { name: "⚙️ ПОД", x: 1150, y: 800, w: 250, h: 200, door: { x: 1275, y: 1000 }, hasBooks: true },
+            { name: "🚪 ГАРД", x: 1500, y: 800, w: 250, h: 200, door: { x: 1625, y: 1000 }, hasBooks: false },
+            
+            // Четвертый ряд
+            { name: "🧹 КЛАД", x: 100, y: 1150, w: 250, h: 200, door: { x: 225, y: 1350 }, hasBooks: false },
+            { name: "🔋 ЭНЕР", x: 450, y: 1150, w: 250, h: 200, door: { x: 575, y: 1350 }, hasBooks: false },
+            { name: "📦 СКЛАД", x: 800, y: 1150, w: 250, h: 200, door: { x: 925, y: 1350 }, hasBooks: false },
+            { name: "🧪 НАУКА", x: 1150, y: 1150, w: 250, h: 200, door: { x: 1275, y: 1350 }, hasBooks: true },
+            { name: "🔭 АСТРО", x: 1500, y: 1150, w: 250, h: 200, door: { x: 1625, y: 1350 }, hasBooks: true }
         ];
 
         const corridors = [
-            { x: 0, y: 400, w: 2000, h: 100 },
-            { x: 0, y: 800, w: 2000, h: 100 },
-            { x: 0, y: 1200, w: 2000, h: 100 },
-            { x: 0, y: 1600, w: 2000, h: 100 },
-            { x: 400, y: 0, w: 100, h: 2000 },
-            { x: 800, y: 0, w: 100, h: 2000 },
-            { x: 1200, y: 0, w: 100, h: 2000 },
-            { x: 1600, y: 0, w: 100, h: 2000 }
+            { x: 0, y: 350, w: 2000, h: 50 },
+            { x: 0, y: 700, w: 2000, h: 50 },
+            { x: 0, y: 1050, w: 2000, h: 50 },
+            { x: 0, y: 1400, w: 2000, h: 50 },
+            { x: 350, y: 0, w: 50, h: 2000 },
+            { x: 700, y: 0, w: 50, h: 2000 },
+            { x: 1050, y: 0, w: 50, h: 2000 },
+            { x: 1400, y: 0, w: 50, h: 2000 },
+            { x: 1750, y: 0, w: 50, h: 2000 }
         ];
 
         const walls = [
-            { x: 0, y: 0, w: 2000, h: 40 },
-            { x: 0, y: 1960, w: 2000, h: 40 },
-            { x: 0, y: 0, w: 40, h: 2000 },
-            { x: 1960, y: 0, w: 40, h: 2000 },
-            { x: 400, y: 0, w: 40, h: 400 },
-            { x: 800, y: 0, w: 40, h: 400 },
-            { x: 1200, y: 0, w: 40, h: 400 },
-            { x: 1600, y: 0, w: 40, h: 400 },
-            { x: 400, y: 600, w: 40, h: 400 },
-            { x: 800, y: 600, w: 40, h: 400 },
-            { x: 1200, y: 600, w: 40, h: 400 },
-            { x: 1600, y: 600, w: 40, h: 400 },
-            { x: 400, y: 1200, w: 40, h: 400 },
-            { x: 800, y: 1200, w: 40, h: 400 },
-            { x: 1200, y: 1200, w: 40, h: 400 },
-            { x: 1600, y: 1200, w: 40, h: 400 }
+            { x: 0, y: 0, w: 2000, h: 30 },
+            { x: 0, y: 1970, w: 2000, h: 30 },
+            { x: 0, y: 0, w: 30, h: 2000 },
+            { x: 1970, y: 0, w: 30, h: 2000 }
         ];
+
+        function getCurrentRoom(x, y) {
+            for(let room of rooms) {
+                if(x > room.x && x < room.x + room.w && y > room.y && y < room.y + room.h) {
+                    return room;
+                }
+            }
+            return null;
+        }
+
+        function isInCorridor(x, y) {
+            for(let cor of corridors) {
+                if(x > cor.x && x < cor.x + cor.w && y > cor.y && y < cor.y + cor.h) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        function checkCollision(x, y) {
+            if(x < 35 || x > 1965 || y < 35 || y > 1965) return true;
+
+            for(let wall of walls) {
+                if(x > wall.x && x < wall.x + wall.w && y > wall.y && y < wall.y + wall.h) {
+                    return true;
+                }
+            }
+
+            for(let room of rooms) {
+                if(x > room.x && x < room.x + room.w && y > room.y && y < room.y + room.h) {
+                    return false;
+                }
+                
+                const nearRoom = x > room.x - 15 && x < room.x + room.w + 15 && 
+                                 y > room.y - 15 && y < room.y + room.h + 15;
+                
+                if(nearRoom) {
+                    const distToDoor = Math.hypot(x - room.door.x, y - room.door.y);
+                    if(distToDoor < 40) return false;
+                    
+                    if(isInCorridor(x, y)) return false;
+                    
+                    return true;
+                }
+            }
+            
+            return false;
+        }
+
+        function tryMove(oldX, oldY, targetX, targetY) {
+            if(!checkCollision(targetX, targetY)) return { x: targetX, y: targetY };
+            if(!checkCollision(targetX, oldY)) return { x: targetX, y: oldY };
+            if(!checkCollision(oldX, targetY)) return { x: oldX, y: targetY };
+            return { x: oldX, y: oldY };
+        }
 
         document.getElementById('joinBtn').onclick = async function() {
             const gameCode = document.getElementById('gameCode').value.trim();
@@ -578,13 +633,11 @@
                 currentGameId = gameCode;
                 playerRole = role;
 
-                // Стартовые позиции
                 let startX, startY;
                 if(role === 'baldi') {
                     startX = 1000;
                     startY = 1000;
                 } else {
-                    // Ученик спавнится в случайной комнате с книгами
                     const roomsWithBooks = rooms.filter(r => r.hasBooks);
                     const spawnRoom = roomsWithBooks[Math.floor(Math.random() * roomsWithBooks.length)];
                     startX = spawnRoom.x + 50 + Math.random() * (spawnRoom.w - 100);
@@ -619,63 +672,6 @@
             errorEl.textContent = text;
             errorEl.style.display = 'block';
             setTimeout(() => errorEl.style.display = 'none', 3000);
-        }
-
-        function getCurrentRoom(x, y) {
-            for(let room of rooms) {
-                if(x > room.x && x < room.x + room.w && y > room.y && y < room.y + room.h) {
-                    return room;
-                }
-            }
-            return null;
-        }
-
-        function isInCorridor(x, y) {
-            for(let cor of corridors) {
-                if(x >= cor.x && x <= cor.x + cor.w && y >= cor.y && y <= cor.y + cor.h) {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        function checkCollision(x, y) {
-            if(x < 45 || x > 1955 || y < 45 || y > 1955) return true;
-
-            for(let wall of walls) {
-                if(x > wall.x && x < wall.x + wall.w && y > wall.y && y < wall.y + wall.h) {
-                    return true;
-                }
-            }
-
-            for(let room of rooms) {
-                if(x > room.x && x < room.x + room.w && y > room.y && y < room.y + room.h) {
-                    return false;
-                }
-                
-                const nearWall = x > room.x - 20 && x < room.x + room.w + 20 && 
-                                 y > room.y - 20 && y < room.y + room.h + 20;
-                
-                if(nearWall) {
-                    const distToDoor = Math.hypot(x - room.door.x, y - room.door.y);
-                    if(distToDoor < 50) return false;
-                    
-                    if(isInCorridor(x, y)) return false;
-                    
-                    return true;
-                }
-            }
-            
-            if(isInCorridor(x, y)) return false;
-            
-            return false;
-        }
-
-        function tryMove(oldX, oldY, targetX, targetY) {
-            if(!checkCollision(targetX, targetY)) return { x: targetX, y: targetY };
-            if(!checkCollision(targetX, oldY)) return { x: targetX, y: oldY };
-            if(!checkCollision(oldX, targetY)) return { x: oldX, y: targetY };
-            return { x: oldX, y: oldY };
         }
 
         function startCooldown(seconds = 2) {
@@ -755,8 +751,8 @@
                 }
                 
                 handle.style.transform = `translate(${x}px, ${y}px)`;
-                velocityX = (x / maxDistance) * 4;
-                velocityY = (y / maxDistance) * 4;
+                velocityX = (x / maxDistance) * 3;
+                velocityY = (y / maxDistance) * 3;
             }
 
             function resetJoystick() {
@@ -777,12 +773,11 @@
 
                     const newPos = tryMove(player.x, player.y, player.x + velocityX, player.y + velocityY);
                     
-                    // Baldi ловит учеников
                     if(playerRole === 'baldi') {
                         Object.entries(game.players).forEach(([id, p]) => {
                             if(p.role === 'student' && !p.caught && !p.escaped) {
                                 const dist = Math.hypot(newPos.x - p.x, newPos.y - p.y);
-                                if(dist < 45) {
+                                if(dist < 40) {
                                     database.ref('games/' + currentGameId + '/players/' + id).update({
                                         caught: true
                                     });
@@ -980,7 +975,7 @@
                 const sy = r.y - offsetY;
                 
                 if(sx > -100 && sx < 500 && sy > -100 && sy < 500) {
-                    ctx.fillStyle = r.hasBooks ? '#4a4a6a' : '#3a3a5a';
+                    ctx.fillStyle = r.hasBooks ? '#3a3a6a' : '#2a2a4a';
                     ctx.fillRect(sx, sy, r.w, r.h);
                     
                     ctx.strokeStyle = '#8a8aaa';
@@ -990,7 +985,7 @@
                     const dx = r.door.x - offsetX;
                     const dy = r.door.y - offsetY;
                     ctx.fillStyle = '#8b4513';
-                    ctx.fillRect(dx-15, dy-8, 30, 16);
+                    ctx.fillRect(dx-12, dy-6, 24, 12);
                 }
             });
 
@@ -1073,10 +1068,10 @@
             ctx.font = '18px Arial';
             ctx.fillText(playerRole === 'baldi' ? '👨‍🏫' : '🧑', 188, 204);
 
-            if(player.y < 500) document.getElementById('compass').innerHTML = '⬆️ СЕВЕР';
-            else if(player.y > 1500) document.getElementById('compass').innerHTML = '⬇️ ЮГ';
-            else if(player.x < 500) document.getElementById('compass').innerHTML = '⬅️ ЗАПАД';
-            else if(player.x > 1500) document.getElementById('compass').innerHTML = '➡️ ВОСТОК';
+            if(player.y < 350) document.getElementById('compass').innerHTML = '⬆️ СЕВЕР';
+            else if(player.y > 1400) document.getElementById('compass').innerHTML = '⬇️ ЮГ';
+            else if(player.x < 350) document.getElementById('compass').innerHTML = '⬅️ ЗАПАД';
+            else if(player.x > 1650) document.getElementById('compass').innerHTML = '➡️ ВОСТОК';
             else document.getElementById('compass').innerHTML = '⏺️ ЦЕНТР';
         }
 
