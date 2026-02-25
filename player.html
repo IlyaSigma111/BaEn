@@ -402,6 +402,34 @@
             box-shadow: 5px 5px 0px #000000;
             display: none;
         }
+
+        /* Границы карты для мобилок */
+        .map-boundary {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border: 4px solid #ff5555;
+            pointer-events: none;
+            z-index: 20;
+            display: none;
+        }
+
+        .map-boundary.visible {
+            display: block;
+        }
+
+        .boundary-text {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #ff5555;
+            color: #000000;
+            padding: 5px;
+            font-size: 0.4rem;
+            border: 2px solid #ffffff;
+        }
     </style>
 </head>
 <body>
@@ -438,6 +466,9 @@
                 <canvas id="gameCanvas" width="400" height="400"></canvas>
                 <div id="compass" class="compass">⬆️ СЕВЕР</div>
                 <div id="currentRoom" class="room-name">🚪 КОРИДОР</div>
+                <div id="mapBoundary" class="map-boundary">
+                    <div class="boundary-text">⚠️ КРАЙ КАРТЫ</div>
+                </div>
             </div>
 
             <div class="controls">
@@ -500,28 +531,42 @@
         let cooldownInterval = null;
         let lastNotificationTime = 0;
 
-        // ===== ТА ЖЕ КАРТА ЧТО В board.html =====
+        // ===== КАРТА - все комнаты по всей карте =====
         const rooms = [
+            // Верхний ряд (y=80)
             { name: "🧪LAB", x: 80, y: 80, w: 240, h: 180, door: { x: 200, y: 260 }, hasBooks: true },
             { name: "🔬CHEM", x: 400, y: 80, w: 240, h: 180, door: { x: 520, y: 260 }, hasBooks: true },
             { name: "📚LIB", x: 720, y: 80, w: 240, h: 180, door: { x: 840, y: 260 }, hasBooks: true },
             { name: "🎨ART", x: 1040, y: 80, w: 240, h: 180, door: { x: 1160, y: 260 }, hasBooks: true },
             { name: "📐MATH", x: 1360, y: 80, w: 240, h: 180, door: { x: 1480, y: 260 }, hasBooks: true },
+            
+            // Второй ряд (y=360)
             { name: "📖ENG", x: 80, y: 360, w: 240, h: 180, door: { x: 200, y: 540 }, hasBooks: true },
             { name: "🌍GEO", x: 400, y: 360, w: 240, h: 180, door: { x: 520, y: 540 }, hasBooks: true },
             { name: "📜HIS", x: 720, y: 360, w: 240, h: 180, door: { x: 840, y: 540 }, hasBooks: true },
             { name: "🎵MUS", x: 1040, y: 360, w: 240, h: 180, door: { x: 1160, y: 540 }, hasBooks: true },
             { name: "🏃GYM", x: 1360, y: 360, w: 240, h: 180, door: { x: 1480, y: 540 }, hasBooks: true },
+            
+            // Третий ряд (y=640)
             { name: "🎭THEA", x: 80, y: 640, w: 240, h: 180, door: { x: 200, y: 820 }, hasBooks: true },
             { name: "🔧TECH", x: 400, y: 640, w: 240, h: 180, door: { x: 520, y: 820 }, hasBooks: true },
             { name: "💻CS", x: 720, y: 640, w: 240, h: 180, door: { x: 840, y: 820 }, hasBooks: true },
             { name: "⚙️SHOP", x: 1040, y: 640, w: 240, h: 180, door: { x: 1160, y: 820 }, hasBooks: true },
             { name: "🚪LOCK", x: 1360, y: 640, w: 240, h: 180, door: { x: 1480, y: 820 }, hasBooks: false },
+            
+            // Четвертый ряд (y=920) - ЗДЕСЬ ТОЖЕ ЕСТЬ КНИГИ!
             { name: "🧹CLN", x: 80, y: 920, w: 240, h: 180, door: { x: 200, y: 1100 }, hasBooks: false },
             { name: "🔋PWR", x: 400, y: 920, w: 240, h: 180, door: { x: 520, y: 1100 }, hasBooks: false },
             { name: "📦STOR", x: 720, y: 920, w: 240, h: 180, door: { x: 840, y: 1100 }, hasBooks: false },
-            { name: "🧪SCI", x: 1040, y: 920, w: 240, h: 180, door: { x: 1160, y: 1100 }, hasBooks: true },
-            { name: "🔭ASTR", x: 1360, y: 920, w: 240, h: 180, door: { x: 1480, y: 1100 }, hasBooks: true }
+            { name: "🧪SCI", x: 1040, y: 920, w: 240, h: 180, door: { x: 1160, y: 1100 }, hasBooks: true }, // КНИГИ ЕСТЬ
+            { name: "🔭ASTR", x: 1360, y: 920, w: 240, h: 180, door: { x: 1480, y: 1100 }, hasBooks: true }, // КНИГИ ЕСТЬ
+            
+            // Пятый ряд (y=1200) - ЕЩЁ КОМНАТЫ С КНИГАМИ!
+            { name: "🔬BIO", x: 80, y: 1200, w: 240, h: 180, door: { x: 200, y: 1380 }, hasBooks: true },
+            { name: "🧪PHY", x: 400, y: 1200, w: 240, h: 180, door: { x: 520, y: 1380 }, hasBooks: true },
+            { name: "📊STAT", x: 720, y: 1200, w: 240, h: 180, door: { x: 840, y: 1380 }, hasBooks: true },
+            { name: "🎯ARCH", x: 1040, y: 1200, w: 240, h: 180, door: { x: 1160, y: 1380 }, hasBooks: true },
+            { name: "🏛️HALL", x: 1360, y: 1200, w: 240, h: 180, door: { x: 1480, y: 1380 }, hasBooks: false }
         ];
 
         const corridors = [
@@ -529,6 +574,7 @@
             { x: 0, y: 580, w: 2000, h: 40 },
             { x: 0, y: 860, w: 2000, h: 40 },
             { x: 0, y: 1140, w: 2000, h: 40 },
+            { x: 0, y: 1420, w: 2000, h: 40 },
             { x: 340, y: 0, w: 40, h: 2000 },
             { x: 620, y: 0, w: 40, h: 2000 },
             { x: 900, y: 0, w: 40, h: 2000 },
@@ -698,6 +744,7 @@
         function startGame() {
             const canvas = document.getElementById('gameCanvas');
             const ctx = canvas.getContext('2d');
+            const boundaryEl = document.getElementById('mapBoundary');
 
             const joystick = document.getElementById('joystick');
             const handle = document.getElementById('joystickHandle');
@@ -753,6 +800,13 @@
                     const player = game.players[playerId];
                     if(!player || player.caught || player.escaped) return;
                     const newPos = tryMove(player.x, player.y, player.x + velocityX, player.y + velocityY);
+                    
+                    // Показываем границу если близко к краю
+                    if(newPos.x < 100 || newPos.x > 1900 || newPos.y < 100 || newPos.y > 1900) {
+                        boundaryEl.classList.add('visible');
+                    } else {
+                        boundaryEl.classList.remove('visible');
+                    }
                     
                     if(playerRole === 'baldi') {
                         Object.entries(game.players).forEach(([id, p]) => {
@@ -822,6 +876,10 @@
             });
         }
 
+        function normalizeAnswer(str) {
+            return str.toLowerCase().trim().replace(/\s+/g, ' ');
+        }
+
         function showAnswerFeedback(isCorrect) {
             const feedback = document.getElementById('answerFeedback');
             feedback.textContent = isCorrect ? '✓' : '✗';
@@ -850,9 +908,36 @@
 
         document.getElementById('submitAnswer').onclick = function() {
             if(!currentQuestion) return;
-            const answer = document.getElementById('answerInput').value.trim().toLowerCase();
-            const correctAnswer = currentQuestion.answer.toLowerCase();
-            const isCorrect = answer === correctAnswer || correctAnswer.includes(answer) || answer.includes(correctAnswer);
+            
+            const answer = normalizeAnswer(document.getElementById('answerInput').value);
+            const correctAnswer = normalizeAnswer(currentQuestion.answer);
+            
+            // ВСЕ ВАРИАНТЫ ПРАВИЛЬНЫХ ОТВЕТОВ
+            const isCorrect = 
+                answer === correctAnswer ||
+                correctAnswer.includes(answer) ||
+                answer.includes(correctAnswer) ||
+                // Специальные случаи
+                (correctAnswer === 'acrophobia' && (answer === 'heights' || answer === 'fear of heights')) ||
+                (correctAnswer === 'claustrophobia' && (answer === 'enclosed' || answer === 'small spaces')) ||
+                (correctAnswer === 'arachnophobia' && (answer === 'spiders' || answer === 'fear of spiders')) ||
+                (correctAnswer === 'agoraphobia' && (answer === 'crowds' || answer === 'open spaces')) ||
+                (correctAnswer === 'aerophobia' && (answer === 'flying' || answer === 'fear of flying')) ||
+                (correctAnswer === 'fight or flight' && (answer === 'fight' || answer === 'flight' || answer === 'response')) ||
+                (correctAnswer === 'fear' && (answer === 'fear helps' || answer === 'survival')) ||
+                (correctAnswer === 'albutophobia' && (answer === 'washing' || answer === 'fear of washing')) ||
+                (correctAnswer === '5 to 10%' && (answer === '5%' || answer === '10%' || answer === 'five percent')) ||
+                (correctAnswer === 'avoiding' && (answer === 'avoid' || answer === 'stop avoiding')) ||
+                (correctAnswer === 'fears' && (answer === 'list of fears' || answer === 'my fears')) ||
+                (correctAnswer === 'beats faster' && (answer === 'faster' || answer === 'heart beats')) ||
+                (correctAnswer === 'seeing a dog' && (answer === 'dog' || answer === 'see a dog' || answer === 'the dog')) ||
+                (correctAnswer === 'phobia' && (answer === 'phobia of bees' || answer === 'bee phobia')) ||
+                (correctAnswer === 'seconds' && (answer === 'a few seconds' || answer === 'quick')) ||
+                (correctAnswer === 'thinking' && (answer === 'thoughts' || answer === 'overthinking')) ||
+                (correctAnswer === 'being teased' && (answer === 'teased' || answer === 'teasing' || answer === 'embarrassed')) ||
+                (correctAnswer === 'melt away' && (answer === 'disappear' || answer === 'go away' || answer === 'face them')) ||
+                (correctAnswer === 'glossophobia' && (answer === 'public speaking' || answer === 'speaking' || answer === 'speech')) ||
+                (correctAnswer === 'aquaphobia' && (answer === 'water' || answer === 'fear of water'));
             
             if(isCorrect) {
                 database.ref('games/' + currentGameId + '/books/' + currentQuestion.id).update({ collected: true });
@@ -1022,7 +1107,7 @@
             
             // Компас
             if(player.y < 300) document.getElementById('compass').innerHTML = '⬆️ СЕВЕР';
-            else if(player.y > 1100) document.getElementById('compass').innerHTML = '⬇️ ЮГ';
+            else if(player.y > 1600) document.getElementById('compass').innerHTML = '⬇️ ЮГ';
             else if(player.x < 300) document.getElementById('compass').innerHTML = '⬅️ ЗАПАД';
             else if(player.x > 1700) document.getElementById('compass').innerHTML = '➡️ ВОСТОК';
             else document.getElementById('compass').innerHTML = '⏺️ ЦЕНТР';
