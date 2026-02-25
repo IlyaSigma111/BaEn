@@ -13,12 +13,14 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
         }
 
         body {
-            background: #1a1a2e;
+            background: #0a0a1a;
             font-family: 'Press Start 2P', cursive;
-            color: white;
+            color: #ffffaa;
             min-height: 100vh;
             padding: 20px;
         }
@@ -29,10 +31,11 @@
         }
 
         .lobby {
-            background: #16213e;
-            border-radius: 30px;
+            background: #1a1a3a;
+            border-radius: 0px;
             padding: 40px;
-            border: 3px solid #44ff44;
+            border: 4px solid #ffffaa;
+            box-shadow: 8px 8px 0px #000000;
         }
 
         .header {
@@ -41,43 +44,48 @@
         }
 
         .header h1 {
-            color: #44ff44;
-            font-size: 2.5rem;
+            color: #ffffaa;
+            font-size: 2rem;
             margin-bottom: 10px;
-            text-shadow: 0 0 20px #44ff44;
+            text-shadow: 4px 4px 0px #aa44aa;
         }
 
         .create-btn {
-            background: #44ff44;
-            color: #16213e;
+            background: #44aa44;
+            color: #000000;
             border: none;
             padding: 30px 60px;
             font-family: 'Press Start 2P', cursive;
             font-size: 1.5rem;
-            border-radius: 20px;
             cursor: pointer;
-            border: 3px solid #ffd700;
+            border: 4px solid #ffffaa;
+            box-shadow: 6px 6px 0px #000000;
+            width: 100%;
         }
 
         .create-btn:hover {
-            transform: scale(1.05);
-            box-shadow: 0 0 40px #44ff44;
+            transform: translate(-2px, -2px);
+            box-shadow: 8px 8px 0px #000000;
         }
 
         .game-code-box {
-            background: #0f3460;
+            background: #2a2a4a;
             padding: 30px;
-            border-radius: 20px;
             margin: 30px 0;
-            border: 2px solid #44ff44;
+            border: 4px solid #ffffaa;
+            box-shadow: 6px 6px 0px #000000;
+            text-align: center;
         }
 
         .game-code-box .code {
-            font-size: 5rem;
-            color: #44ff44;
-            letter-spacing: 20px;
-            text-shadow: 0 0 30px #44ff44;
+            font-size: 4rem;
+            color: #ffffaa;
+            letter-spacing: 10px;
+            text-shadow: 4px 4px 0px #aa44aa;
             font-family: monospace;
+            background: #0a0a1a;
+            padding: 20px;
+            border: 2px solid #ffffaa;
         }
 
         .players-grid {
@@ -88,33 +96,35 @@
         }
 
         .player-card {
-            background: #0f3460;
+            background: #2a2a4a;
             padding: 20px;
-            border-radius: 15px;
+            border: 4px solid #ffffaa;
+            box-shadow: 4px 4px 0px #000000;
             text-align: center;
-            border: 2px solid #ffd700;
         }
 
         .player-card.baldi {
-            border-color: #ff0000;
-            background: #330000;
+            border-color: #ff5555;
+            background: #3a1a1a;
         }
 
         .start-btn {
             width: 100%;
             padding: 30px;
-            background: #44ff44;
-            color: #16213e;
+            background: #44aa44;
+            color: #000000;
             border: none;
             font-family: 'Press Start 2P', cursive;
             font-size: 1.5rem;
-            border-radius: 20px;
             cursor: pointer;
-            border: 3px solid #ffd700;
+            border: 4px solid #ffffaa;
+            box-shadow: 6px 6px 0px #000000;
         }
 
         .start-btn:disabled {
-            background: #666;
+            background: #444444;
+            border-color: #888888;
+            box-shadow: 6px 6px 0px #222222;
             cursor: not-allowed;
         }
 
@@ -125,50 +135,57 @@
         .game-header {
             display: flex;
             justify-content: space-between;
-            background: #16213e;
+            background: #1a1a3a;
             padding: 20px;
-            border-radius: 20px 20px 0 0;
-            border: 2px solid #44ff44;
+            border: 4px solid #ffffaa;
+            border-bottom: none;
+            box-shadow: 6px 6px 0px #000000;
         }
 
         .canvas-container {
-            background: #16213e;
+            background: #1a1a3a;
             padding: 20px;
-            border: 2px solid #44ff44;
+            border: 4px solid #ffffaa;
             border-top: none;
             border-bottom: none;
             overflow: auto;
             max-height: 80vh;
+            box-shadow: 6px 0px 0px #000000, -6px 0px 0px #000000;
         }
 
         #gameCanvas {
             width: 2000px;
             height: 2000px;
-            background: #1a1a2e;
+            background: #2a2a4a;
             display: block;
             image-rendering: pixelated;
         }
 
         .canvas-controls {
-            background: #16213e;
+            background: #1a1a3a;
             padding: 20px;
-            border: 2px solid #44ff44;
+            border: 4px solid #ffffaa;
             border-top: none;
-            border-radius: 0 0 20px 20px;
             display: flex;
             gap: 10px;
             flex-wrap: wrap;
+            box-shadow: 6px 6px 0px #000000;
         }
 
         .canvas-btn {
-            background: #0f3460;
-            color: white;
-            border: 2px solid #ffd700;
+            background: #2a2a4a;
+            color: #ffffaa;
+            border: 3px solid #ffffaa;
             padding: 12px 20px;
-            border-radius: 15px;
             font-family: 'Press Start 2P', cursive;
             font-size: 0.7rem;
             cursor: pointer;
+            box-shadow: 3px 3px 0px #000000;
+        }
+
+        .canvas-btn:hover {
+            transform: translate(-1px, -1px);
+            box-shadow: 4px 4px 0px #000000;
         }
 
         .stats {
@@ -179,27 +196,28 @@
         }
 
         .stat {
-            background: #16213e;
+            background: #1a1a3a;
             padding: 20px;
-            border-radius: 20px;
-            border: 2px solid #44ff44;
+            border: 4px solid #ffffaa;
+            box-shadow: 6px 6px 0px #000000;
             text-align: center;
         }
 
         .stat-value {
             font-size: 2rem;
-            color: #44ff44;
+            color: #ffffaa;
+            text-shadow: 3px 3px 0px #aa44aa;
         }
 
         .zoom-indicator {
             position: fixed;
             bottom: 100px;
             right: 20px;
-            background: rgba(0,0,0,0.7);
+            background: #1a1a3a;
             padding: 10px;
-            border-radius: 10px;
-            border: 1px solid #ffd700;
-            color: #ffd700;
+            border: 3px solid #ffffaa;
+            box-shadow: 4px 4px 0px #000000;
+            color: #ffffaa;
             z-index: 1000;
         }
     </style>
@@ -208,7 +226,8 @@
     <div class="container">
         <div id="lobby" class="lobby">
             <div class="header">
-                <h1>🖥️ УМНАЯ ДОСКА</h1>
+                <h1>⚡ УМНАЯ ДОСКА ⚡</h1>
+                <div style="color: #8888ff; font-size: 0.8rem; margin-top: 10px;">16-BIT EDITION</div>
             </div>
 
             <div class="create-section">
@@ -216,16 +235,16 @@
 
                 <div id="gameCodeSection" style="display: none;">
                     <div class="game-code-box">
-                        <div class="label">КОД ИГРЫ</div>
+                        <div class="label" style="margin-bottom: 20px;">🔑 КОД ИГРЫ</div>
                         <div id="gameCode" class="code">------</div>
                     </div>
                 </div>
             </div>
 
             <div id="playersSection" style="display: none;">
-                <h3 style="color: #44ff44;">👥 ИГРОКИ:</h3>
+                <h3 style="color: #ffffaa; text-shadow: 3px 3px 0px #aa44aa; margin-bottom: 20px;">👥 ИГРОКИ:</h3>
                 <div id="playersGrid" class="players-grid"></div>
-                <button id="startGameBtn" class="start-btn" disabled>🎮 НАЧАТЬ</button>
+                <button id="startGameBtn" class="start-btn" disabled>🎮 СТАРТ</button>
             </div>
         </div>
 
@@ -241,26 +260,26 @@
             </div>
 
             <div class="canvas-controls">
-                <button class="canvas-btn" id="zoomInBtn">➕</button>
-                <button class="canvas-btn" id="zoomOutBtn">➖</button>
-                <button class="canvas-btn" id="resetViewBtn">🔄</button>
+                <button class="canvas-btn" id="zoomInBtn">➕ ЗУМ</button>
+                <button class="canvas-btn" id="zoomOutBtn">➖ ЗУМ</button>
+                <button class="canvas-btn" id="resetViewBtn">🔄 СБРОС</button>
                 <button class="canvas-btn" id="findBooksBtn">🔍 КНИГИ</button>
                 <button class="canvas-btn" id="findBaldiBtn">👨‍🏫 BALDI</button>
-                <button class="canvas-btn" id="toggleBaldiAI">🤖 АВТО</button>
+                <button class="canvas-btn" id="toggleBaldiAI">🤖 АВТОБАЛДИ</button>
             </div>
 
             <div class="stats">
-                <div class="stat"><div class="stat-value" id="totalCollected">0</div><div>СОБРАНО</div></div>
-                <div class="stat"><div class="stat-value" id="activePlayers">0</div><div>В ИГРЕ</div></div>
-                <div class="stat"><div class="stat-value" id="escapedCount">0</div><div>ВЫШЛИ</div></div>
+                <div class="stat"><div class="stat-value" id="totalCollected">0</div><div>📚 СОБРАНО</div></div>
+                <div class="stat"><div class="stat-value" id="activePlayers">0</div><div>👥 В ИГРЕ</div></div>
+                <div class="stat"><div class="stat-value" id="escapedCount">0</div><div>🚪 ВЫШЛИ</div></div>
             </div>
         </div>
     </div>
 
-    <div id="zoomIndicator" class="zoom-indicator" style="display: none;">🔍 x0.5</div>
+    <div id="zoomIndicator" class="zoom-indicator" style="display: none;">x1.0</div>
 
     <script>
-        // ===== Firebase конфигурация =====
+        // ===== Firebase =====
         const firebaseConfig = {
             apiKey: "AIzaSyB-fanAD0E3GY04t41vxfpyZjo0F6LqDYs",
             authDomain: "baldieenglish.firebaseapp.com",
@@ -279,116 +298,90 @@
         let isDragging = false;
         let dragStartX, dragStartY;
         
-        // ===== АВТОБАЛДИ =====
+        // ===== АвтоБалди =====
         let baldiAIInterval = null;
         let baldiAIActive = false;
         let baldiTargetX = 1000;
         let baldiTargetY = 1000;
-        let baldiState = 'patrol';
         let lastPatrolTime = 0;
 
-        // ========== НОВАЯ ПЛАНИРОВКА - комнаты не накладываются ==========
+        // ===== ПИКСЕЛЬНАЯ КАРТА 16-bit =====
         const rooms = [
-            // Первый ряд
-            { name: "🧪 ЛАБ", x: 100, y: 100, w: 250, h: 200, door: { x: 225, y: 300 }, hasBooks: true },
-            { name: "🔬 ХИМИЯ", x: 450, y: 100, w: 250, h: 200, door: { x: 575, y: 300 }, hasBooks: true },
-            { name: "📚 БИБЛ", x: 800, y: 100, w: 250, h: 200, door: { x: 925, y: 300 }, hasBooks: true },
-            { name: "🎨 МАСТ", x: 1150, y: 100, w: 250, h: 200, door: { x: 1275, y: 300 }, hasBooks: true },
-            { name: "📐 МАТЕМ", x: 1500, y: 100, w: 250, h: 200, door: { x: 1625, y: 300 }, hasBooks: true },
+            // Ряд 1 (y=120)
+            { name: "🧪LAB", x: 80, y: 80, w: 240, h: 180, door: { x: 200, y: 260 }, hasBooks: true, color: "#6b4f8f" },
+            { name: "🔬CHEM", x: 400, y: 80, w: 240, h: 180, door: { x: 520, y: 260 }, hasBooks: true, color: "#4f8f6b" },
+            { name: "📚LIB", x: 720, y: 80, w: 240, h: 180, door: { x: 840, y: 260 }, hasBooks: true, color: "#8f6b4f" },
+            { name: "🎨ART", x: 1040, y: 80, w: 240, h: 180, door: { x: 1160, y: 260 }, hasBooks: true, color: "#8f4f6b" },
+            { name: "📐MATH", x: 1360, y: 80, w: 240, h: 180, door: { x: 1480, y: 260 }, hasBooks: true, color: "#4f6b8f" },
             
-            // Второй ряд
-            { name: "📖 АНГЛ", x: 100, y: 450, w: 250, h: 200, door: { x: 225, y: 650 }, hasBooks: true },
-            { name: "🌍 ГЕО", x: 450, y: 450, w: 250, h: 200, door: { x: 575, y: 650 }, hasBooks: true },
-            { name: "📜 ИСТ", x: 800, y: 450, w: 250, h: 200, door: { x: 925, y: 650 }, hasBooks: true },
-            { name: "🎵 МУЗ", x: 1150, y: 450, w: 250, h: 200, door: { x: 1275, y: 650 }, hasBooks: true },
-            { name: "🏃 СПОРТ", x: 1500, y: 450, w: 250, h: 200, door: { x: 1625, y: 650 }, hasBooks: true },
+            // Ряд 2 (y=360)
+            { name: "📖ENG", x: 80, y: 360, w: 240, h: 180, door: { x: 200, y: 540 }, hasBooks: true, color: "#6b8f4f" },
+            { name: "🌍GEO", x: 400, y: 360, w: 240, h: 180, door: { x: 520, y: 540 }, hasBooks: true, color: "#8f4f4f" },
+            { name: "📜HIS", x: 720, y: 360, w: 240, h: 180, door: { x: 840, y: 540 }, hasBooks: true, color: "#4f8f8f" },
+            { name: "🎵MUS", x: 1040, y: 360, w: 240, h: 180, door: { x: 1160, y: 540 }, hasBooks: true, color: "#8f8f4f" },
+            { name: "🏃GYM", x: 1360, y: 360, w: 240, h: 180, door: { x: 1480, y: 540 }, hasBooks: true, color: "#4f4f8f" },
             
-            // Третий ряд
-            { name: "🎭 ТЕАТР", x: 100, y: 800, w: 250, h: 200, door: { x: 225, y: 1000 }, hasBooks: true },
-            { name: "🔧 ТЕХ", x: 450, y: 800, w: 250, h: 200, door: { x: 575, y: 1000 }, hasBooks: true },
-            { name: "💻 ИНФ", x: 800, y: 800, w: 250, h: 200, door: { x: 925, y: 1000 }, hasBooks: true },
-            { name: "⚙️ ПОД", x: 1150, y: 800, w: 250, h: 200, door: { x: 1275, y: 1000 }, hasBooks: true },
-            { name: "🚪 ГАРД", x: 1500, y: 800, w: 250, h: 200, door: { x: 1625, y: 1000 }, hasBooks: false },
+            // Ряд 3 (y=640)
+            { name: "🎭THEA", x: 80, y: 640, w: 240, h: 180, door: { x: 200, y: 820 }, hasBooks: true, color: "#8f6b8f" },
+            { name: "🔧TECH", x: 400, y: 640, w: 240, h: 180, door: { x: 520, y: 820 }, hasBooks: true, color: "#6b8f8f" },
+            { name: "💻CS", x: 720, y: 640, w: 240, h: 180, door: { x: 840, y: 820 }, hasBooks: true, color: "#8f8f6b" },
+            { name: "⚙️SHOP", x: 1040, y: 640, w: 240, h: 180, door: { x: 1160, y: 820 }, hasBooks: true, color: "#6b6b8f" },
+            { name: "🚪LOCK", x: 1360, y: 640, w: 240, h: 180, door: { x: 1480, y: 820 }, hasBooks: false, color: "#5a5a5a" },
             
-            // Четвертый ряд
-            { name: "🧹 КЛАД", x: 100, y: 1150, w: 250, h: 200, door: { x: 225, y: 1350 }, hasBooks: false },
-            { name: "🔋 ЭНЕР", x: 450, y: 1150, w: 250, h: 200, door: { x: 575, y: 1350 }, hasBooks: false },
-            { name: "📦 СКЛАД", x: 800, y: 1150, w: 250, h: 200, door: { x: 925, y: 1350 }, hasBooks: false },
-            { name: "🧪 НАУКА", x: 1150, y: 1150, w: 250, h: 200, door: { x: 1275, y: 1350 }, hasBooks: true },
-            { name: "🔭 АСТРО", x: 1500, y: 1150, w: 250, h: 200, door: { x: 1625, y: 1350 }, hasBooks: true }
+            // Ряд 4 (y=920)
+            { name: "🧹CLN", x: 80, y: 920, w: 240, h: 180, door: { x: 200, y: 1100 }, hasBooks: false, color: "#5a5a5a" },
+            { name: "🔋PWR", x: 400, y: 920, w: 240, h: 180, door: { x: 520, y: 1100 }, hasBooks: false, color: "#5a5a5a" },
+            { name: "📦STOR", x: 720, y: 920, w: 240, h: 180, door: { x: 840, y: 1100 }, hasBooks: false, color: "#5a5a5a" },
+            { name: "🧪SCI", x: 1040, y: 920, w: 240, h: 180, door: { x: 1160, y: 1100 }, hasBooks: true, color: "#8f4f8f" },
+            { name: "🔭ASTR", x: 1360, y: 920, w: 240, h: 180, door: { x: 1480, y: 1100 }, hasBooks: true, color: "#4f8f4f" }
         ];
 
-        // Коридоры (горизонтальные и вертикальные)
+        // Коридоры (пиксельные)
         const corridors = [
-            // Горизонтальные коридоры
-            { x: 0, y: 350, w: 2000, h: 50 },  // между 1 и 2 рядом
-            { x: 0, y: 700, w: 2000, h: 50 },  // между 2 и 3 рядом
-            { x: 0, y: 1050, w: 2000, h: 50 }, // между 3 и 4 рядом
-            { x: 0, y: 1400, w: 2000, h: 50 }, // после 4 ряда
-            
-            // Вертикальные коридоры
-            { x: 350, y: 0, w: 50, h: 2000 },  // между 1 и 2 колонкой
-            { x: 700, y: 0, w: 50, h: 2000 },  // между 2 и 3 колонкой
-            { x: 1050, y: 0, w: 50, h: 2000 }, // между 3 и 4 колонкой
-            { x: 1400, y: 0, w: 50, h: 2000 }, // между 4 и 5 колонкой
-            { x: 1750, y: 0, w: 50, h: 2000 }  // после 5 колонки
+            // Горизонтальные
+            { x: 0, y: 300, w: 2000, h: 40 },
+            { x: 0, y: 580, w: 2000, h: 40 },
+            { x: 0, y: 860, w: 2000, h: 40 },
+            { x: 0, y: 1140, w: 2000, h: 40 },
+            // Вертикальные
+            { x: 340, y: 0, w: 40, h: 2000 },
+            { x: 620, y: 0, w: 40, h: 2000 },
+            { x: 900, y: 0, w: 40, h: 2000 },
+            { x: 1180, y: 0, w: 40, h: 2000 },
+            { x: 1460, y: 0, w: 40, h: 2000 },
+            { x: 1740, y: 0, w: 40, h: 2000 }
         ];
 
-        // Стены (только внешние и между коридорами)
+        // Стены (только внешние)
         const walls = [
-            // Внешние стены
             { x: 0, y: 0, w: 2000, h: 30 },
             { x: 0, y: 1970, w: 2000, h: 30 },
             { x: 0, y: 0, w: 30, h: 2000 },
             { x: 1970, y: 0, w: 30, h: 2000 }
         ];
 
-        // Функция проверки, находится ли точка в коридоре
         function isInCorridor(x, y) {
             for(let cor of corridors) {
-                if(x > cor.x && x < cor.x + cor.w && y > cor.y && y < cor.y + cor.h) {
-                    return true;
-                }
+                if(x > cor.x && x < cor.x + cor.w && y > cor.y && y < cor.y + cor.h) return true;
             }
             return false;
         }
 
-        // Функция проверки коллизий
         function checkCollision(x, y) {
-            // Границы карты
             if(x < 35 || x > 1965 || y < 35 || y > 1965) return true;
-
-            // Проверка стен
             for(let wall of walls) {
-                if(x > wall.x && x < wall.x + wall.w && y > wall.y && y < wall.y + wall.h) {
-                    return true;
-                }
+                if(x > wall.x && x < wall.x + wall.w && y > wall.y && y < wall.y + wall.h) return true;
             }
-
-            // Проверка комнат - можно заходить только через двери
             for(let room of rooms) {
-                // Если внутри комнаты - можно
-                if(x > room.x && x < room.x + room.w && y > room.y && y < room.y + room.h) {
-                    return false;
-                }
-                
-                // Проверка, не пытаемся ли войти сквозь стену комнаты
-                const nearRoom = x > room.x - 15 && x < room.x + room.w + 15 && 
-                                 y > room.y - 15 && y < room.y + room.h + 15;
-                
+                if(x > room.x && x < room.x + room.w && y > room.y && y < room.y + room.h) return false;
+                const nearRoom = x > room.x - 20 && x < room.x + room.w + 20 && y > room.y - 20 && y < room.y + room.h + 20;
                 if(nearRoom) {
-                    // Если рядом с дверью - можно
                     const distToDoor = Math.hypot(x - room.door.x, y - room.door.y);
-                    if(distToDoor < 40) return false;
-                    
-                    // Если в коридоре - можно
+                    if(distToDoor < 45) return false;
                     if(isInCorridor(x, y)) return false;
-                    
-                    // Иначе стена
                     return true;
                 }
             }
-            
             return false;
         }
 
@@ -396,39 +389,35 @@
             const books = {};
             const questions = [
                 ["Fear of heights?", "acrophobia"],
-                ["Fear of enclosed spaces?", "claustrophobia"],
                 ["Fear of spiders?", "arachnophobia"],
                 ["Fear of crowds?", "agoraphobia"],
                 ["Fear of flying?", "aerophobia"],
-                ["Body's response to danger?", "fight or flight"],
-                ["What helps us survive?", "fear"],
+                ["Fight or flight?", "response"],
+                ["What helps survive?", "fear"],
                 ["Fear of washing?", "albutophobia"],
-                ["Percentage with phobias?", "5 to 10%"],
-                ["What to stop doing?", "avoiding"],
-                ["Make a list of?", "fears"],
-                ["What happens to heart?", "beats faster"],
-                ["Dog-bitten teen fears?", "seeing a dog"],
-                ["Fear can make you miss?", "friends"],
-                ["Fear of bees is?", "phobia"],
-                ["How quick is fear?", "seconds"],
-                ["What triggers fear?", "thinking"],
-                ["What might embarrass?", "being teased"],
-                ["Face fears and they?", "melt away"],
-                ["Fear of public speaking?", "glossophobia"]
+                ["Phobia percentage?", "5 to 10%"],
+                ["Stop what?", "avoiding"],
+                ["Make a list?", "fears"],
+                ["Heart beats?", "faster"],
+                ["Dog-bitten fears?", "dogs"],
+                ["Fear of bees?", "phobia"],
+                ["Fear speed?", "seconds"],
+                ["Triggers fear?", "thinking"],
+                ["Embarrassment?", "teased"],
+                ["Face fears?", "melt away"],
+                ["Public speaking?", "glossophobia"],
+                ["Fear of water?", "aquaphobia"],
+                ["Fear of snakes?", "ophidiophobia"]
             ];
 
             let bookIndex = 0;
             const roomsWithBooks = rooms.filter(r => r.hasBooks);
-            
             roomsWithBooks.forEach(room => {
                 for(let i = 0; i < 2 && bookIndex < 20; i++) {
-                    const bookX = room.x + 60 + Math.random() * (room.w - 120);
-                    const bookY = room.y + 60 + Math.random() * (room.h - 120);
-                    
                     books[`book${bookIndex}`] = {
                         id: `book${bookIndex}`,
-                        x: Math.floor(bookX),
-                        y: Math.floor(bookY),
+                        x: Math.floor(room.x + 60 + Math.random() * (room.w - 120)),
+                        y: Math.floor(room.y + 60 + Math.random() * (room.h - 120)),
                         roomName: room.name,
                         collected: false,
                         question: questions[bookIndex][0],
@@ -437,13 +426,11 @@
                     bookIndex++;
                 }
             });
-            
             return books;
         }
 
         document.getElementById('createGameBtn').onclick = function() {
             const gameId = Math.floor(100000 + Math.random() * 900000).toString();
-            
             database.ref('games/' + gameId).set({
                 status: 'waiting',
                 players: {},
@@ -457,11 +444,9 @@
                 document.getElementById('gameCode').textContent = gameId;
                 document.getElementById('gameCodeSection').style.display = 'block';
                 document.getElementById('playersSection').style.display = 'block';
-
                 database.ref('games/' + gameId + '/players').on('value', (snapshot) => {
                     const players = snapshot.val() || {};
                     updatePlayersList(players);
-                    
                     const hasBaldi = Object.values(players).some(p => p.role === 'baldi');
                     const hasStudents = Object.values(players).some(p => p.role === 'student');
                     document.getElementById('startGameBtn').disabled = !(hasBaldi && hasStudents);
@@ -475,10 +460,10 @@
             Object.values(players).forEach(p => {
                 grid.innerHTML += `
                     <div class="player-card ${p.role === 'baldi' ? 'baldi' : ''}">
-                        <div style="font-size:2rem;">${p.role === 'baldi' ? '👨‍🏫' : '🧑‍🎓'}</div>
+                        <div style="font-size:2rem;">${p.role === 'baldi' ? '👨‍🏫' : '🧑'}</div>
                         <div>${p.name}</div>
-                        <div style="color:#888;">${p.role === 'baldi' ? 'BALDI' : 'УЧЕНИК'}</div>
-                        <div style="color:#ffd700;">📚 ${p.books || 0}</div>
+                        <div style="color:#aaa;">${p.role === 'baldi' ? 'BALDI' : 'STUDENT'}</div>
+                        <div style="color:#ffaa00;">📚 ${p.books || 0}</div>
                     </div>
                 `;
             });
@@ -495,139 +480,82 @@
 
         function checkExit() {
             database.ref('games/' + currentGameId + '/totalCollected').on('value', (s) => {
-                if(s.val() >= 20) {
-                    database.ref('games/' + currentGameId + '/exit').update({ active: true });
-                }
+                if(s.val() >= 20) database.ref('games/' + currentGameId + '/exit').update({ active: true });
             });
         }
 
-        // ===== ИСПРАВЛЕННЫЙ АВТОБАЛДИ =====
         function toggleBaldiAI(active) {
             baldiAIActive = active;
             const btn = document.getElementById('toggleBaldiAI');
-            btn.style.background = active ? '#44ff44' : '#0f3460';
+            btn.style.background = active ? '#44aa44' : '#2a2a4a';
             
             if(active) {
                 if(baldiAIInterval) clearInterval(baldiAIInterval);
-                
                 baldiAIInterval = setInterval(() => {
                     if(!currentGameId || !baldiAIActive) return;
-                    
                     database.ref('games/' + currentGameId).once('value', (snapshot) => {
                         const game = snapshot.val();
                         if(!game || game.status !== 'playing') return;
                         
-                        // Находим Балди
-                        let baldiId = null;
-                        let baldi = null;
-                        let students = [];
-                        
+                        let baldiId = null, baldi = null, students = [];
                         Object.entries(game.players || {}).forEach(([id, p]) => {
-                            if(p.role === 'baldi') {
-                                baldiId = id;
-                                baldi = p;
-                            } else if(p.role === 'student' && !p.caught && !p.escaped) {
-                                students.push({...p, id});
-                            }
+                            if(p.role === 'baldi') { baldiId = id; baldi = p; }
+                            else if(p.role === 'student' && !p.caught && !p.escaped) students.push({...p, id});
                         });
                         
                         if(!baldi || !baldiId) return;
                         
-                        // Ищем ближайшего ученика
+                        let targetX = baldi.x, targetY = baldi.y;
+                        let speed = 2.5;
                         let nearestStudent = null;
                         let minDist = Infinity;
                         
-                        students.forEach(student => {
-                            const dist = Math.hypot(baldi.x - student.x, baldi.y - student.y);
-                            if(dist < minDist) {
-                                minDist = dist;
-                                nearestStudent = student;
-                            }
+                        students.forEach(s => {
+                            const dist = Math.hypot(baldi.x - s.x, baldi.y - s.y);
+                            if(dist < minDist) { minDist = dist; nearestStudent = s; }
                         });
                         
-                        // Логика движения
-                        let targetX = baldi.x;
-                        let targetY = baldi.y;
-                        let speed = 2.5;
-                        
                         if(nearestStudent && minDist < 400) {
-                            // Режим преследования - бежит прямо на ученика
                             targetX = nearestStudent.x;
                             targetY = nearestStudent.y;
                             speed = 3.5;
-                            baldiState = 'chase';
                         } else {
-                            // Режим патруля - ходит по коридорам
-                            baldiState = 'patrol';
-                            
-                            // Меняем цель каждые 5 секунд или если дошли
                             const now = Date.now();
-                            const distToTarget = Math.hypot(baldi.x - baldiTargetX, baldi.y - baldiTargetY);
-                            
-                            if(now - lastPatrolTime > 5000 || distToTarget < 30) {
-                                // Выбираем точку на перекрестке коридоров
-                                const patrolPoints = [
-                                    {x: 200, y: 375}, {x: 525, y: 375}, {x: 850, y: 375}, {x: 1175, y: 375}, {x: 1500, y: 375},
-                                    {x: 200, y: 725}, {x: 525, y: 725}, {x: 850, y: 725}, {x: 1175, y: 725}, {x: 1500, y: 725},
-                                    {x: 200, y: 1075}, {x: 525, y: 1075}, {x: 850, y: 1075}, {x: 1175, y: 1075}, {x: 1500, y: 1075},
-                                    {x: 200, y: 1425}, {x: 525, y: 1425}, {x: 850, y: 1425}, {x: 1175, y: 1425}, {x: 1500, y: 1425}
+                            if(now - lastPatrolTime > 4000 || Math.hypot(baldi.x - baldiTargetX, baldi.y - baldiTargetY) < 30) {
+                                const points = [
+                                    {x: 200, y: 320}, {x: 520, y: 320}, {x: 840, y: 320}, {x: 1160, y: 320}, {x: 1480, y: 320},
+                                    {x: 200, y: 600}, {x: 520, y: 600}, {x: 840, y: 600}, {x: 1160, y: 600}, {x: 1480, y: 600},
+                                    {x: 200, y: 880}, {x: 520, y: 880}, {x: 840, y: 880}, {x: 1160, y: 880}, {x: 1480, y: 880},
+                                    {x: 200, y: 1160}, {x: 520, y: 1160}, {x: 840, y: 1160}, {x: 1160, y: 1160}, {x: 1480, y: 1160}
                                 ];
-                                const point = patrolPoints[Math.floor(Math.random() * patrolPoints.length)];
-                                baldiTargetX = point.x;
-                                baldiTargetY = point.y;
+                                baldiTargetX = points[Math.floor(Math.random() * points.length)].x;
+                                baldiTargetY = points[Math.floor(Math.random() * points.length)].y;
                                 lastPatrolTime = now;
                             }
-                            
                             targetX = baldiTargetX;
                             targetY = baldiTargetY;
                         }
                         
-                        // Двигаемся к цели
-                        const dx = targetX - baldi.x;
-                        const dy = targetY - baldi.y;
+                        const dx = targetX - baldi.x, dy = targetY - baldi.y;
                         const dist = Math.hypot(dx, dy);
-                        
                         if(dist > 3) {
-                            const moveX = (dx / dist) * speed;
-                            const moveY = (dy / dist) * speed;
-                            
-                            // Пробуем двигаться
-                            let newX = baldi.x + moveX;
-                            let newY = baldi.y + moveY;
-                            
-                            // Проверяем коллизии
+                            const moveX = (dx / dist) * speed, moveY = (dy / dist) * speed;
+                            let newX = baldi.x + moveX, newY = baldi.y + moveY;
                             if(!checkCollision(newX, newY)) {
-                                database.ref('games/' + currentGameId + '/players/' + baldiId).update({
-                                    x: newX, y: newY
-                                });
+                                database.ref('games/' + currentGameId + '/players/' + baldiId).update({ x: newX, y: newY });
                             } else {
-                                // Если уперлись, пробуем по одной оси
-                                if(!checkCollision(newX, baldi.y)) {
-                                    database.ref('games/' + currentGameId + '/players/' + baldiId).update({
-                                        x: newX, y: baldi.y
-                                    });
-                                } else if(!checkCollision(baldi.x, newY)) {
-                                    database.ref('games/' + currentGameId + '/players/' + baldiId).update({
-                                        x: baldi.x, y: newY
-                                    });
-                                } else {
-                                    // Совсем уперлись - меняем цель
-                                    lastPatrolTime = 0;
-                                }
+                                if(!checkCollision(newX, baldi.y)) database.ref('games/' + currentGameId + '/players/' + baldiId).update({ x: newX, y: baldi.y });
+                                else if(!checkCollision(baldi.x, newY)) database.ref('games/' + currentGameId + '/players/' + baldiId).update({ x: baldi.x, y: newY });
                             }
                         }
                         
-                        // Ловля учеников
-                        students.forEach(student => {
-                            const distToStudent = Math.hypot(baldi.x - student.x, baldi.y - student.y);
-                            if(distToStudent < 40) {
-                                database.ref('games/' + currentGameId + '/players/' + student.id).update({
-                                    caught: true
-                                });
+                        students.forEach(s => {
+                            if(Math.hypot(baldi.x - s.x, baldi.y - s.y) < 40) {
+                                database.ref('games/' + currentGameId + '/players/' + s.id).update({ caught: true });
                             }
                         });
                     });
-                }, 50); // 20 раз в секунду для плавности
+                }, 50);
             } else {
                 clearInterval(baldiAIInterval);
             }
@@ -661,8 +589,7 @@
             
             document.getElementById('findBooksBtn').onclick = () => {
                 database.ref('games/' + currentGameId + '/books').once('value', (s) => {
-                    const books = s.val() || {};
-                    const book = Object.values(books).find(b => !b.collected);
+                    const book = Object.values(s.val() || {}).find(b => !b.collected);
                     if(book) {
                         canvasOffsetX = -book.x * canvasScale + container.clientWidth/2;
                         canvasOffsetY = -book.y * canvasScale + container.clientHeight/2;
@@ -673,8 +600,7 @@
             
             document.getElementById('findBaldiBtn').onclick = () => {
                 database.ref('games/' + currentGameId + '/players').once('value', (s) => {
-                    const players = s.val() || {};
-                    const baldi = Object.values(players).find(p => p.role === 'baldi');
+                    const baldi = Object.values(s.val() || {}).find(p => p.role === 'baldi');
                     if(baldi) {
                         canvasOffsetX = -baldi.x * canvasScale + container.clientWidth/2;
                         canvasOffsetY = -baldi.y * canvasScale + container.clientHeight/2;
@@ -712,10 +638,9 @@
             
             function showZoom() {
                 zoomIndicator.style.display = 'block';
-                zoomIndicator.innerHTML = `🔍 x${canvasScale.toFixed(1)}`;
+                zoomIndicator.innerHTML = `x${canvasScale.toFixed(1)}`;
                 setTimeout(() => zoomIndicator.style.display = 'none', 2000);
             }
-            
             applyTransform();
         }
 
@@ -728,7 +653,6 @@
         function startGame() {
             const canvas = document.getElementById('gameCanvas');
             const ctx = canvas.getContext('2d');
-            
             database.ref('games/' + currentGameId).on('value', (s) => {
                 const game = s.val();
                 if(game) {
@@ -740,99 +664,121 @@
 
         function drawMap(ctx, game) {
             ctx.clearRect(0, 0, 2000, 2000);
-
+            
             // Пол
-            ctx.fillStyle = '#1a1a2e';
+            ctx.fillStyle = '#1a1a2a';
             ctx.fillRect(0, 0, 2000, 2000);
-
-            // Рисуем коридоры
-            ctx.fillStyle = '#2a2a4a';
+            
+            // Пиксельная сетка
+            ctx.strokeStyle = '#2a2a3a';
+            ctx.lineWidth = 1;
+            for(let i = 0; i <= 2000; i += 40) {
+                ctx.beginPath();
+                ctx.moveTo(i, 0);
+                ctx.lineTo(i, 2000);
+                ctx.strokeStyle = '#2a2a3a';
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(0, i);
+                ctx.lineTo(2000, i);
+                ctx.stroke();
+            }
+            
+            // Коридоры
+            ctx.fillStyle = '#3a3a5a';
             corridors.forEach(c => ctx.fillRect(c.x, c.y, c.w, c.h));
-
-            // Рисуем стены
-            ctx.fillStyle = '#4a4a8a';
+            
+            // Стены
+            ctx.fillStyle = '#4a4a7a';
             walls.forEach(w => ctx.fillRect(w.x, w.y, w.w, w.h));
-
-            // Рисуем комнаты
+            
+            // Комнаты
             rooms.forEach(r => {
-                ctx.fillStyle = r.hasBooks ? '#3a3a6a' : '#2a2a4a';
+                ctx.fillStyle = r.color || '#4a4a6a';
                 ctx.fillRect(r.x, r.y, r.w, r.h);
                 
-                ctx.strokeStyle = '#8a8aaa';
+                ctx.strokeStyle = '#ffffaa';
                 ctx.lineWidth = 3;
                 ctx.strokeRect(r.x, r.y, r.w, r.h);
                 
                 // Дверь
-                ctx.fillStyle = '#8b4513';
+                ctx.fillStyle = '#8b5a2b';
                 ctx.fillRect(r.door.x-15, r.door.y-8, 30, 16);
+                ctx.fillStyle = '#ffaa00';
+                ctx.fillRect(r.door.x-5, r.door.y-3, 10, 6);
                 
-                // Название комнаты
-                ctx.fillStyle = '#ffd700';
+                // Название
+                ctx.fillStyle = '#ffffaa';
                 ctx.font = 'bold 10px "Press Start 2P"';
-                ctx.fillText(r.name, r.x+10, r.y+25);
+                ctx.fillText(r.name, r.x+15, r.y+30);
+                
+                if(r.hasBooks) {
+                    ctx.fillStyle = '#ffaa00';
+                    ctx.font = '16px "Press Start 2P"';
+                    ctx.fillText('📚', r.x + r.w - 35, r.y + 35);
+                }
             });
-
+            
             // Книги
             if(game.books) {
                 Object.values(game.books).forEach(b => {
                     if(!b.collected) {
-                        ctx.shadowColor = '#ffd700';
-                        ctx.shadowBlur = 15;
-                        ctx.fillStyle = '#ffd700';
-                        ctx.fillRect(b.x-6, b.y-5, 12, 10);
+                        ctx.fillStyle = '#ffaa00';
+                        ctx.shadowColor = '#ffffaa';
+                        ctx.shadowBlur = 10;
+                        ctx.fillRect(b.x-8, b.y-6, 16, 12);
+                        ctx.fillStyle = '#ffffff';
+                        ctx.font = '12px "Press Start 2P"';
+                        ctx.fillText('?', b.x-3, b.y+3);
                         ctx.shadowBlur = 0;
                     }
                 });
             }
-
+            
             // Игроки
             if(game.players) {
                 Object.values(game.players).forEach(p => {
                     if(p.escaped) return;
                     
                     if(p.role === 'baldi') {
-                        ctx.fillStyle = '#ff0000';
-                        ctx.shadowColor = '#ff0000';
-                        ctx.shadowBlur = 20;
+                        ctx.fillStyle = '#ff5555';
+                        ctx.shadowColor = '#ff5555';
+                        ctx.shadowBlur = 15;
                         ctx.beginPath();
                         ctx.arc(p.x, p.y, 18, 0, 2*Math.PI);
                         ctx.fill();
-                        
-                        ctx.shadowBlur = 0;
-                        ctx.fillStyle = 'white';
-                        ctx.font = '24px Arial';
-                        ctx.fillText('👨‍🏫', p.x-10, p.y+5);
+                        ctx.fillStyle = '#ffffff';
+                        ctx.font = '20px "Press Start 2P"';
+                        ctx.fillText('👨‍🏫', p.x-12, p.y+6);
                     } else {
-                        ctx.fillStyle = p.caught ? '#666' : '#ffd700';
-                        ctx.shadowColor = '#ffd700';
-                        ctx.shadowBlur = 15;
+                        ctx.fillStyle = p.caught ? '#666666' : '#ffaa00';
+                        ctx.shadowColor = '#ffffaa';
+                        ctx.shadowBlur = 10;
                         ctx.beginPath();
                         ctx.arc(p.x, p.y, 12, 0, 2*Math.PI);
                         ctx.fill();
-                        
-                        ctx.shadowBlur = 0;
-                        ctx.fillStyle = 'white';
-                        ctx.font = '16px Arial';
-                        ctx.fillText('🧑', p.x-7, p.y+4);
+                        ctx.fillStyle = '#000000';
+                        ctx.font = '14px "Press Start 2P"';
+                        ctx.fillText(p.caught ? '💀' : '🧑', p.x-7, p.y+4);
                     }
                     
-                    // Имя игрока
-                    ctx.fillStyle = 'white';
+                    ctx.shadowBlur = 0;
+                    ctx.fillStyle = '#ffffff';
                     ctx.font = '7px "Press Start 2P"';
                     ctx.fillText(p.name, p.x-15, p.y-20);
                 });
             }
-
+            
             // Выход
             if(game.exit) {
-                ctx.shadowColor = game.exit.active ? '#44ff44' : '#666';
-                ctx.shadowBlur = 20;
-                ctx.fillStyle = game.exit.active ? '#44ff44' : '#666';
+                ctx.fillStyle = game.exit.active ? '#44ff44' : '#666666';
+                ctx.shadowColor = game.exit.active ? '#44ff44' : '#666666';
+                ctx.shadowBlur = 15;
                 ctx.fillRect(game.exit.x-20, game.exit.y-20, 40, 40);
                 ctx.shadowBlur = 0;
-                ctx.fillStyle = 'white';
-                ctx.font = '28px Arial';
-                ctx.fillText('🚪', game.exit.x-13, game.exit.y+8);
+                ctx.fillStyle = '#ffffff';
+                ctx.font = '24px "Press Start 2P"';
+                ctx.fillText('🚪', game.exit.x-15, game.exit.y+6);
             }
             
             ctx.shadowBlur = 0;
@@ -841,7 +787,6 @@
         function updateStats(game) {
             document.getElementById('booksProgress').innerHTML = `📚 ${game.totalCollected || 0}/20`;
             document.getElementById('totalCollected').textContent = game.totalCollected || 0;
-            
             const active = Object.values(game.players || {}).filter(p => p.role === 'student' && !p.escaped && !p.caught).length;
             document.getElementById('activePlayers').textContent = active;
             document.getElementById('playersCount').textContent = `👥 ${active}`;
@@ -849,11 +794,8 @@
             document.getElementById('exitStatus').innerHTML = game.exit?.active ? '🚪 ОТКРЫТ' : '🚪 ЗАКРЫТ';
         }
 
-        // Очистка игры при закрытии
         window.addEventListener('beforeunload', function() {
-            if(currentGameId) {
-                database.ref('games/' + currentGameId).remove();
-            }
+            if(currentGameId) database.ref('games/' + currentGameId).remove();
             if(baldiAIInterval) clearInterval(baldiAIInterval);
         });
     </script>
