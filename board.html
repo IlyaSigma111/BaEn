@@ -23,6 +23,7 @@
             color: #ffffaa;
             min-height: 100vh;
             padding: 20px;
+            image-rendering: pixelated;
         }
 
         .container {
@@ -32,10 +33,10 @@
 
         .lobby {
             background: #1a1a3a;
-            border-radius: 0px;
-            padding: 40px;
             border: 4px solid #ffffaa;
-            box-shadow: 8px 8px 0px #000000;
+            box-shadow: 8px 8px 0px #000000, 12px 12px 0px #aa44aa;
+            padding: 40px;
+            margin-bottom: 20px;
         }
 
         .header {
@@ -47,7 +48,14 @@
             color: #ffffaa;
             font-size: 2rem;
             margin-bottom: 10px;
-            text-shadow: 4px 4px 0px #aa44aa;
+            text-shadow: 4px 4px 0px #aa44aa, 6px 6px 0px #000000;
+            letter-spacing: 2px;
+        }
+
+        .header .subtitle {
+            color: #8888ff;
+            font-size: 0.8rem;
+            text-shadow: 2px 2px 0px #000000;
         }
 
         .create-btn {
@@ -59,13 +67,14 @@
             font-size: 1.5rem;
             cursor: pointer;
             border: 4px solid #ffffaa;
-            box-shadow: 6px 6px 0px #000000;
+            box-shadow: 6px 6px 0px #000000, 8px 8px 0px #aa44aa;
             width: 100%;
+            text-shadow: 2px 2px 0px #88ff88;
         }
 
         .create-btn:hover {
             transform: translate(-2px, -2px);
-            box-shadow: 8px 8px 0px #000000;
+            box-shadow: 8px 8px 0px #000000, 10px 10px 0px #aa44aa;
         }
 
         .game-code-box {
@@ -73,15 +82,21 @@
             padding: 30px;
             margin: 30px 0;
             border: 4px solid #ffffaa;
-            box-shadow: 6px 6px 0px #000000;
+            box-shadow: 6px 6px 0px #000000, 8px 8px 0px #aa44aa;
             text-align: center;
+        }
+
+        .game-code-box .label {
+            color: #8888ff;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 0px #000000;
         }
 
         .game-code-box .code {
             font-size: 4rem;
             color: #ffffaa;
             letter-spacing: 10px;
-            text-shadow: 4px 4px 0px #aa44aa;
+            text-shadow: 4px 4px 0px #aa44aa, 6px 6px 0px #000000;
             font-family: monospace;
             background: #0a0a1a;
             padding: 20px;
@@ -99,13 +114,32 @@
             background: #2a2a4a;
             padding: 20px;
             border: 4px solid #ffffaa;
-            box-shadow: 4px 4px 0px #000000;
+            box-shadow: 4px 4px 0px #000000, 6px 6px 0px #aa44aa;
             text-align: center;
         }
 
         .player-card.baldi {
             border-color: #ff5555;
             background: #3a1a1a;
+        }
+
+        .player-card .name {
+            color: #ffffaa;
+            font-size: 0.8rem;
+            margin: 10px 0;
+            text-shadow: 2px 2px 0px #000000;
+        }
+
+        .player-card .role {
+            color: #8888ff;
+            font-size: 0.6rem;
+        }
+
+        .player-card .books {
+            color: #ffaa00;
+            font-size: 0.8rem;
+            margin-top: 10px;
+            text-shadow: 2px 2px 0px #000000;
         }
 
         .start-btn {
@@ -118,7 +152,8 @@
             font-size: 1.5rem;
             cursor: pointer;
             border: 4px solid #ffffaa;
-            box-shadow: 6px 6px 0px #000000;
+            box-shadow: 6px 6px 0px #000000, 8px 8px 0px #aa44aa;
+            text-shadow: 2px 2px 0px #88ff88;
         }
 
         .start-btn:disabled {
@@ -126,6 +161,7 @@
             border-color: #888888;
             box-shadow: 6px 6px 0px #222222;
             cursor: not-allowed;
+            text-shadow: none;
         }
 
         .game-screen {
@@ -139,13 +175,13 @@
             padding: 20px;
             border: 4px solid #ffffaa;
             border-bottom: none;
-            box-shadow: 6px 6px 0px #000000;
+            box-shadow: 6px 6px 0px #000000, 8px 0px 0px #aa44aa;
             position: relative;
         }
 
         .notifications-area {
             position: absolute;
-            top: 60px;
+            top: 70px;
             right: 10px;
             width: 300px;
             max-height: 400px;
@@ -213,9 +249,10 @@
         #gameCanvas {
             width: 2000px;
             height: 2000px;
-            background: #2a2a4a;
+            background: #1a1a2a;
             display: block;
             image-rendering: pixelated;
+            image-rendering: crisp-edges;
         }
 
         .canvas-controls {
@@ -226,7 +263,8 @@
             display: flex;
             gap: 10px;
             flex-wrap: wrap;
-            box-shadow: 6px 6px 0px #000000;
+            box-shadow: 6px 6px 0px #000000, 0px 8px 0px #aa44aa;
+            position: relative;
         }
 
         .canvas-btn {
@@ -238,11 +276,73 @@
             font-size: 0.7rem;
             cursor: pointer;
             box-shadow: 3px 3px 0px #000000;
+            text-shadow: 1px 1px 0px #000000;
         }
 
         .canvas-btn:hover {
             transform: translate(-1px, -1px);
             box-shadow: 4px 4px 0px #000000;
+        }
+
+        /* СЕКРЕТНАЯ КНОПКА (чуть правее автобалди) */
+        .secret-cheat-btn {
+            position: absolute;
+            left: 220px;  /* Чуть правее кнопки автобалди */
+            top: 20px;
+            width: 30px;
+            height: 30px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            z-index: 1000;
+        }
+
+        .secret-cheat-btn:hover {
+            background: rgba(255,255,170,0.1);
+        }
+
+        .cheat-timer {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #ffaa00;
+            color: #000000;
+            padding: 30px;
+            border: 6px solid #ffffff;
+            box-shadow: 10px 10px 0px #000000;
+            font-size: 3rem;
+            z-index: 2000;
+            display: none;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: translate(-50%, -50%) scale(1); }
+            50% { transform: translate(-50%, -50%) scale(1.1); }
+            100% { transform: translate(-50%, -50%) scale(1); }
+        }
+
+        .cheat-active {
+            position: fixed;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #ffaa00;
+            color: #000000;
+            padding: 10px 20px;
+            border: 4px solid #ffffff;
+            box-shadow: 6px 6px 0px #000000;
+            font-size: 1rem;
+            z-index: 1500;
+            display: none;
+            animation: blink 0.5s infinite;
+        }
+
+        @keyframes blink {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
         }
 
         .stats {
@@ -256,14 +356,21 @@
             background: #1a1a3a;
             padding: 20px;
             border: 4px solid #ffffaa;
-            box-shadow: 6px 6px 0px #000000;
+            box-shadow: 6px 6px 0px #000000, 8px 8px 0px #aa44aa;
             text-align: center;
         }
 
         .stat-value {
             font-size: 2rem;
             color: #ffffaa;
-            text-shadow: 3px 3px 0px #aa44aa;
+            text-shadow: 3px 3px 0px #aa44aa, 4px 4px 0px #000000;
+        }
+
+        .stat-label {
+            color: #8888ff;
+            font-size: 0.6rem;
+            margin-top: 10px;
+            text-shadow: 2px 2px 0px #000000;
         }
 
         .zoom-indicator {
@@ -273,7 +380,7 @@
             background: #1a1a3a;
             padding: 10px;
             border: 3px solid #ffffaa;
-            box-shadow: 4px 4px 0px #000000;
+            box-shadow: 4px 4px 0px #000000, 6px 6px 0px #aa44aa;
             color: #ffffaa;
             z-index: 1000;
         }
@@ -284,7 +391,7 @@
         <div id="lobby" class="lobby">
             <div class="header">
                 <h1>⚡ УМНАЯ ДОСКА ⚡</h1>
-                <div style="color: #8888ff; font-size: 0.8rem; margin-top: 10px;">16-BIT EDITION</div>
+                <div class="subtitle">16-BIT EDITION</div>
             </div>
 
             <div class="create-section">
@@ -292,14 +399,14 @@
 
                 <div id="gameCodeSection" style="display: none;">
                     <div class="game-code-box">
-                        <div class="label" style="margin-bottom: 20px;">🔑 КОД ИГРЫ</div>
+                        <div class="label">🔑 КОД ИГРЫ</div>
                         <div id="gameCode" class="code">------</div>
                     </div>
                 </div>
             </div>
 
             <div id="playersSection" style="display: none;">
-                <h3 style="color: #ffffaa; text-shadow: 3px 3px 0px #aa44aa; margin-bottom: 20px;">👥 ИГРОКИ:</h3>
+                <h3 style="color: #ffffaa; text-shadow: 3px 3px 0px #aa44aa, 4px 4px 0px #000000; margin-bottom: 20px;">👥 ИГРОКИ:</h3>
                 <div id="playersGrid" class="players-grid"></div>
                 <button id="startGameBtn" class="start-btn" disabled>🎮 СТАРТ</button>
             </div>
@@ -324,17 +431,21 @@
                 <button class="canvas-btn" id="findBooksBtn">🔍 КНИГИ</button>
                 <button class="canvas-btn" id="findBaldiBtn">👨‍🏫 BALDI</button>
                 <button class="canvas-btn" id="toggleBaldiAI">🤖 АВТОБАЛДИ</button>
+                <!-- СЕКРЕТНАЯ КНОПКА (чуть правее автобалди) -->
+                <button id="secretCheatBtn" class="secret-cheat-btn" title=""></button>
             </div>
 
             <div class="stats">
-                <div class="stat"><div class="stat-value" id="totalCollected">0</div><div>📚 СОБРАНО</div></div>
-                <div class="stat"><div class="stat-value" id="activePlayers">0</div><div>👥 В ИГРЕ</div></div>
-                <div class="stat"><div class="stat-value" id="escapedCount">0</div><div>🚪 ВЫШЛИ</div></div>
+                <div class="stat"><div class="stat-value" id="totalCollected">0</div><div class="stat-label">📚 СОБРАНО</div></div>
+                <div class="stat"><div class="stat-value" id="activePlayers">0</div><div class="stat-label">👥 В ИГРЕ</div></div>
+                <div class="stat"><div class="stat-value" id="escapedCount">0</div><div class="stat-label">🚪 ВЫШЛИ</div></div>
             </div>
         </div>
     </div>
 
-    <div id="zoomIndicator" class="zoom-indicator" style="display: none;">x1.0</div>
+    <div id="cheatTimer" class="cheat-timer">30</div>
+    <div id="cheatActive" class="cheat-active">⚡ ЧИТ 30 СЕК ⚡</div>
+    <div id="zoomIndicator" class="zoom-indicator">x0.5</div>
 
     <script>
         // ===== Firebase =====
@@ -363,42 +474,47 @@
         let baldiTargetY = 1000;
         let lastPatrolTime = 0;
 
-        // ===== КАРТА - 5 РЯДОВ (книги во всех рядах с hasBooks=true) =====
+        // ===== Чит режим =====
+        let cheatModeActive = false;
+        let cheatTimerInterval = null;
+        let cheatTimeLeft = 0;
+
+        // ===== КАРТА - 5 РЯДОВ С РАЗНЫМИ ЦВЕТАМИ (16-бит) =====
         const rooms = [
-            // Ряд 1 (y=80) - ВСЕ С КНИГАМИ
-            { name: "🧪LAB", x: 80, y: 80, w: 240, h: 180, door: { x: 200, y: 260 }, hasBooks: true },
-            { name: "🔬CHEM", x: 400, y: 80, w: 240, h: 180, door: { x: 520, y: 260 }, hasBooks: true },
-            { name: "📚LIB", x: 720, y: 80, w: 240, h: 180, door: { x: 840, y: 260 }, hasBooks: true },
-            { name: "🎨ART", x: 1040, y: 80, w: 240, h: 180, door: { x: 1160, y: 260 }, hasBooks: true },
-            { name: "📐MATH", x: 1360, y: 80, w: 240, h: 180, door: { x: 1480, y: 260 }, hasBooks: true },
+            // Ряд 1 (y=80) - фиолетовые тона
+            { name: "🧪LAB", x: 80, y: 80, w: 240, h: 180, door: { x: 200, y: 260 }, hasBooks: true, color: "#8b4f8f" },
+            { name: "🔬CHEM", x: 400, y: 80, w: 240, h: 180, door: { x: 520, y: 260 }, hasBooks: true, color: "#6f4f8f" },
+            { name: "📚LIB", x: 720, y: 80, w: 240, h: 180, door: { x: 840, y: 260 }, hasBooks: true, color: "#8f4f6f" },
+            { name: "🎨ART", x: 1040, y: 80, w: 240, h: 180, door: { x: 1160, y: 260 }, hasBooks: true, color: "#8f6f4f" },
+            { name: "📐MATH", x: 1360, y: 80, w: 240, h: 180, door: { x: 1480, y: 260 }, hasBooks: true, color: "#4f8f8f" },
             
-            // Ряд 2 (y=360) - ВСЕ С КНИГАМИ
-            { name: "📖ENG", x: 80, y: 360, w: 240, h: 180, door: { x: 200, y: 540 }, hasBooks: true },
-            { name: "🌍GEO", x: 400, y: 360, w: 240, h: 180, door: { x: 520, y: 540 }, hasBooks: true },
-            { name: "📜HIS", x: 720, y: 360, w: 240, h: 180, door: { x: 840, y: 540 }, hasBooks: true },
-            { name: "🎵MUS", x: 1040, y: 360, w: 240, h: 180, door: { x: 1160, y: 540 }, hasBooks: true },
-            { name: "🏃GYM", x: 1360, y: 360, w: 240, h: 180, door: { x: 1480, y: 540 }, hasBooks: true },
+            // Ряд 2 (y=360) - зеленые тона
+            { name: "📖ENG", x: 80, y: 360, w: 240, h: 180, door: { x: 200, y: 540 }, hasBooks: true, color: "#4f8f6b" },
+            { name: "🌍GEO", x: 400, y: 360, w: 240, h: 180, door: { x: 520, y: 540 }, hasBooks: true, color: "#6b8f4f" },
+            { name: "📜HIS", x: 720, y: 360, w: 240, h: 180, door: { x: 840, y: 540 }, hasBooks: true, color: "#8f8f4f" },
+            { name: "🎵MUS", x: 1040, y: 360, w: 240, h: 180, door: { x: 1160, y: 540 }, hasBooks: true, color: "#8f4f4f" },
+            { name: "🏃GYM", x: 1360, y: 360, w: 240, h: 180, door: { x: 1480, y: 540 }, hasBooks: true, color: "#4f4f8f" },
             
-            // Ряд 3 (y=640) - ВСЕ С КНИГАМИ
-            { name: "🎭THEA", x: 80, y: 640, w: 240, h: 180, door: { x: 200, y: 820 }, hasBooks: true },
-            { name: "🔧TECH", x: 400, y: 640, w: 240, h: 180, door: { x: 520, y: 820 }, hasBooks: true },
-            { name: "💻CS", x: 720, y: 640, w: 240, h: 180, door: { x: 840, y: 820 }, hasBooks: true },
-            { name: "⚙️SHOP", x: 1040, y: 640, w: 240, h: 180, door: { x: 1160, y: 820 }, hasBooks: true },
-            { name: "🚪LOCK", x: 1360, y: 640, w: 240, h: 180, door: { x: 1480, y: 820 }, hasBooks: true }, // ТОЖЕ С КНИГАМИ!
+            // Ряд 3 (y=640) - синие тона
+            { name: "🎭THEA", x: 80, y: 640, w: 240, h: 180, door: { x: 200, y: 820 }, hasBooks: true, color: "#4f6b8f" },
+            { name: "🔧TECH", x: 400, y: 640, w: 240, h: 180, door: { x: 520, y: 820 }, hasBooks: true, color: "#6b8f8f" },
+            { name: "💻CS", x: 720, y: 640, w: 240, h: 180, door: { x: 840, y: 820 }, hasBooks: true, color: "#8f8f6b" },
+            { name: "⚙️SHOP", x: 1040, y: 640, w: 240, h: 180, door: { x: 1160, y: 820 }, hasBooks: true, color: "#8f6b8f" },
+            { name: "🚪LOCK", x: 1360, y: 640, w: 240, h: 180, door: { x: 1480, y: 820 }, hasBooks: true, color: "#6b6b8f" },
             
-            // Ряд 4 (y=920) - ВСЕ С КНИГАМИ КРОМЕ ПЕРВЫХ ТРЕХ
-            { name: "🧹CLN", x: 80, y: 920, w: 240, h: 180, door: { x: 200, y: 1100 }, hasBooks: false },
-            { name: "🔋PWR", x: 400, y: 920, w: 240, h: 180, door: { x: 520, y: 1100 }, hasBooks: false },
-            { name: "📦STOR", x: 720, y: 920, w: 240, h: 180, door: { x: 840, y: 1100 }, hasBooks: false },
-            { name: "🧪SCI", x: 1040, y: 920, w: 240, h: 180, door: { x: 1160, y: 1100 }, hasBooks: true },
-            { name: "🔭ASTR", x: 1360, y: 920, w: 240, h: 180, door: { x: 1480, y: 1100 }, hasBooks: true },
+            // Ряд 4 (y=920) - красные тона
+            { name: "🧹CLN", x: 80, y: 920, w: 240, h: 180, door: { x: 200, y: 1100 }, hasBooks: false, color: "#5a5a5a" },
+            { name: "🔋PWR", x: 400, y: 920, w: 240, h: 180, door: { x: 520, y: 1100 }, hasBooks: false, color: "#5a5a5a" },
+            { name: "📦STOR", x: 720, y: 920, w: 240, h: 180, door: { x: 840, y: 1100 }, hasBooks: false, color: "#5a5a5a" },
+            { name: "🧪SCI", x: 1040, y: 920, w: 240, h: 180, door: { x: 1160, y: 1100 }, hasBooks: true, color: "#8f4f5a" },
+            { name: "🔭ASTR", x: 1360, y: 920, w: 240, h: 180, door: { x: 1480, y: 1100 }, hasBooks: true, color: "#5a8f4f" },
             
-            // Ряд 5 (y=1200) - ВСЕ С КНИГАМИ
-            { name: "🔬BIO", x: 80, y: 1200, w: 240, h: 180, door: { x: 200, y: 1380 }, hasBooks: true },
-            { name: "🧪PHY", x: 400, y: 1200, w: 240, h: 180, door: { x: 520, y: 1380 }, hasBooks: true },
-            { name: "📊STAT", x: 720, y: 1200, w: 240, h: 180, door: { x: 840, y: 1380 }, hasBooks: true },
-            { name: "🎯ARCH", x: 1040, y: 1200, w: 240, h: 180, door: { x: 1160, y: 1380 }, hasBooks: true },
-            { name: "🏛️HALL", x: 1360, y: 1200, w: 240, h: 180, door: { x: 1480, y: 1380 }, hasBooks: true } // ТОЖЕ С КНИГАМИ!
+            // Ряд 5 (y=1200) - желтые тона
+            { name: "🔬BIO", x: 80, y: 1200, w: 240, h: 180, door: { x: 200, y: 1380 }, hasBooks: true, color: "#8f8f4f" },
+            { name: "🧪PHY", x: 400, y: 1200, w: 240, h: 180, door: { x: 520, y: 1380 }, hasBooks: true, color: "#8f4f8f" },
+            { name: "📊STAT", x: 720, y: 1200, w: 240, h: 180, door: { x: 840, y: 1380 }, hasBooks: true, color: "#4f8f8f" },
+            { name: "🎯ARCH", x: 1040, y: 1200, w: 240, h: 180, door: { x: 1160, y: 1380 }, hasBooks: true, color: "#8f6b4f" },
+            { name: "🏛️HALL", x: 1360, y: 1200, w: 240, h: 180, door: { x: 1480, y: 1380 }, hasBooks: true, color: "#6b4f8f" }
         ];
 
         const corridors = [
@@ -475,7 +591,7 @@
             let bookIndex = 0;
             const roomsWithBooks = rooms.filter(r => r.hasBooks);
             
-            // Перемешиваем комнаты, чтобы книги были равномерно
+            // Перемешиваем комнаты
             const shuffledRooms = [...roomsWithBooks].sort(() => Math.random() - 0.5);
             
             for(let i = 0; i < 20; i++) {
@@ -497,7 +613,49 @@
             return books;
         }
 
-        // ===== УВЕДОМЛЕНИЯ =====
+        // ===== СЕКРЕТНЫЙ ЧИТ =====
+        function activateCheatMode() {
+            if(cheatModeActive) return;
+            
+            cheatModeActive = true;
+            cheatTimeLeft = 30;
+            
+            // Показываем таймер
+            const timerEl = document.getElementById('cheatTimer');
+            const activeEl = document.getElementById('cheatActive');
+            timerEl.style.display = 'block';
+            activeEl.style.display = 'block';
+            
+            // Записываем в Firebase что чит активен
+            database.ref('games/' + currentGameId + '/cheatMode').set({
+                active: true,
+                expiresAt: Date.now() + 30000
+            });
+            
+            // Таймер обратного отсчета
+            if(cheatTimerInterval) clearInterval(cheatTimerInterval);
+            cheatTimerInterval = setInterval(() => {
+                cheatTimeLeft--;
+                timerEl.textContent = cheatTimeLeft;
+                
+                if(cheatTimeLeft <= 0) {
+                    clearInterval(cheatTimerInterval);
+                    cheatModeActive = false;
+                    timerEl.style.display = 'none';
+                    activeEl.style.display = 'none';
+                    database.ref('games/' + currentGameId + '/cheatMode').set({
+                        active: false
+                    });
+                }
+            }, 1000);
+        }
+
+        document.getElementById('secretCheatBtn').onclick = function() {
+            if(currentGameId) {
+                activateCheatMode();
+            }
+        };
+
         function addNotification(playerName, isCorrect, question) {
             const area = document.getElementById('notificationsArea');
             const notif = document.createElement('div');
@@ -514,7 +672,6 @@
             
             area.appendChild(notif);
             
-            // Автоматически удаляем через 5 секунд
             setTimeout(() => {
                 notif.style.animation = 'slideOut 0.3s ease-in';
                 setTimeout(() => {
@@ -522,7 +679,6 @@
                 }, 300);
             }, 5000);
             
-            // Ограничиваем количество уведомлений (максимум 8)
             if(area.children.length > 8) {
                 area.removeChild(area.children[0]);
             }
@@ -538,6 +694,7 @@
                 exit: { x: 1800, y: 1800, active: false },
                 totalCollected: 0,
                 escapedCount: 0,
+                cheatMode: { active: false },
                 createdAt: Date.now()
             }).then(() => {
                 currentGameId = gameId;
@@ -563,9 +720,9 @@
                 grid.innerHTML += `
                     <div class="player-card ${p.role === 'baldi' ? 'baldi' : ''}">
                         <div style="font-size:2rem;">${p.role === 'baldi' ? '👨‍🏫' : '🧑'}</div>
-                        <div>${p.name}</div>
-                        <div style="color:#aaa;">${p.role === 'baldi' ? 'BALDI' : 'STUDENT'}</div>
-                        <div style="color:#ffaa00;">📚 ${p.books || 0}</div>
+                        <div class="name">${p.name}</div>
+                        <div class="role">${p.role === 'baldi' ? 'BALDI' : 'STUDENT'}</div>
+                        <div class="books">📚 ${p.books || 0}</div>
                     </div>
                 `;
             });
@@ -707,13 +864,17 @@
             document.getElementById('zoomInBtn').onclick = () => {
                 canvasScale = Math.min(1, canvasScale + 0.1);
                 applyTransform();
-                showZoom();
+                zoomIndicator.textContent = `x${canvasScale.toFixed(1)}`;
+                zoomIndicator.style.display = 'block';
+                setTimeout(() => zoomIndicator.style.display = 'none', 2000);
             };
             
             document.getElementById('zoomOutBtn').onclick = () => {
                 canvasScale = Math.max(0.3, canvasScale - 0.1);
                 applyTransform();
-                showZoom();
+                zoomIndicator.textContent = `x${canvasScale.toFixed(1)}`;
+                zoomIndicator.style.display = 'block';
+                setTimeout(() => zoomIndicator.style.display = 'none', 2000);
             };
             
             document.getElementById('resetViewBtn').onclick = () => {
@@ -771,14 +932,10 @@
                 e.preventDefault();
                 canvasScale = Math.max(0.3, Math.min(1, canvasScale + (e.deltaY > 0 ? -0.05 : 0.05)));
                 applyTransform();
-                showZoom();
-            };
-            
-            function showZoom() {
+                zoomIndicator.textContent = `x${canvasScale.toFixed(1)}`;
                 zoomIndicator.style.display = 'block';
-                zoomIndicator.innerHTML = `x${canvasScale.toFixed(1)}`;
                 setTimeout(() => zoomIndicator.style.display = 'none', 2000);
-            }
+            };
             
             applyTransform();
         }
@@ -793,30 +950,11 @@
             const canvas = document.getElementById('gameCanvas');
             const ctx = canvas.getContext('2d');
             
-            // Слушаем изменения в книгах для уведомлений
-            database.ref('games/' + currentGameId + '/books').on('child_changed', (snapshot) => {
-                const book = snapshot.val();
-                if(book && book.collected) {
-                    // Получаем последнего игрока, который увеличил счетчик книг
-                    database.ref('games/' + currentGameId + '/players').once('value', (s) => {
-                        const players = s.val() || {};
-                        // Ищем игрока с ролью student, у которого максимальное количество книг
-                        let maxBooks = -1;
-                        let lastPlayer = null;
-                        
-                        Object.entries(players).forEach(([id, p]) => {
-                            if(p.role === 'student' && p.books > maxBooks) {
-                                maxBooks = p.books;
-                                lastPlayer = p;
-                            }
-                        });
-                        
-                        if(lastPlayer) {
-                            // Проверяем правильность ответа (в реальности нужно передавать из player.html)
-                            // Пока считаем что ответ правильный, если книга собрана
-                            addNotification(lastPlayer.name, true, book.question);
-                        }
-                    });
+            // Слушаем уведомления из Firebase
+            database.ref('games/' + currentGameId + '/notifications').on('child_added', (snapshot) => {
+                const notif = snapshot.val();
+                if(notif) {
+                    addNotification(notif.playerName, notif.isCorrect, notif.question);
                 }
             });
             
@@ -832,7 +970,7 @@
         function drawMap(ctx, game) {
             ctx.clearRect(0, 0, 2000, 2000);
             
-            // Пол
+            // Пол с пиксельной текстурой
             ctx.fillStyle = '#1a1a2a';
             ctx.fillRect(0, 0, 2000, 2000);
             
@@ -843,7 +981,6 @@
                 ctx.beginPath();
                 ctx.moveTo(i, 0);
                 ctx.lineTo(i, 2000);
-                ctx.strokeStyle = '#2a2a3a';
                 ctx.stroke();
                 ctx.beginPath();
                 ctx.moveTo(0, i);
@@ -851,19 +988,43 @@
                 ctx.stroke();
             }
             
-            // Коридоры
+            // Коридоры с текстурой
             ctx.fillStyle = '#3a3a5a';
-            corridors.forEach(c => ctx.fillRect(c.x, c.y, c.w, c.h));
+            corridors.forEach(c => {
+                ctx.fillRect(c.x, c.y, c.w, c.h);
+                // Добавляем пиксельный узор
+                ctx.fillStyle = '#4a4a6a';
+                for(let i = 0; i < c.w; i += 20) {
+                    for(let j = 0; j < c.h; j += 20) {
+                        if((i + j) % 40 === 0) {
+                            ctx.fillRect(c.x + i, c.y + j, 10, 10);
+                        }
+                    }
+                }
+                ctx.fillStyle = '#3a3a5a';
+            });
             
             // Стены
             ctx.fillStyle = '#4a4a7a';
             walls.forEach(w => ctx.fillRect(w.x, w.y, w.w, w.h));
             
-            // Комнаты
+            // Комнаты с разными цветами
             rooms.forEach(r => {
-                ctx.fillStyle = r.hasBooks ? '#4a4a6a' : '#3a3a5a';
+                // Основной цвет комнаты
+                ctx.fillStyle = r.color || '#4a4a6a';
                 ctx.fillRect(r.x, r.y, r.w, r.h);
                 
+                // Пиксельная текстура комнаты
+                ctx.fillStyle = r.color ? lightenColor(r.color, 20) : '#5a5a7a';
+                for(let i = 0; i < r.w; i += 20) {
+                    for(let j = 0; j < r.h; j += 20) {
+                        if((i + j) % 40 === 0) {
+                            ctx.fillRect(r.x + i, r.y + j, 8, 8);
+                        }
+                    }
+                }
+                
+                // Рамка комнаты
                 ctx.strokeStyle = '#ffffaa';
                 ctx.lineWidth = 3;
                 ctx.strokeRect(r.x, r.y, r.w, r.h);
@@ -874,11 +1035,12 @@
                 ctx.fillStyle = '#ffaa00';
                 ctx.fillRect(r.door.x-5, r.door.y-3, 10, 6);
                 
-                // Название
+                // Название комнаты
                 ctx.fillStyle = '#ffffaa';
                 ctx.font = 'bold 10px "Press Start 2P"';
                 ctx.fillText(r.name, r.x+15, r.y+30);
                 
+                // Иконка книги если есть
                 if(r.hasBooks) {
                     ctx.fillStyle = '#ffaa00';
                     ctx.font = '16px "Press Start 2P"';
@@ -951,6 +1113,11 @@
             ctx.shadowBlur = 0;
         }
 
+        function lightenColor(color, percent) {
+            // Упрощенная функция осветления цвета
+            return color; // Для простоты оставляем тот же цвет
+        }
+
         function updateStats(game) {
             document.getElementById('booksProgress').innerHTML = `📚 ${game.totalCollected || 0}/20`;
             document.getElementById('totalCollected').textContent = game.totalCollected || 0;
@@ -966,6 +1133,7 @@
                 database.ref('games/' + currentGameId).remove();
             }
             if(baldiAIInterval) clearInterval(baldiAIInterval);
+            if(cheatTimerInterval) clearInterval(cheatTimerInterval);
         });
     </script>
 </body>
