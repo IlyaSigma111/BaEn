@@ -6,7 +6,6 @@
     <title>Baldie English | Умная доска</title>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-    <script src="firebase.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
         
@@ -261,13 +260,32 @@
     <div id="zoomIndicator" class="zoom-indicator" style="display: none;">🔍 x0.5</div>
 
     <script>
+        // ===== Firebase конфигурация =====
+        const firebaseConfig = {
+            apiKey: "AIzaSyB-fanAD0E3GY04t41vxfpyZjo0F6LqDYs",
+            authDomain: "baldieenglish.firebaseapp.com",
+            projectId: "baldieenglish",
+            storageBucket: "baldieenglish.firebasestorage.app",
+            messagingSenderId: "107989336699",
+            appId: "1:107989336699:web:05a047ad6c0a44cf7158de"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
         let currentGameId = null;
         let canvasScale = 0.5;
         let canvasOffsetX = 0, canvasOffsetY = 0;
         let isDragging = false;
         let dragStartX, dragStartY;
+        
+        // ===== ИСПРАВЛЕННЫЙ АВТОБАЛДИ =====
         let baldiAIInterval = null;
         let baldiAIActive = false;
+        let baldiTargetX = 1000;
+        let baldiTargetY = 1000;
+        let baldiState = 'patrol';
+        let lastPatrolTime = 0;
 
         // ========== КАРТА ==========
         const WALL_SIZE = 30;
@@ -277,17 +295,14 @@
             { name: "🔬 ХИМИЯ", x: 550, y: 150, w: 250, h: 200, door: { x: 675, y: 350 }, hasBooks: true },
             { name: "📚 БИБЛ", x: 950, y: 150, w: 250, h: 200, door: { x: 1075, y: 350 }, hasBooks: true },
             { name: "🎨 МАСТ", x: 1350, y: 150, w: 250, h: 200, door: { x: 1475, y: 350 }, hasBooks: true },
-            
             { name: "📐 МАТЕМ", x: 150, y: 550, w: 250, h: 200, door: { x: 275, y: 750 }, hasBooks: true },
             { name: "📖 АНГЛ", x: 550, y: 550, w: 250, h: 200, door: { x: 675, y: 750 }, hasBooks: true },
             { name: "🌍 ГЕО", x: 950, y: 550, w: 250, h: 200, door: { x: 1075, y: 750 }, hasBooks: true },
             { name: "📜 ИСТ", x: 1350, y: 550, w: 250, h: 200, door: { x: 1475, y: 750 }, hasBooks: true },
-            
             { name: "🎵 МУЗ", x: 150, y: 950, w: 250, h: 200, door: { x: 275, y: 1150 }, hasBooks: true },
             { name: "🏃 СПОРТ", x: 550, y: 950, w: 250, h: 200, door: { x: 675, y: 1150 }, hasBooks: true },
             { name: "🎭 ТЕАТР", x: 950, y: 950, w: 250, h: 200, door: { x: 1075, y: 1150 }, hasBooks: true },
             { name: "🔧 ТЕХ", x: 1350, y: 950, w: 250, h: 200, door: { x: 1475, y: 1150 }, hasBooks: true },
-            
             { name: "💻 ИНФ", x: 150, y: 1350, w: 250, h: 200, door: { x: 275, y: 1550 }, hasBooks: false },
             { name: "⚙️ ПОД", x: 550, y: 1350, w: 250, h: 200, door: { x: 675, y: 1550 }, hasBooks: false },
             { name: "🚪 ГАРД", x: 950, y: 1350, w: 250, h: 200, door: { x: 1075, y: 1550 }, hasBooks: false },
@@ -305,52 +320,78 @@
             { x: 1600, y: 0, w: 100, h: 2000 }
         ];
 
+        // ИСПРАВЛЕННЫЕ СТЕНЫ - теперь полностью закрывают периметр
         const walls = [
+            // Внешние стены
             { x: 0, y: 0, w: 2000, h: 40 },
             { x: 0, y: 1960, w: 2000, h: 40 },
             { x: 0, y: 0, w: 40, h: 2000 },
-            { x: 1960, y: 0, w: 40, h: 2000 }
+            { x: 1960, y: 0, w: 40, h: 2000 },
+            
+            // Дополнительные стены между комнатами (чтобы нельзя было пройти сквозь правые стены)
+            { x: 400, y: 0, w: 40, h: 400 },
+            { x: 800, y: 0, w: 40, h: 400 },
+            { x: 1200, y: 0, w: 40, h: 400 },
+            { x: 1600, y: 0, w: 40, h: 400 },
+            { x: 400, y: 600, w: 40, h: 400 },
+            { x: 800, y: 600, w: 40, h: 400 },
+            { x: 1200, y: 600, w: 40, h: 400 },
+            { x: 1600, y: 600, w: 40, h: 400 },
+            { x: 400, y: 1200, w: 40, h: 400 },
+            { x: 800, y: 1200, w: 40, h: 400 },
+            { x: 1200, y: 1200, w: 40, h: 400 },
+            { x: 1600, y: 1200, w: 40, h: 400 }
         ];
 
         // Функция проверки, находится ли точка в коридоре
         function isInCorridor(x, y) {
             for(let cor of corridors) {
-                if(x > cor.x && x < cor.x + cor.w && y > cor.y && y < cor.y + cor.h) {
+                if(x >= cor.x && x <= cor.x + cor.w && y >= cor.y && y <= cor.y + cor.h) {
                     return true;
                 }
             }
             return false;
         }
 
+        // ИСПРАВЛЕННАЯ проверка коллизий - теперь стены работают
         function checkCollision(x, y) {
+            // Границы карты
             if(x < 45 || x > 1955 || y < 45 || y > 1955) return true;
 
+            // Проверка стен
             for(let wall of walls) {
                 if(x > wall.x && x < wall.x + wall.w && y > wall.y && y < wall.y + wall.h) {
                     return true;
                 }
             }
 
+            // Проверка комнат - можно заходить только через двери
             for(let room of rooms) {
+                // Если внутри комнаты - можно
                 if(x > room.x && x < room.x + room.w && y > room.y && y < room.y + room.h) {
                     return false;
                 }
                 
-                const nearWall = x > room.x - 20 && x < room.x + room.w + 20 && 
+                // Проверка, не пытаемся ли войти сквозь стену
+                const nearRoom = x > room.x - 20 && x < room.x + room.w + 20 && 
                                  y > room.y - 20 && y < room.y + room.h + 20;
                 
-                if(nearWall) {
+                if(nearRoom) {
+                    // Если рядом с дверью - можно
                     const distToDoor = Math.hypot(x - room.door.x, y - room.door.y);
                     if(distToDoor < 50) return false;
                     
-                    for(let cor of corridors) {
-                        if(x > cor.x && x < cor.x + cor.w && y > cor.y && y < cor.y + cor.h) {
-                            return false;
-                        }
-                    }
+                    // Если в коридоре - можно
+                    if(isInCorridor(x, y)) return false;
+                    
+                    // Иначе стена
                     return true;
                 }
             }
+            
+            // В коридоре всегда можно
+            if(isInCorridor(x, y)) return false;
+            
             return false;
         }
 
@@ -463,11 +504,7 @@
             });
         }
 
-        // ===== УМНЫЙ ИИ ДЛЯ BALDI =====
-        let baldiTargetX = 1000;
-        let baldiTargetY = 500;
-        let baldiState = 'patrol'; // patrol, chase
-        
+        // ===== ИСПРАВЛЕННЫЙ АВТОБАЛДИ (теперь работает нормально) =====
         function toggleBaldiAI(active) {
             baldiAIActive = active;
             const btn = document.getElementById('toggleBaldiAI');
@@ -479,27 +516,25 @@
                 baldiAIInterval = setInterval(() => {
                     if(!currentGameId || !baldiAIActive) return;
                     
-                    database.ref('games/' + currentGameId).once('value', (s) => {
-                        const game = s.val();
+                    database.ref('games/' + currentGameId).once('value', (snapshot) => {
+                        const game = snapshot.val();
                         if(!game || game.status !== 'playing') return;
                         
-                        let baldiId = null, baldi = null;
+                        // Находим Балди и учеников
+                        let baldiId = null;
+                        let baldi = null;
                         let students = [];
                         
                         Object.entries(game.players || {}).forEach(([id, p]) => {
-                            if(p.role === 'baldi') { 
-                                baldiId = id; 
-                                baldi = p; 
+                            if(p.role === 'baldi') {
+                                baldiId = id;
+                                baldi = p;
                             } else if(p.role === 'student' && !p.caught && !p.escaped) {
-                                students.push(p);
+                                students.push({...p, id});
                             }
                         });
                         
                         if(!baldi || !baldiId) return;
-                        
-                        // Логика ИИ
-                        let targetX = baldi.x;
-                        let targetY = baldi.y;
                         
                         // Ищем ближайшего ученика
                         let nearestStudent = null;
@@ -513,23 +548,34 @@
                             }
                         });
                         
-                        // Решаем, что делать
-                        if(nearestStudent && minDist < 400) {
-                            // Видим ученика - гонимся за ним!
-                            baldiState = 'chase';
+                        // Логика движения
+                        let targetX = baldi.x;
+                        let targetY = baldi.y;
+                        let speed = 3;
+                        
+                        if(nearestStudent && minDist < 500) {
+                            // Режим преследования
                             targetX = nearestStudent.x;
                             targetY = nearestStudent.y;
+                            speed = 4;
+                            baldiState = 'chase';
                         } else {
+                            // Режим патруля
                             baldiState = 'patrol';
-                            // Патрулируем по коридорам
-                            if(Math.hypot(baldi.x - baldiTargetX, baldi.y - baldiTargetY) < 50 || Math.random() < 0.02) {
-                                // Выбираем новую точку в коридоре
+                            
+                            // Меняем цель каждые 3 секунды или если дошли
+                            const now = Date.now();
+                            if(now - lastPatrolTime > 3000 || Math.hypot(baldi.x - baldiTargetX, baldi.y - baldiTargetY) < 50) {
+                                // Выбираем случайную точку в коридоре
                                 const randomCorridor = corridors[Math.floor(Math.random() * corridors.length)];
-                                baldiTargetX = randomCorridor.x + 100 + Math.random() * (randomCorridor.w - 200);
-                                baldiTargetY = randomCorridor.y + 100 + Math.random() * (randomCorridor.h - 200);
+                                baldiTargetX = randomCorridor.x + 50 + Math.random() * (randomCorridor.w - 100);
+                                baldiTargetY = randomCorridor.y + 50 + Math.random() * (randomCorridor.h - 100);
+                                lastPatrolTime = now;
                             }
+                            
                             targetX = baldiTargetX;
                             targetY = baldiTargetY;
+                            speed = 2.5;
                         }
                         
                         // Двигаемся к цели
@@ -537,20 +583,21 @@
                         const dy = targetY - baldi.y;
                         const dist = Math.hypot(dx, dy);
                         
-                        if(dist > 10) {
-                            // Скорость зависит от состояния
-                            const speed = baldiState === 'chase' ? 5 : 3.5;
+                        if(dist > 5) {
                             const moveX = (dx / dist) * speed;
                             const moveY = (dy / dist) * speed;
                             
                             const newX = baldi.x + moveX;
                             const newY = baldi.y + moveY;
                             
-                            // Проверка коллизий (упрощенная)
+                            // Проверяем коллизии (но разрешаем заходить в комнаты)
                             if(!checkCollision(newX, newY) || isInCorridor(newX, newY)) {
                                 database.ref('games/' + currentGameId + '/players/' + baldiId).update({
                                     x: newX, y: newY
                                 });
+                            } else {
+                                // Если уперлись в стену, меняем цель
+                                lastPatrolTime = 0;
                             }
                         }
                         
@@ -564,7 +611,7 @@
                             }
                         });
                     });
-                }, 50); // 50мс для плавного движения
+                }, 100); // Обновляем 10 раз в секунду
             } else {
                 clearInterval(baldiAIInterval);
             }
@@ -598,7 +645,8 @@
             
             document.getElementById('findBooksBtn').onclick = () => {
                 database.ref('games/' + currentGameId + '/books').once('value', (s) => {
-                    const book = Object.values(s.val() || {}).find(b => !b.collected);
+                    const books = s.val() || {};
+                    const book = Object.values(books).find(b => !b.collected);
                     if(book) {
                         canvasOffsetX = -book.x * canvasScale + container.clientWidth/2;
                         canvasOffsetY = -book.y * canvasScale + container.clientHeight/2;
@@ -795,6 +843,14 @@
             document.getElementById('escapedCount').textContent = game.escapedCount || 0;
             document.getElementById('exitStatus').innerHTML = game.exit?.active ? '🚪 ОТКРЫТ' : '🚪 ЗАКРЫТ';
         }
+
+        // Очистка игры при закрытии
+        window.addEventListener('beforeunload', function() {
+            if(currentGameId) {
+                database.ref('games/' + currentGameId).remove();
+            }
+            if(baldiAIInterval) clearInterval(baldiAIInterval);
+        });
     </script>
 </body>
 </html>
