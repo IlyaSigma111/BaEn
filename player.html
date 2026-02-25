@@ -6,7 +6,6 @@
     <title>Baldie English | Телефон</title>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-    <script src="firebase.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
         
@@ -458,6 +457,19 @@
     </div>
 
     <script>
+        // ===== Firebase конфигурация =====
+        const firebaseConfig = {
+            apiKey: "AIzaSyB-fanAD0E3GY04t41vxfpyZjo0F6LqDYs",
+            authDomain: "baldieenglish.firebaseapp.com",
+            projectId: "baldieenglish",
+            storageBucket: "baldieenglish.firebasestorage.app",
+            messagingSenderId: "107989336699",
+            appId: "1:107989336699:web:05a047ad6c0a44cf7158de"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
         let playerId = null;
         let currentGameId = null;
         let playerRole = 'student';
@@ -472,7 +484,7 @@
         let cooldownInterval = null;
         let lastNotificationTime = 0;
 
-        // ========== КАРТА ==========
+        // ========== КАРТА (та же что в board.html) ==========
         const rooms = [
             { name: "🧪 ЛАБ", x: 150, y: 150, w: 250, h: 200, door: { x: 275, y: 350 }, hasBooks: true },
             { name: "🔬 ХИМИЯ", x: 550, y: 150, w: 250, h: 200, door: { x: 675, y: 350 }, hasBooks: true },
@@ -507,7 +519,19 @@
             { x: 0, y: 0, w: 2000, h: 40 },
             { x: 0, y: 1960, w: 2000, h: 40 },
             { x: 0, y: 0, w: 40, h: 2000 },
-            { x: 1960, y: 0, w: 40, h: 2000 }
+            { x: 1960, y: 0, w: 40, h: 2000 },
+            { x: 400, y: 0, w: 40, h: 400 },
+            { x: 800, y: 0, w: 40, h: 400 },
+            { x: 1200, y: 0, w: 40, h: 400 },
+            { x: 1600, y: 0, w: 40, h: 400 },
+            { x: 400, y: 600, w: 40, h: 400 },
+            { x: 800, y: 600, w: 40, h: 400 },
+            { x: 1200, y: 600, w: 40, h: 400 },
+            { x: 1600, y: 600, w: 40, h: 400 },
+            { x: 400, y: 1200, w: 40, h: 400 },
+            { x: 800, y: 1200, w: 40, h: 400 },
+            { x: 1200, y: 1200, w: 40, h: 400 },
+            { x: 1600, y: 1200, w: 40, h: 400 }
         ];
 
         document.getElementById('joinBtn').onclick = async function() {
@@ -554,9 +578,18 @@
                 currentGameId = gameCode;
                 playerRole = role;
 
-                // Baldi спавнится в центре
-                let startX = role === 'baldi' ? 1000 : 500 + Math.random() * 1000;
-                let startY = role === 'baldi' ? 1000 : 500 + Math.random() * 1000;
+                // Стартовые позиции
+                let startX, startY;
+                if(role === 'baldi') {
+                    startX = 1000;
+                    startY = 1000;
+                } else {
+                    // Ученик спавнится в случайной комнате с книгами
+                    const roomsWithBooks = rooms.filter(r => r.hasBooks);
+                    const spawnRoom = roomsWithBooks[Math.floor(Math.random() * roomsWithBooks.length)];
+                    startX = spawnRoom.x + 50 + Math.random() * (spawnRoom.w - 100);
+                    startY = spawnRoom.y + 50 + Math.random() * (spawnRoom.h - 100);
+                }
 
                 await playerRef.set({
                     name: name,
@@ -577,7 +610,7 @@
                 startGame();
                 
             } catch(error) {
-                showError('Ошибка');
+                showError('Ошибка подключения');
             }
         };
 
@@ -595,6 +628,15 @@
                 }
             }
             return null;
+        }
+
+        function isInCorridor(x, y) {
+            for(let cor of corridors) {
+                if(x >= cor.x && x <= cor.x + cor.w && y >= cor.y && y <= cor.y + cor.h) {
+                    return true;
+                }
+            }
+            return false;
         }
 
         function checkCollision(x, y) {
@@ -618,14 +660,14 @@
                     const distToDoor = Math.hypot(x - room.door.x, y - room.door.y);
                     if(distToDoor < 50) return false;
                     
-                    for(let cor of corridors) {
-                        if(x > cor.x && x < cor.x + cor.w && y > cor.y && y < cor.y + cor.h) {
-                            return false;
-                        }
-                    }
+                    if(isInCorridor(x, y)) return false;
+                    
                     return true;
                 }
             }
+            
+            if(isInCorridor(x, y)) return false;
+            
             return false;
         }
 
@@ -735,6 +777,7 @@
 
                     const newPos = tryMove(player.x, player.y, player.x + velocityX, player.y + velocityY);
                     
+                    // Baldi ловит учеников
                     if(playerRole === 'baldi') {
                         Object.entries(game.players).forEach(([id, p]) => {
                             if(p.role === 'student' && !p.caught && !p.escaped) {
@@ -829,7 +872,6 @@
             document.getElementById('overlay').style.display = 'none';
             
             if(currentQuestion) {
-                // Телепортируем книгу в другую комнату
                 const roomsWithBooks = rooms.filter(r => r.hasBooks);
                 const newRoom = roomsWithBooks[Math.floor(Math.random() * roomsWithBooks.length)];
                 const newX = newRoom.x + 60 + Math.random() * (newRoom.w - 120);
@@ -899,7 +941,6 @@
             const player = game.players[playerId];
             if(!player) return;
 
-            // Камера следует за игроком
             const offsetX = player.x - 200;
             const offsetY = player.y - 200;
 
@@ -913,11 +954,9 @@
                 document.getElementById('currentRoom').classList.add('visible');
             }
 
-            // Пол
             ctx.fillStyle = '#1a1a2e';
             ctx.fillRect(0, 0, 400, 400);
 
-            // Коридоры
             ctx.fillStyle = '#2a2a4a';
             corridors.forEach(c => {
                 const sx = c.x - offsetX;
@@ -927,12 +966,23 @@
                 }
             });
 
-            // Комнаты
+            ctx.fillStyle = '#4a4a8a';
+            walls.forEach(w => {
+                const sx = w.x - offsetX;
+                const sy = w.y - offsetY;
+                if(sx > -100 && sx < 500 && sy > -100 && sy < 500) {
+                    ctx.fillRect(sx, sy, w.w, w.h);
+                }
+            });
+
             rooms.forEach(r => {
                 const sx = r.x - offsetX;
                 const sy = r.y - offsetY;
                 
                 if(sx > -100 && sx < 500 && sy > -100 && sy < 500) {
+                    ctx.fillStyle = r.hasBooks ? '#4a4a6a' : '#3a3a5a';
+                    ctx.fillRect(sx, sy, r.w, r.h);
+                    
                     ctx.strokeStyle = '#8a8aaa';
                     ctx.lineWidth = 2;
                     ctx.strokeRect(sx, sy, r.w, r.h);
@@ -944,7 +994,6 @@
                 }
             });
 
-            // Книги
             if(game.books && currentRoom) {
                 Object.values(game.books).forEach(b => {
                     if(!b.collected && getCurrentRoom(b.x, b.y)?.name === currentRoom.name) {
@@ -961,7 +1010,18 @@
                 });
             }
 
-            // Другие игроки
+            if(game.exit && game.exit.active) {
+                const ex = game.exit.x - offsetX;
+                const ey = game.exit.y - offsetY;
+                if(ex > 0 && ex < 400 && ey > 0 && ey < 400) {
+                    ctx.fillStyle = '#44ff44';
+                    ctx.fillRect(ex-10, ey-10, 20, 20);
+                    ctx.fillStyle = 'white';
+                    ctx.font = '16px Arial';
+                    ctx.fillText('🚪', ex-8, ey+5);
+                }
+            }
+
             Object.entries(game.players || {}).forEach(([id, p]) => {
                 if(id === playerId || p.escaped) return;
                 
@@ -990,11 +1050,18 @@
                         ctx.fillStyle = '#000';
                         ctx.font = '10px Arial';
                         ctx.fillText('🧑', px-5, py+2);
+                    } else {
+                        ctx.fillStyle = '#666';
+                        ctx.beginPath();
+                        ctx.arc(px, py, 7, 0, 2*Math.PI);
+                        ctx.fill();
+                        ctx.fillStyle = 'white';
+                        ctx.font = '10px Arial';
+                        ctx.fillText('💀', px-5, py+2);
                     }
                 }
             });
 
-            // Сам игрок
             ctx.shadowColor = playerRole === 'baldi' ? '#ff0000' : '#ffd700';
             ctx.shadowBlur = 20;
             ctx.fillStyle = playerRole === 'baldi' ? '#ff0000' : '#ffd700';
@@ -1006,7 +1073,6 @@
             ctx.font = '18px Arial';
             ctx.fillText(playerRole === 'baldi' ? '👨‍🏫' : '🧑', 188, 204);
 
-            // Компас
             if(player.y < 500) document.getElementById('compass').innerHTML = '⬆️ СЕВЕР';
             else if(player.y > 1500) document.getElementById('compass').innerHTML = '⬇️ ЮГ';
             else if(player.x < 500) document.getElementById('compass').innerHTML = '⬅️ ЗАПАД';
@@ -1041,7 +1107,8 @@
             if(catchTimerInterval) clearInterval(catchTimerInterval);
             catchTimerInterval = setInterval(() => {
                 const elapsed = (Date.now() - caughtStartTime) / 1000;
-                timerBar.style.width = Math.min((elapsed/8)*100, 100) + '%';
+                const percent = Math.min((elapsed/8)*100, 100);
+                timerBar.style.width = percent + '%';
                 
                 if(elapsed >= 8) {
                     clearInterval(catchTimerInterval);
